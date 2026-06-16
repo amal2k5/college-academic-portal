@@ -158,7 +158,7 @@ Base authentication table for all user types.
 | created_at | DateTime     | Auto                                           |
 | updated_at | DateTime     | Auto                                           |
 
-fb11a70 (Update architecture and database design)
+
 
 ---
 
@@ -311,7 +311,7 @@ fb11a70 (Update architecture and database design)
 | created_at | DateTime | Auto |
 
 > Attendance percentage is calculated at query time.
-> Formula: `(PRESENT count / total records) × 100`
+> Formula: (PRESENT count / total records) x 100
 
 ---
 
@@ -365,7 +365,64 @@ fb11a70 (Update architecture and database design)
 | created_at | DateTime | Auto |
 | updated_at | DateTime | Auto |
 
-> No `student_id` stored. Anonymity is preserved by default.
+> No student_id stored. Anonymity is preserved by default.
+
+---
+
+### 14. Fee
+
+| Field | Type | Constraints |
+|---|---|---|
+| id | Integer | Primary Key, Auto |
+| title | String | Not Null |
+| description | Text | Nullable |
+| fee_type | Enum | PTA / LAB / ASSOCIATION / DEPARTMENT_FUND / EVENT / TOUR / WORKSHOP / SEMINAR / CLUB / PLACEMENT / SPORTS / LIBRARY_FINE / BUS / HOSTEL / OTHER |
+| amount | Decimal | Not Null |
+| late_fee | Decimal | Nullable |
+| department_id | FK → Department | Not Null |
+| college_id | FK → College | Not Null |
+| semester | Integer | Nullable (null means all semesters) |
+| due_date | Date | Not Null |
+| is_active | Boolean | Default True |
+| created_by | FK → User | Not Null |
+| created_at | DateTime | Auto |
+| updated_at | DateTime | Auto |
+
+---
+
+### 15. FeePayment
+
+| Field | Type | Constraints |
+|---|---|---|
+| id | Integer | Primary Key, Auto |
+| fee_id | FK → Fee | Not Null |
+| student_id | FK → StudentProfile | Not Null |
+| amount_paid | Decimal | Not Null |
+| late_fee_applied | Boolean | Default False |
+| razorpay_order_id | String | Unique, Not Null |
+| razorpay_payment_id | String | Nullable, filled after success |
+| razorpay_signature | String | Nullable, filled after success |
+| payment_mode | Enum | UPI / CARD / NETBANKING / WALLET, Nullable |
+| receipt_number | String | Unique, Auto-generated |
+| status | Enum | PENDING / SUCCESS / FAILED / REFUNDED |
+| paid_at | DateTime | Nullable |
+| created_at | DateTime | Auto |
+| updated_at | DateTime | Auto |
+
+> Receipt number format: RCPT-{YEAR}-{AUTO_INCREMENT}
+> Example: RCPT-2026-00142
+
+---
+
+### 16. FeeReminder
+
+| Field | Type | Constraints |
+|---|---|---|
+| id | Integer | Primary Key, Auto |
+| fee_id | FK → Fee | Not Null |
+| sent_by | FK → User | Not Null |
+| sent_at | DateTime | Auto |
+| note | Text | Nullable |
 
 ---
 
@@ -378,11 +435,14 @@ College
           ├── StudentProfile → User (first_name, last_name, email)
           │      ├── Mark → Subject
           │      ├── Attendance → Subject
-          │      └── Document
+          │      ├── Document
+          │      └── FeePayment → Fee
           ├── Subject
           │      └── Assignment
           ├── Notice
           ├── ExamSchedule → Subject
+          ├── Fee
+          │      └── FeeReminder
           └── Complaint
 =======
 Created manually during deployment.
@@ -405,6 +465,7 @@ Creates Platform Admin
 | Week 2 | StudentProfile, Subject |
 | Week 3 | Notice, Assignment |
 | Week 4 | Mark, Attendance |
+<<<<<<< HEAD
 | Week 5 | Complaint, Document, ExamSchedule |
 =======
 ```text
@@ -417,11 +478,15 @@ Creates College Admin
 Email Setup Link Sent
 ```
 >>>>>>> fb11a70 (Update architecture and database design)
+=======
+| Week 5 | Complaint, Document, ExamSchedule, Fee, FeePayment, FeeReminder |
+>>>>>>> amal-feature
 
 ---
 
 ### HOD
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 - Use `AbstractUser` as base for the User model to get `first_name`, `last_name`, and Django auth for free.
 - `full_name` can be a property: `return f"{self.first_name} {self.last_name}"`
@@ -507,3 +572,13 @@ Platform Admin
 | Week 4 | Mark, Attendance                                                |
 | Week 5 | Complaint, Document, ExamSchedule, Fee, FeePayment, FeeReminder |
 >>>>>>> fb11a70 (Update architecture and database design)
+=======
+- Use AbstractUser as base for the User model to get first_name, last_name, and Django auth for free.
+- full_name can be a property: return f"{self.first_name} {self.last_name}"
+- college_id on User avoids joins when doing permission checks.
+- All soft deletes use is_active flag, not actual deletion.
+- Attendance percentage is never stored, always calculated.
+- Complaint has no student reference — anonymous by design.
+- FeePayment receipt number is auto-generated on payment success.
+- Razorpay signature must be verified using HMAC SHA256 before marking any payment as SUCCESS.
+>>>>>>> amal-feature
