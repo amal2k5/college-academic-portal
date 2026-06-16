@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'accounts',
+    'colleges',
+    'departments'
 ]
 
 MIDDLEWARE = [
@@ -80,7 +82,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "college_portal",
         "USER": "postgres",
-        "PASSWORD": "postgres123",
+        "PASSWORD": "postgres1234",
         "HOST": "localhost",
         "PORT": "5432",
     }
