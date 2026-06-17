@@ -8,10 +8,18 @@ import Departments from "../pages/admin/Departments";
 import HODs from "../pages/admin/HODs";
 import Students from "../pages/admin/Students";
 
+import ProtectedRoute from "./ProtectedRoute";
+
 function AdminRoutes() {
   return (
     <Routes>
-      <Route element={<AdminLayout />}>
+      <Route
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/admin/colleges" element={<Colleges />} />
         <Route path="/admin/departments" element={<Departments />} />
