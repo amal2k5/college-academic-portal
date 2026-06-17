@@ -56,6 +56,9 @@ class User(AbstractUser):
         return self.email
 
 
+from colleges.models import College
+
+
 class CollegeAdminProfile(models.Model):
 
     user = models.OneToOneField(
@@ -63,8 +66,16 @@ class CollegeAdminProfile(models.Model):
         on_delete=models.CASCADE
     )
 
+    college = models.OneToOneField(
+    College,
+    on_delete=models.CASCADE,
+    null=True,
+    blank=True
+)
+
     phone = models.CharField(
-        max_length=15
+        max_length=15,
+        blank=True
     )
 
     joined_at = models.DateTimeField(

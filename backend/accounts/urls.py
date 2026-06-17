@@ -1,12 +1,13 @@
 from django.urls import path
 
-from rest_framework_simplejwt.views import ( # type: ignore
+from rest_framework_simplejwt.views import (  # type: ignore
     TokenRefreshView,
 )
 
 from .views import (
     LoginView,
     LogoutView,
+    CollegeAdminCreateView,
 )
 
 urlpatterns = [
@@ -27,5 +28,11 @@ urlpatterns = [
         "logout/",
         LogoutView.as_view(),
         name="logout"
+    ),
+
+    path(
+        "college-admin/create/",
+        CollegeAdminCreateView.as_view(),
+        name="create_college_admin"
     ),
 ]

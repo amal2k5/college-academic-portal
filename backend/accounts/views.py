@@ -6,7 +6,16 @@ from rest_framework.views import APIView  # type: ignore
 
 from rest_framework_simplejwt.tokens import RefreshToken  # type: ignore
 
-from .serializers import LoginSerializer
+from .serializers import (
+    LoginSerializer,
+    CollegeAdminCreateSerializer,
+)
+
+from .services import (
+    create_college_admin,
+    generate_setup_token,
+    send_setup_email,
+)
 
 
 class LoginView(APIView):
@@ -103,3 +112,64 @@ class LogoutView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class CollegeAdminCreateView(
+    APIView
+):
+
+    def post(
+        self,
+        request
+    ):
+
+        serializer = (
+            CollegeAdminCreateSerializer(
+                data=request.data
+            )
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        user = create_college_admin(
+            first_name=serializer.validated_data[
+                "first_name"
+            ],
+            last_name=serializer.validated_data[
+                "last_name"
+            ],
+            email=serializer.validated_data[
+                "email"
+            ],
+            college_id=serializer.validated_data[
+                "college_id"
+            ],
+        )
+
+        token = generate_setup_token(
+            user
+        )
+
+        send_setup_email(
+            user,
+            token
+        )
+
+        return Response(
+            {
+                "message":
+                "College Admin created successfully",
+
+                "email":
+                user.email,
+
+                "role":
+                user.role,
+
+                "setup_token":
+                str(token.token),
+            },
+            status=status.HTTP_201_CREATED,
+        )
