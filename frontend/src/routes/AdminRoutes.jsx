@@ -1,19 +1,24 @@
 import { Routes, Route } from "react-router-dom";
-
 import AdminLayout from "../layouts/AdminLayout";
-
 import Dashboard from "../pages/admin/Dashboard";
-import Colleges from "../pages/admin/Colleges";
-import Departments from "../pages/admin/Departments";
+import Departments from "../pages/admin/department/Departments";
 import HODs from "../pages/admin/HODs";
 import Students from "../pages/admin/Students";
+import ProtectedRoute from "./ProtectedRoute";
+import CollegeManagement from "../pages/college/CollegeManagement";
 
 function AdminRoutes() {
   return (
     <Routes>
-      <Route element={<AdminLayout />}>
+      <Route
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/admin" element={<Dashboard />} />
-        <Route path="/admin/colleges" element={<Colleges />} />
+        <Route path="/admin/colleges" element={<CollegeManagement />} />
         <Route path="/admin/departments" element={<Departments />} />
         <Route path="/admin/hods" element={<HODs />} />
         <Route path="/admin/students" element={<Students />} />
