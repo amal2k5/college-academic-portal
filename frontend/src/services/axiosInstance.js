@@ -17,11 +17,7 @@ axiosInstance.interceptors.request.use(
 
     return config;
   },
-<<<<<<< HEAD
-  Promise.reject
-=======
   (error) => Promise.reject(error)
->>>>>>> develop
 );
 
 export default axiosInstance;
