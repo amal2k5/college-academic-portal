@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 import { AuthContext } from "../../../context/AuthContext";
 import { login } from "../../../services/authService";
@@ -11,15 +11,20 @@ function Login() {
   const { loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("access");
+  const role = localStorage.getItem("role");
+
+  if (token && role) {
+    if (role === "PLATFORM_ADMIN") return <Navigate to="/admin" replace />;
+    if (role === "COLLEGE_ADMIN") return <Navigate to="/college-admin" replace />;
+    if (role === "HOD") return <Navigate to="/hod" replace />;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const data = await login(email, password);
-
-      localStorage.setItem("access", data.access);
-
-      navigate("/admin");
 
       loginUser(data);
 
