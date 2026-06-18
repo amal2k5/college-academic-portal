@@ -4,7 +4,7 @@ import Dashboard from "../pages/admin/Dashboard";
 import Departments from "../pages/admin/department/Departments";
 import HODs from "../pages/admin/HODs";
 import Students from "../pages/admin/Students";
-import ProtectedRoute from "./ProtectedRoute";
+// import ProtectedRoute from "./ProtectedRoute";
 import CollegeManagement from "../pages/college/CollegeManagement";
 
 function AdminRoutes() {
@@ -12,9 +12,9 @@ function AdminRoutes() {
     <Routes>
       <Route
         element={
-          <ProtectedRoute>
+         
             <AdminLayout />
-          </ProtectedRoute>
+         
         }
       >
         <Route path="/admin" element={<Dashboard />} />
