@@ -134,10 +134,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-<<<<<<< HEAD
-=======
 }
-
 
 # CORS
 
@@ -145,19 +142,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-# Optional for development only
 CORS_ALLOW_CREDENTIALS = True
-
 
 # DEFAULT PRIMARY KEY
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
->>>>>>> d1bf620 (Completed college and department CRUD frontend integration)
 }
