@@ -2,8 +2,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from .managers import UserManager
+from colleges.models import College
 
 import uuid
+
 
 class User(AbstractUser):
 
@@ -48,6 +50,7 @@ class User(AbstractUser):
     )
 
     USERNAME_FIELD = "email"
+
     REQUIRED_FIELDS = []
 
     objects = UserManager()
@@ -63,8 +66,16 @@ class CollegeAdminProfile(models.Model):
         on_delete=models.CASCADE
     )
 
+    college = models.OneToOneField(
+        College,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
     phone = models.CharField(
-        max_length=15
+        max_length=15,
+        blank=True
     )
 
     joined_at = models.DateTimeField(
@@ -75,10 +86,18 @@ class CollegeAdminProfile(models.Model):
         return self.user.email
 
 
+from departments.models import Department
+
+
 class HODProfile(models.Model):
 
     user = models.OneToOneField(
         User,
+        on_delete=models.CASCADE
+    )
+
+    department = models.OneToOneField(
+        Department,
         on_delete=models.CASCADE
     )
 
@@ -103,14 +122,19 @@ class AccountSetupToken(models.Model):
 
     token = models.UUIDField(
         default=uuid.uuid4,
-        unique=True
+        unique=True,
+        editable=False
     )
 
-    used = models.BooleanField(
+    is_used = models.BooleanField(
         default=False
     )
 
     expires_at = models.DateTimeField()
 
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
     def __str__(self):
-        return str(self.token)
+        return f"{self.user.email} - {self.token}"
