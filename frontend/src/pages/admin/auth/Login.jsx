@@ -25,6 +25,10 @@ function Login() {
 
       if (data.role === "PLATFORM_ADMIN") {
         navigate("/admin");
+      } else if (data.role === "COLLEGE_ADMIN") {
+        navigate("/college-admin");
+      } else if (data.role === "HOD") {
+        navigate("/hod");
       }
     } catch (error) {
       console.log(error);
@@ -38,7 +42,6 @@ function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-xl shadow-slate-100 border border-slate-200/60">
-        
         {/* Header Block */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
@@ -54,7 +57,10 @@ function Login() {
           <div className="space-y-4">
             {/* Email Field */}
             <div>
-              <label htmlFor="email-address" className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <label
+                htmlFor="email-address"
+                className="block text-sm font-semibold text-slate-700 mb-1.5"
+              >
                 Email Address
               </label>
               <input
@@ -71,7 +77,10 @@ function Login() {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-slate-700 mb-1.5"
+              >
                 Password
               </label>
               <input
@@ -97,7 +106,6 @@ function Login() {
             </button>
           </div>
         </form>
-
       </div>
     </div>
   );

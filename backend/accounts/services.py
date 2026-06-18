@@ -5,9 +5,11 @@ from django.core.mail import send_mail
 from django.utils import timezone
 
 from colleges.models import College
+from departments.models import Department
 
 from .models import (
     CollegeAdminProfile,
+    HODProfile,
     AccountSetupToken,
 )
 
@@ -25,7 +27,7 @@ def create_college_admin(
         id=college_id
     )
 
-    user = User.objects.create(
+    user = User.objects.create_user(
         email=email,
         first_name=first_name,
         last_name=last_name,
@@ -60,19 +62,22 @@ def send_setup_email(
     token
 ):
 
+    print("EMAIL FUNCTION CALLED")
+
     setup_link = (
         f"http://localhost:5173/setup-password/{token.token}"
     )
 
-    send_mail(
+    print(setup_link)
+
+    result=send_mail(
         subject="Setup Your College Portal Account",
 
         message=(
             f"Hello {user.first_name},\n\n"
-            f"Your College Admin account has been created.\n\n"
+            f"Your account has been created.\n\n"
             f"Click the link below to set your password:\n\n"
-            f"{setup_link}\n\n"
-            f"This link expires in 24 hours."
+            f"{setup_link}"
         ),
 
         from_email=None,
@@ -83,3 +88,89 @@ def send_setup_email(
 
         fail_silently=False,
     )
+    print("SEND RESULT =", result)
+
+    print("EMAIL SENT SUCCESSFULLY")
+    
+
+def setup_password(
+    token_value,
+    password
+):
+
+    try:
+
+        token = AccountSetupToken.objects.get(
+            token=token_value
+        )
+
+    except AccountSetupToken.DoesNotExist:
+
+        raise ValueError(
+            "Invalid setup token."
+        )
+
+    if token.is_used:
+
+        raise ValueError(
+            "Setup token already used."
+        )
+
+    if timezone.now() > token.expires_at:
+
+        raise ValueError(
+            "Setup token has expired."
+        )
+
+    user = token.user
+
+    user.set_password(
+        password
+    )
+
+    user.is_active = True
+
+    user.save()
+
+    token.is_used = True
+
+    token.save()
+
+    return user
+
+
+def create_hod(
+    first_name,
+    last_name,
+    email,
+    phone,
+    department_id
+):
+
+    department = Department.objects.get(
+        id=department_id
+    )
+
+    if HODProfile.objects.filter(
+        department=department
+    ).exists():
+
+        raise ValueError(
+            "Department already has a HOD."
+        )
+
+    user = User.objects.create_user(
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        role=User.Role.HOD,
+        is_active=False,
+    )
+
+    HODProfile.objects.create(
+        user=user,
+        department=department,
+        phone=phone,
+    )
+
+    return user

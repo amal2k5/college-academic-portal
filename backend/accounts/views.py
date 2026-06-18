@@ -1,21 +1,49 @@
 from django.contrib.auth import authenticate
 
-from rest_framework import status  # type: ignore
-from rest_framework.response import Response  # type: ignore
-from rest_framework.views import APIView  # type: ignore
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from rest_framework_simplejwt.tokens import RefreshToken  # type: ignore
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
     LoginSerializer,
     CollegeAdminCreateSerializer,
+    SetupPasswordSerializer,
 )
 
 from .services import (
     create_college_admin,
     generate_setup_token,
     send_setup_email,
+    setup_password,
 )
+from rest_framework.permissions import IsAuthenticated
+
+from .permissions import (
+    IsCollegeAdmin,
+)
+
+from .serializers import (
+    LoginSerializer,
+    CollegeAdminCreateSerializer,
+    SetupPasswordSerializer,
+    HODCreateSerializer,
+)
+
+from .services import (
+    create_college_admin,
+    generate_setup_token,
+    send_setup_email,
+    setup_password,
+    create_hod,
+)
+
+from .models import (
+    CollegeAdminProfile,
+)
+
+from departments.models import Department
 
 
 class LoginView(APIView):
@@ -62,17 +90,12 @@ class LoginView(APIView):
                 "access": str(
                     refresh.access_token
                 ),
-
                 "refresh": str(
                     refresh
                 ),
-
                 "email": user.email,
-
                 "first_name": user.first_name,
-
                 "last_name": user.last_name,
-
                 "role": user.role,
             },
             status=status.HTTP_200_OK
@@ -161,6 +184,158 @@ class CollegeAdminCreateView(
             {
                 "message":
                 "College Admin created successfully",
+
+                "email":
+                user.email,
+
+                "role":
+                user.role,
+
+                "setup_token":
+                str(token.token),
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class SetupPasswordView(
+    APIView
+):
+
+    def post(
+        self,
+        request
+    ):
+
+        serializer = (
+            SetupPasswordSerializer(
+                data=request.data
+            )
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        try:
+
+            setup_password(
+                serializer.validated_data[
+                    "token"
+                ],
+                serializer.validated_data[
+                    "password"
+                ]
+            )
+
+        except ValueError as e:
+
+            return Response(
+                {
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response(
+            {
+                "message":
+                "Password set successfully"
+            },
+            status=status.HTTP_200_OK
+        )
+class HODCreateView(
+    APIView
+):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsCollegeAdmin,
+    ]
+
+    def post(
+        self,
+        request
+    ):
+
+        serializer = (
+            HODCreateSerializer(
+                data=request.data
+            )
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        college_admin_profile = (
+            CollegeAdminProfile.objects.get(
+                user=request.user
+            )
+        )
+
+        department = Department.objects.get(
+            id=serializer.validated_data[
+                "department_id"
+            ]
+        )
+
+        if (
+            department.college
+            !=
+            college_admin_profile.college
+        ):
+
+            return Response(
+                {
+                    "message":
+                    "You can only create HODs for your own college."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+
+            user = create_hod(
+                first_name=serializer.validated_data[
+                    "first_name"
+                ],
+                last_name=serializer.validated_data[
+                    "last_name"
+                ],
+                email=serializer.validated_data[
+                    "email"
+                ],
+                phone=serializer.validated_data[
+                    "phone"
+                ],
+                department_id=serializer.validated_data[
+                    "department_id"
+                ],
+            )
+
+        except ValueError as e:
+
+            return Response(
+                {
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        token = generate_setup_token(
+            user
+        )
+
+        send_setup_email(
+            user,
+            token
+        )
+
+        return Response(
+            {
+                "message":
+                "HOD created successfully",
 
                 "email":
                 user.email,

@@ -8,6 +8,8 @@ from .views import (
     LoginView,
     LogoutView,
     CollegeAdminCreateView,
+    SetupPasswordView,
+    HODCreateView,
 )
 
 urlpatterns = [
@@ -34,5 +36,17 @@ urlpatterns = [
         "college-admin/create/",
         CollegeAdminCreateView.as_view(),
         name="create_college_admin"
+    ),
+
+    path(
+        "setup-password/",
+        SetupPasswordView.as_view(),
+        name="setup_password"
+    ),
+
+    path(
+        "hod/create/",
+        HODCreateView.as_view(),
+        name="create_hod"
     ),
 ]
