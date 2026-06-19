@@ -7,7 +7,8 @@ import {
   updateCollege,
   deleteCollege,
 } from "../../services/collegeService";
-import CollegeForm from "../../components/colleges/CollegeForm";
+import CollegeAdminForm from "../../components/collegeAdmins/CollegeAdminForm";
+
 
 function Colleges() {
   const [colleges, setColleges] = useState([]);
@@ -106,7 +107,7 @@ const handleDeleteCollege = async () => {
       />
 
       {showForm && (
-        <CollegeForm
+        <CollegeAdminForm
           initialData={selectedCollege}
           onSubmit={selectedCollege ? handleUpdateCollege : handleCreateCollege}
           onClose={() => {

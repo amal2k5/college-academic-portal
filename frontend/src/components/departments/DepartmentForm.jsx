@@ -64,28 +64,9 @@ function DepartmentForm({
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              College
-            </label>
+ 
 
-            <select
-              name="college"
-              value={formData.college}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-slate-500"
-              required
-            >
-              <option value="">Select College</option>
 
-              {colleges.map((college) => (
-                <option
-                  key={college.id}
-                  value={college.id}
-                >
-                  {college.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div className="flex items-center gap-2">

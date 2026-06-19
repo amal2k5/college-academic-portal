@@ -7,6 +7,16 @@ export const getDepartments = async () => {
   return data;
 };
 
+export const getMyDepartments =
+  async () => {
+    const { data } =
+      await axiosInstance.get(
+        "/departments/my-departments/"
+      );
+
+    return data;
+  };
+
 export const createDepartment = async (departmentData) => {
   const { data } = await axiosInstance.post(
     DEPARTMENT_URL,

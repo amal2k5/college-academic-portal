@@ -175,9 +175,25 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 from datetime import timedelta
 
+from datetime import timedelta
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    # ── Lifetimes ────────────────────────────────────────────────────────────
+    "ACCESS_TOKEN_LIFETIME":  timedelta(minutes=15),  # was 1hr — too long for access token
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+
+    # ── These two are what you're missing ────────────────────────────────────
+    "ROTATE_REFRESH_TOKENS":   True,   # every refresh call issues a NEW refresh token
+    "BLACKLIST_AFTER_ROTATION": True,  # old refresh token is immediately invalidated
+
+    # ── Recommended hardening ────────────────────────────────────────────────
+    "UPDATE_LAST_LOGIN": True,         # updates User.last_login on each token refresh
+
+    # ── Leave these as defaults unless you changed them ───────────────────────
+    "ALGORITHM": "HS256",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
 }
 
 # Optional for development only

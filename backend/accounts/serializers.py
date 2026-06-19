@@ -146,3 +146,42 @@ class HODCreateSerializer(
             )
 
         return value
+    
+    
+class HODListSerializer(serializers.ModelSerializer):
+
+    department = serializers.CharField(
+        source="hodprofile.department.name"
+    )
+
+    class Meta:
+        model = User
+
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "department",
+        ]    
+        
+        
+class CollegeAdminListSerializer(
+    serializers.ModelSerializer
+):
+
+    college = serializers.CharField(
+        source="collegeadminprofile.college.name"
+    )
+
+    class Meta:
+        model = User
+
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "college",
+            "is_active",
+        ]        

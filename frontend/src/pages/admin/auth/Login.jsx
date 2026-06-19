@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 import { AuthContext } from "../../../context/AuthContext";
 import { login } from "../../../services/authService";
@@ -11,26 +11,29 @@ function Login() {
   const { loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // ── Already logged in → redirect to their dashboard ──────────────────────
+  const token = localStorage.getItem("access");
+  const role  = localStorage.getItem("role");
+
+  if (token) {
+    if (role === "PLATFORM_ADMIN") return <Navigate to="/admin" replace />;
+    if (role === "COLLEGE_ADMIN")  return <Navigate to="/college-admin" replace />;
+    if (role === "HOD")            return <Navigate to="/hod" replace />;
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const data = await login(email, password);
-
       loginUser(data);
 
-      if (data.role === "PLATFORM_ADMIN") {
-        navigate("/admin");
-      } else if (data.role === "COLLEGE_ADMIN") {
-        navigate("/college-admin");
-      } else if (data.role === "HOD") {
-        navigate("/hod");
-      }
+      if (data.role === "PLATFORM_ADMIN")     navigate("/admin", { replace: true });
+      else if (data.role === "COLLEGE_ADMIN") navigate("/college-admin", { replace: true });
+      else if (data.role === "HOD")           navigate("/hod", { replace: true });
     } catch (error) {
-      console.log(error);
-      console.log(error.response);
       console.log(error.response?.data);
-
       alert("Error occurred");
     }
   };

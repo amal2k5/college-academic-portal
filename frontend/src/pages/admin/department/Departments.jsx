@@ -3,8 +3,6 @@ import DepartmentTable from "../../../components/departments/DepartmentTable";
 import DepartmentForm from "../../../components/departments/DepartmentForm";
 import PageHeader from "../../../components/common/PageHeader";
 
-import { getColleges } from "../../../services/collegeService";
-
 import {
   getDepartments,
   createDepartment,
@@ -14,7 +12,6 @@ import {
 
 function Departments() {
   const [departments, setDepartments] = useState([]);
-  const [colleges, setColleges] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,7 +24,6 @@ function Departments() {
 
   useEffect(() => {
     fetchDepartments();
-    fetchColleges();
   }, []);
 
   const fetchDepartments = async () => {
@@ -45,15 +41,7 @@ function Departments() {
     }
   };
 
-  const fetchColleges = async () => {
-    try {
-      const data = await getColleges();
 
-      setColleges(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleCreateDepartment = async (formData) => {
     try {
@@ -137,7 +125,7 @@ function Departments() {
 
       {showForm && (
         <DepartmentForm
-          colleges={colleges}
+      
           initialData={selectedDepartment}
           onSubmit={
             selectedDepartment
