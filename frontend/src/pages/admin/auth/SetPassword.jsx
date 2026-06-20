@@ -5,6 +5,7 @@ import axios from "axios";
 
 function SetupPassword() {
   const { token } = useParams();
+  console.log("TOKEN FROM URL:", token);
 
   const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ await axios.post(
 
       navigate("/login");
     } catch (error) {
-      console.log(error);
+       console.log("FULL ERROR:", error.response?.data);
 
       alert(
         error.response?.data?.message ||

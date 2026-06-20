@@ -44,18 +44,18 @@ def create_college_admin(
     return user
 
 
-def generate_setup_token(
-    user
-):
+def generate_setup_token(user):
+
+    AccountSetupToken.objects.filter(
+        user=user
+    ).delete()
 
     token = AccountSetupToken.objects.create(
         user=user,
-        expires_at=timezone.now()
-        + timedelta(hours=24)
+        expires_at=timezone.now() + timedelta(hours=24)
     )
 
     return token
-
 
 def send_setup_email(
     user,

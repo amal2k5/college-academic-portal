@@ -14,10 +14,18 @@ function Login() {
   const token = localStorage.getItem("access");
   const role = localStorage.getItem("role");
 
-  if (token && role) {
-    if (role === "PLATFORM_ADMIN") return <Navigate to="/admin" replace />;
-    if (role === "COLLEGE_ADMIN") return <Navigate to="/college-admin" replace />;
-    if (role === "HOD") return <Navigate to="/hod" replace />;
+  if (token) {
+    if (role === "PLATFORM_ADMIN") {
+      return <Navigate to="/admin" replace />;
+    }
+
+    if (role === "COLLEGE_ADMIN") {
+      return <Navigate to="/college-admin" replace />;
+    }
+
+    if (role === "HOD") {
+      return <Navigate to="/hod" replace />;
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -29,17 +37,14 @@ function Login() {
       loginUser(data);
 
       if (data.role === "PLATFORM_ADMIN") {
-        navigate("/admin");
+        navigate("/admin", { replace: true });
       } else if (data.role === "COLLEGE_ADMIN") {
-        navigate("/college-admin");
+        navigate("/college-admin", { replace: true });
       } else if (data.role === "HOD") {
-        navigate("/hod");
+        navigate("/hod", { replace: true });
       }
     } catch (error) {
-      console.log(error);
-      console.log(error.response);
       console.log(error.response?.data);
-
       alert("Error occurred");
     }
   };
@@ -47,7 +52,6 @@ function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-xl shadow-slate-100 border border-slate-200/60">
-        {/* Header Block */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
             Welcome back
@@ -57,10 +61,8 @@ function Login() {
           </p>
         </div>
 
-        {/* Form Block */}
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Email Field */}
             <div>
               <label
                 htmlFor="email-address"
@@ -68,6 +70,7 @@ function Login() {
               >
                 Email Address
               </label>
+
               <input
                 id="email-address"
                 name="email"
@@ -80,7 +83,6 @@ function Login() {
               />
             </div>
 
-            {/* Password Field */}
             <div>
               <label
                 htmlFor="password"
@@ -88,6 +90,7 @@ function Login() {
               >
                 Password
               </label>
+
               <input
                 id="password"
                 name="password"
@@ -101,7 +104,6 @@ function Login() {
             </div>
           </div>
 
-          {/* Action Button */}
           <div className="pt-2">
             <button
               type="submit"
