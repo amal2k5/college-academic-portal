@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'accounts',
     'colleges',
     'departments',
+    'students',
 ]
 
 

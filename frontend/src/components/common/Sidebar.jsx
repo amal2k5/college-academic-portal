@@ -6,32 +6,36 @@ import { ROUTES } from "../../utils/constants";
 
 function Sidebar() {
   const [showConfirm, setShowConfirm] = useState(false);
+
   const { logoutUser } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
-const navItems = [
-  {
-    name: "Dashboard",
-    path: ROUTES.DASHBOARD,
-  },
-  {
-    name: "Colleges",
-    path: ROUTES.COLLEGES,
-  },
-  {
-    name: "College Admins",
-    path: "/admin/college-admins",
-  },
-];
+  const navItems = [
+    {
+      name: "Dashboard",
+      path: ROUTES.DASHBOARD,
+    },
+    {
+      name: "Colleges",
+      path: ROUTES.COLLEGES,
+    },
+    {
+      name: "College Admins",
+      path: "/admin/college-admins",
+    },
+  ];
 
   const handleLogout = async () => {
     await logoutUser();
-    navigate("/login", { replace: true });  // replace so back-button can't return
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
   return (
     <>
-      {/* ── Logout Confirmation Popup ──────────────────────────────────────── */}
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-80">
@@ -63,18 +67,24 @@ const navItems = [
       )}
 
       <aside className="w-64 min-h-screen bg-[#1a2a3a] text-white flex flex-col">
-        {/* Header */}
         <div className="px-5 py-6 border-b border-white/10">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-7 h-7 bg-white/10 rounded flex items-center justify-center">
-              <span className="text-white text-xs font-medium">AP</span>
+              <span className="text-white text-xs font-medium">
+                AP
+              </span>
             </div>
-            <h2 className="font-semibold text-base tracking-tight">Academic Portal</h2>
+
+            <h2 className="font-semibold text-base tracking-tight">
+              Academic Portal
+            </h2>
           </div>
-          <p className="text-[11px] text-white/50 tracking-wide">Super Admin</p>
+
+          <p className="text-[11px] text-white/50 tracking-wide">
+            Super Admin
+          </p>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 px-3 py-5">
           {navItems.map((item) => (
             <NavLink
@@ -93,7 +103,6 @@ const navItems = [
           ))}
         </nav>
 
-        {/* Logout button → opens popup */}
         <div className="p-4 border-t border-white/10">
           <button
             onClick={() => setShowConfirm(true)}
