@@ -1,7 +1,3 @@
-"""
-Django settings for core project.
-"""
-
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -178,28 +174,25 @@ from datetime import timedelta
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    # ── Lifetimes ────────────────────────────────────────────────────────────
-    "ACCESS_TOKEN_LIFETIME":  timedelta(minutes=15),  # was 1hr — too long for access token
+   
+    "ACCESS_TOKEN_LIFETIME":  timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 
-    # ── These two are what you're missing ────────────────────────────────────
-    "ROTATE_REFRESH_TOKENS":   True,   # every refresh call issues a NEW refresh token
-    "BLACKLIST_AFTER_ROTATION": True,  # old refresh token is immediately invalidated
 
-    # ── Recommended hardening ────────────────────────────────────────────────
-    "UPDATE_LAST_LOGIN": True,         # updates User.last_login on each token refresh
+    "ROTATE_REFRESH_TOKENS":   True,  
+    "BLACKLIST_AFTER_ROTATION": True, 
 
-    # ── Leave these as defaults unless you changed them ───────────────────────
+
+    "UPDATE_LAST_LOGIN": True,         
+
     "ALGORITHM": "HS256",
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
 }
 
-# Optional for development only
+
 CORS_ALLOW_CREDENTIALS = True
 
-
-# DEFAULT PRIMARY KEY
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
