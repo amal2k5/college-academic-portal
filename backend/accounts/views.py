@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from .serializers import *
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -348,3 +349,68 @@ class HODCreateView(
             },
             status=status.HTTP_201_CREATED,
         )
+        
+        
+class HODListView(APIView):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsCollegeAdmin,
+    ]
+
+    def get(self, request):
+
+        college = (
+            CollegeAdminProfile.objects.get(
+                user=request.user
+            ).college
+        )
+
+        hods = User.objects.filter(
+            role=User.Role.HOD,
+            hodprofile__department__college=college
+        )
+
+        serializer = HODListSerializer(
+            hods,
+            many=True
+        )
+
+        return Response(serializer.data)    
+    
+    
+class CollegeAdminListView(
+    APIView
+):
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def get(
+        self,
+        request
+    ):
+
+        college_admins = (
+            User.objects.filter(
+                role=User.Role.COLLEGE_ADMIN
+            )
+            .select_related(
+                "collegeadminprofile__college"
+            )
+            .order_by(
+                "first_name"
+            )
+        )
+
+        serializer = (
+            CollegeAdminListSerializer(
+                college_admins,
+                many=True
+            )
+        )
+
+        return Response(
+            serializer.data
+        )        

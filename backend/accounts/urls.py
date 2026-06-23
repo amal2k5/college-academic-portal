@@ -10,6 +10,8 @@ from .views import (
     CollegeAdminCreateView,
     SetupPasswordView,
     HODCreateView,
+    HODListView,
+    CollegeAdminListView
 )
 
 urlpatterns = [
@@ -49,4 +51,15 @@ urlpatterns = [
         HODCreateView.as_view(),
         name="create_hod"
     ),
+    
+    path(
+    "hods/",
+    HODListView.as_view()
+),
+    
+    path(
+    "college-admins/",
+    CollegeAdminListView.as_view(),
+    name="college_admin_list"
+),
 ]
