@@ -73,7 +73,8 @@ class StudentListView(APIView):
             department=request.user.hodprofile.department
         ).select_related(
             "user",
-            "department"
+            "department",
+            "department__college"
         )
 
         search = request.GET.get("search")
@@ -142,7 +143,8 @@ class StudentDetailView(APIView):
 
             student = Student.objects.select_related(
                 "user",
-                "department"
+                "department",
+                "department__college"
             ).get(
                 id=pk,
                 department=request.user.hodprofile.department
@@ -285,7 +287,8 @@ class StudentProfileView(APIView):
 
             student = Student.objects.select_related(
                 "user",
-                "department"
+                "department",
+                "department__college"
             ).get(
                 user=request.user
             )
@@ -324,8 +327,10 @@ class HODDashboardStatsView(APIView):
         ).count()
 
         return Response(
-            {
-                "total_students": total_students,
-                "department": department.name,
-            }
+    {
+        "total_students": total_students,
+        "department_name": department.name,
+        "college_name": department.college.name,
+        "hod_name": f"{request.user.first_name} {request.user.last_name}".strip(),
+    }
         )
