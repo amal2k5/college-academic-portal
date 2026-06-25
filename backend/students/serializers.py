@@ -24,28 +24,43 @@ class StudentSerializer(serializers.ModelSerializer):
         source="department.name",
         read_only=True
     )
+    
+    hod_name = serializers.SerializerMethodField()
+
+    college_name = serializers.CharField(
+    source="department.college.name",
+    read_only=True
+)
+    
+    def get_hod_name(self, obj):
+        try:
+            hod = obj.department.hodprofile
+            return f"{hod.user.first_name} {hod.user.last_name}".strip()
+        except Exception:
+            return None
 
     class Meta:
         model = Student
-
         fields = [
-            "id",
-            "first_name",
-            "last_name",
-            "email",
-            "phone",
-            "date_of_birth",
-            "gender",
-            "parent_name",
-            "parent_phone",
-            "roll_number",
-            "admission_number",
-            "semester",
-            "academic_year",
-            "department_name",
-            "created_at",
-            "updated_at",
-        ]
+    "id",
+    "first_name",
+    "last_name",
+    "email",
+    "phone",
+    "date_of_birth",
+    "gender",
+    "parent_name",
+    "parent_phone",
+    "roll_number",
+    "admission_number",
+    "semester",
+    "academic_year",
+    "department_name",
+    "hod_name",
+    "college_name",
+    "created_at",
+    "updated_at",
+]
 
         read_only_fields = (
             "created_at",
