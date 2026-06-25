@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -9,12 +11,17 @@ from .serializers import (
     StudentCreateSerializer,
 )
 from .services import create_student
+from .permissions import (
+    IsHOD,
+    IsStudent,
+)
 
 
 class StudentCreateView(APIView):
 
     permission_classes = [
-        IsAuthenticated
+        IsAuthenticated,
+        IsHOD,
     ]
 
     def post(self, request):
@@ -32,17 +39,14 @@ class StudentCreateView(APIView):
             last_name=serializer.validated_data["last_name"],
             email=serializer.validated_data["email"],
             phone=serializer.validated_data["phone"],
-
             date_of_birth=serializer.validated_data["date_of_birth"],
             gender=serializer.validated_data["gender"],
             parent_name=serializer.validated_data["parent_name"],
             parent_phone=serializer.validated_data["parent_phone"],
-
             roll_number=serializer.validated_data["roll_number"],
             admission_number=serializer.validated_data["admission_number"],
             semester=serializer.validated_data["semester"],
             academic_year=serializer.validated_data["academic_year"],
-
             department=request.user.hodprofile.department,
         )
 
@@ -55,20 +59,12 @@ class StudentCreateView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
-from django.db.models import Q
-
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
-from .models import Student
-from .serializers import StudentSerializer
-
 
 class StudentListView(APIView):
 
     permission_classes = [
-        IsAuthenticated
+        IsAuthenticated,
+        IsHOD,
     ]
 
     def get(self, request):
@@ -80,10 +76,7 @@ class StudentListView(APIView):
             "department"
         )
 
-        # Search
-        search = request.GET.get(
-            "search"
-        )
+        search = request.GET.get("search")
 
         if search:
 
@@ -99,10 +92,7 @@ class StudentListView(APIView):
                 Q(admission_number__icontains=search)
             )
 
-        # Filter by semester
-        semester = request.GET.get(
-            "semester"
-        )
+        semester = request.GET.get("semester")
 
         if semester:
 
@@ -110,10 +100,7 @@ class StudentListView(APIView):
                 semester=semester
             )
 
-        # Filter by gender
-        gender = request.GET.get(
-            "gender"
-        )
+        gender = request.GET.get("gender")
 
         if gender:
 
@@ -137,21 +124,19 @@ class StudentListView(APIView):
         return Response(
             {
                 "count": students.count(),
-                "results": serializer.data
+                "results": serializer.data,
             }
         )
+
 
 class StudentDetailView(APIView):
 
     permission_classes = [
-        IsAuthenticated
+        IsAuthenticated,
+        IsHOD,
     ]
 
-    def get(
-        self,
-        request,
-        pk
-    ):
+    def get(self, request, pk):
 
         try:
 
@@ -184,8 +169,10 @@ class StudentDetailView(APIView):
 class StudentUpdateView(APIView):
 
     permission_classes = [
-        IsAuthenticated
+        IsAuthenticated,
+        IsHOD,
     ]
+
 
     def put(
         self,
@@ -193,6 +180,9 @@ class StudentUpdateView(APIView):
         pk
     ):
         print("REQUEST DATA:", request.data)
+
+    def put(self, request, pk):
+
 
         try:
 
@@ -242,8 +232,7 @@ class StudentUpdateView(APIView):
 
         return Response(
             {
-                "message":
-                "Student updated successfully"
+                "message": "Student updated successfully"
             }
         )
 
@@ -251,14 +240,11 @@ class StudentUpdateView(APIView):
 class StudentDeleteView(APIView):
 
     permission_classes = [
-        IsAuthenticated
+        IsAuthenticated,
+        IsHOD,
     ]
 
-    def delete(
-        self,
-        request,
-        pk
-    ):
+    def delete(self, request, pk):
 
         try:
 
@@ -280,8 +266,66 @@ class StudentDeleteView(APIView):
 
         return Response(
             {
-                "message":
-                "Student deleted successfully"
+                "message": "Student deleted successfully"
             },
             status=status.HTTP_200_OK
+        )
+
+
+class StudentProfileView(APIView):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsStudent,
+    ]
+
+    def get(self, request):
+
+        try:
+
+            student = Student.objects.select_related(
+                "user",
+                "department"
+            ).get(
+                user=request.user
+            )
+
+        except Student.DoesNotExist:
+
+            return Response(
+                {
+                    "message": "Student profile not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = StudentSerializer(
+            student
+        )
+
+        return Response(
+            serializer.data
+        )
+
+
+class HODDashboardStatsView(APIView):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsHOD,
+    ]
+
+    def get(self, request):
+
+        department = request.user.hodprofile.department
+
+        total_students = Student.objects.filter(
+            department=department
+        ).count()
+
+        return Response(
+            {
+                "total_students": total_students,
+                "department": department.name,
+            }
         )

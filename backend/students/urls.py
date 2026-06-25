@@ -6,6 +6,8 @@ from .views import (
     StudentDetailView,
     StudentUpdateView,
     StudentDeleteView,
+    StudentProfileView,
+    HODDashboardStatsView,
 )
 
 urlpatterns = [
@@ -39,4 +41,14 @@ urlpatterns = [
         StudentDeleteView.as_view(),
         name="student-delete"
     ),
+    path(
+    "profile/",
+    StudentProfileView.as_view(),
+    name="student-profile"
+),
+    path(
+    "dashboard/stats/",
+    HODDashboardStatsView.as_view(),
+    name="hod-dashboard-stats"
+),
 ]
