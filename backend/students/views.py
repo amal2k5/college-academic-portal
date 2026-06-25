@@ -120,6 +120,14 @@ class StudentListView(APIView):
             students = students.filter(
                 gender=gender
             )
+        
+        for s in students:
+            print(
+        "LIST:",
+        s.id,
+        s.phone,
+        s.gender
+    )    
 
         serializer = StudentSerializer(
             students,
@@ -184,6 +192,7 @@ class StudentUpdateView(APIView):
         request,
         pk
     ):
+        print("REQUEST DATA:", request.data)
 
         try:
 
@@ -225,8 +234,11 @@ class StudentUpdateView(APIView):
             "academic_year",
             student.academic_year
         )
-
+        print("BEFORE SAVE:", student.phone)
         student.save()
+        student.refresh_from_db()
+        print("DB VALUE:", student.phone)
+ 
 
         return Response(
             {

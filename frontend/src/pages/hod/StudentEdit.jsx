@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { ArrowLeft, RefreshCw } from "lucide-react";
-
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import StudentForm from "../../components/students/StudentForm";
-import { getStudentById } from "../../services/studentService";
+import { getStudentById, updateStudent } from "../../services/studentService";
 
 function StudentEdit() {
+  const navigate = useNavigate();
   const { id } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -17,47 +18,81 @@ function StudentEdit() {
     phone: "",
     roll_number: "",
     admission_number: "",
+    date_of_birth: "",
+    gender: "",
+    parent_name: "",
+    parent_phone: "",
+    semester: "",
+    academic_year: "",
   });
 
   useEffect(() => {
-    loadStudent();
-  }, [id]); 
-
-  const loadStudent = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const student = await getStudentById(id);
-
-      if (student) {
-        setFormData(student);
-      } else {
-        setError("The requested student record could not be found.");
+    const fetchStudent = async () => {
+      try {
+        const data = await getStudentById(id);
+        setFormData({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          roll_number: data.roll_number || "",
+          admission_number: data.admission_number || "",
+          date_of_birth: data.date_of_birth || "",
+          gender: data.gender || "",
+          parent_name: data.parent_name || "",
+          parent_phone: data.parent_phone || "",
+          semester: data.semester || "",
+          academic_year: data.academic_year || "",
+        });
+        setError(null);
+      } catch (err) {
+        setError("Failed to load student data");
+      } finally {
+        setFetchLoading(false);
       }
+    };
+    fetchStudent();
+  }, [id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const payload = {
+        ...formData,
+        semester: parseInt(formData.semester),
+        // ✅ Only editable fields are sent
+        // ❌ first_name, last_name, roll_number, admission_number are NOT sent
+      };
+      
+      await updateStudent(id, payload);
+      navigate("/hod/students");
     } catch (err) {
-      console.error("Failed to load student data:", err);
-      setError("An error occurred while fetching the profile record.");
-    } finally {
+      setError(err.response?.data?.message || "Failed to update student");
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Updated Student", formData);
-  };
+  if (fetchLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 lg:p-8 antialiased text-gray-900 font-sans">
-      
-      {/* Structural Navigation & Contextual Section Heading */}
       <div className="mb-8">
         <button
           type="button"
@@ -69,41 +104,29 @@ function StudentEdit() {
         </button>
 
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
-          Modify Student Profile
+          Edit Student Record
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Update the institutional registration indexes and metadata for Record ID: <span className="font-mono bg-gray-100 px-1 py-0.5 rounded text-xs text-gray-700">{id}</span>
+          Update student profile information in the academic database.
         </p>
       </div>
 
-      {/* Async Loading Interface */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center py-24 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm">
-          <RefreshCw className="animate-spin h-6 w-6 text-indigo-600" />
-          <p className="text-xs font-semibold text-slate-400 mt-3 tracking-wider uppercase">Retrieving file data...</p>
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          {typeof error === 'object' ? JSON.stringify(error, null, 2) : error}
         </div>
       )}
 
-      {/* Async Error Alert Block */}
-      {!loading && error && (
-        <div className="p-4 bg-red-50 border border-red-200 text-sm text-red-700 font-medium rounded-xl shadow-sm flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Main Form Render Canvas */}
-      {!loading && !error && (
-        <div className="transition-opacity duration-200">
-          <StudentForm
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-            submitLabel="Update Student"
-          />
-        </div>
-      )}
-
+      <div className="bg-white rounded-xl">
+        <StudentForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          submitLabel="Update Student"
+          loading={loading}
+          isEditMode={true}  // ✅ Pass isEditMode prop
+        />
+      </div>
     </div>
   );
 }
