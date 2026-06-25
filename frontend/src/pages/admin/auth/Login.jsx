@@ -1,5 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { AuthContext } from "../../../context/AuthContext";
 import { login } from "../../../services/authService";
@@ -7,6 +9,7 @@ import { login } from "../../../services/authService";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -14,6 +17,7 @@ function Login() {
   const token = localStorage.getItem("access");
   const role = localStorage.getItem("role");
 
+  // Bug 2 Fix: Added STUDENT to auto-redirect
   if (token) {
     if (role === "PLATFORM_ADMIN") {
       return <Navigate to="/admin" replace />;
@@ -26,26 +30,49 @@ function Login() {
     if (role === "HOD") {
       return <Navigate to="/hod" replace />;
     }
+
+    if (role === "STUDENT") {
+      return <Navigate to="/student" replace />;
+    }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const data = await login(email, password);
+      console.log(data);
 
       loginUser(data);
 
+     
       if (data.role === "PLATFORM_ADMIN") {
+        toast.success(`Welcome back, ${data.email || "Admin"}!`);
         navigate("/admin", { replace: true });
       } else if (data.role === "COLLEGE_ADMIN") {
+        toast.success(`Welcome back, ${data.email || "College Admin"}!`);
         navigate("/college-admin", { replace: true });
       } else if (data.role === "HOD") {
+        toast.success(`Welcome back, ${data.email || "HOD"}!`);
         navigate("/hod", { replace: true });
+      } else if (data.role === "STUDENT") {
+        toast.success(`Welcome back, ${data.email || "Student"}!`);
+        navigate("/student", { replace: true });
+      } else {
+        toast.warning("Unknown role. Please contact support.");
       }
     } catch (error) {
       console.log(error.response?.data);
-      alert("Error occurred");
+      
+
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.detail || 
+                          "Invalid email or password. Please try again.";
+      
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,7 +106,8 @@ function Login() {
                 placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm transition duration-150 ease-in-out focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/10 sm:text-sm"
+                disabled={loading}
+                className="block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm transition duration-150 ease-in-out focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/10 sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -99,7 +127,8 @@ function Login() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm transition duration-150 ease-in-out focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/10 sm:text-sm"
+                disabled={loading}
+                className="block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm transition duration-150 ease-in-out focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/10 sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -107,9 +136,36 @@ function Login() {
           <div className="pt-2">
             <button
               type="submit"
-              className="flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 active:bg-indigo-700 transition-colors duration-150"
+              disabled={loading}
+              className="flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 active:bg-indigo-700 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Sign In
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Signing In...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
           </div>
         </form>

@@ -71,8 +71,6 @@ function StudentEdit() {
       const payload = {
         ...formData,
         semester: parseInt(formData.semester),
-        // ✅ Only editable fields are sent
-        // ❌ first_name, last_name, roll_number, admission_number are NOT sent
       };
       
       await updateStudent(id, payload);
@@ -85,47 +83,64 @@ function StudentEdit() {
 
   if (fetchLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="flex flex-col items-center justify-center py-40 bg-neutral-950 rounded-3xl border border-neutral-900 max-w-4xl mx-auto relative overflow-hidden">
+        {/* Smooth silver loader shimmer backdrop */}
+        <div className="absolute w-80 h-80 bg-white/5 rounded-full blur-[130px] pointer-events-none" />
+        <div className="h-6 w-6 animate-spin rounded-full border border-neutral-900 border-b-neutral-400 relative z-10" />
+        <p className="text-[10px] font-medium text-neutral-500 mt-4 tracking-widest uppercase relative z-10">
+          Loading Student Records...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 lg:p-8 antialiased text-gray-900 font-sans">
-      <div className="mb-8">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors duration-150 mb-3 group cursor-pointer"
-        >
-          <ArrowLeft className="h-4 w-4 transform group-hover:-translate-x-0.5 transition-transform" />
-          <span>Back to Students</span>
-        </button>
+    <div className="max-w-4xl mx-auto p-4 md:p-8 antialiased text-neutral-400 font-sans min-h-screen relative">
+      
+      {/* ── HIGH-END SILVER SHINING LIQUID GLOW FIELDS ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.04),transparent_35%)] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_75%,rgba(200,200,200,0.03),transparent_40%)] pointer-events-none z-0" />
 
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
-          Edit Student Record
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Update student profile information in the academic database.
-        </p>
-      </div>
+      <div className="relative z-10 space-y-8">
+        
+        {/* Navigation Breadcrumbs & Dynamic Header Info */}
+        <div>
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-neutral-500 hover:text-neutral-300 transition-colors duration-150 mb-4 group cursor-pointer"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 transform group-hover:-translate-x-0.5 transition-transform duration-150" />
+            <span>Back to Students</span>
+          </button>
 
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-          {typeof error === 'object' ? JSON.stringify(error, null, 2) : error}
+          <h1 className="text-xl md:text-2xl font-medium text-neutral-100 tracking-tight">
+            Edit Student Record
+          </h1>
+          <p className="text-xs text-neutral-500 tracking-wide font-normal mt-1 flex flex-wrap items-center gap-2">
+
+          </p>
         </div>
-      )}
 
-      <div className="bg-white rounded-xl">
-        <StudentForm
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          submitLabel="Update Student"
-          loading={loading}
-          isEditMode={true}  // ✅ Pass isEditMode prop
-        />
+        {/* High-Visibility Clean Error Panel container */}
+        {error && (
+          <div className="p-4 bg-rose-950/10 border border-rose-900/30 text-rose-400 rounded-2xl text-xs font-medium tracking-wide uppercase shadow-sm">
+            {typeof error === 'object' ? JSON.stringify(error, null, 2) : error}
+          </div>
+        )}
+
+        {/* Transparent Mount for Premium StudentForm */}
+        <div className="bg-transparent rounded-3xl">
+          <StudentForm
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            submitLabel="Update Student"
+            loading={loading}
+            isEditMode={true}
+          />
+        </div>
+
       </div>
     </div>
   );

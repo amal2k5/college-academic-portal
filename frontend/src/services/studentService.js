@@ -46,3 +46,14 @@ export const deleteStudent = async (id) => {
   const response = await axiosInstance.delete(`/students/${id}/delete/`);
   return response.data;
 };
+
+
+export const getStudentProfile = async () => {
+  const { data } = await axiosInstance.get("/students/profile/");
+  return data;
+};
+
+export const getStudentDashboardStats = async () => {
+  const { data } = await axiosInstance.get("/students/dashboard/stats/");
+  return data;
+};

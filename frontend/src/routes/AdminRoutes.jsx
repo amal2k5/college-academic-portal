@@ -19,6 +19,10 @@ import HODDashboard from "../pages/hod/HODDashboard";
 import Students from "../pages/hod/Students";
 import StudentCreate from "../pages/hod/StudentCreate";
 import StudentEdit from "../pages/hod/StudentEdit";
+import StudentDashboard from "../pages/student/StudentDashboard";
+import StudentProfile from "../pages/student/Profile";
+import StudentLayout from "../layouts/StudentLayout"
+
 
 function AdminRoutes() {
   return (
@@ -62,6 +66,18 @@ function AdminRoutes() {
         <Route path="/hod/students" element={<Students />} />
         <Route path="/hod/students/create" element={<StudentCreate />} />
         <Route path="/hod/students/:id/edit" element={<StudentEdit />} />
+      </Route>
+
+      {/* STUDENT */}
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["STUDENT"]}>
+            <StudentLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/student/profile" element={<StudentProfile />} />
       </Route>
     </Routes>
   );

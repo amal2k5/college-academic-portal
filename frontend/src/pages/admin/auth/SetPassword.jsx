@@ -21,56 +21,49 @@ function SetupPassword() {
     }
 
     try {
-await axios.post(
-  "http://127.0.0.1:8000/api/auth/setup-password/",
-  {
-    token,
-    password,
-    confirm_password: confirmPassword,
-  }
-);
+      await axios.post("http://127.0.0.1:8000/api/auth/setup-password/", {
+        token,
+        password,
+        confirm_password: confirmPassword,
+      });
+
+    
+      alert("Password set successfully");
+
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      localStorage.removeItem("role");
+
+      navigate("/login");
 
       alert("Password set successfully");
 
       navigate("/login");
     } catch (error) {
-       console.log("FULL ERROR:", error.response?.data);
+      console.log("FULL ERROR:", error.response?.data);
 
-      alert(
-        error.response?.data?.message ||
-        "Failed to set password"
-      );
+      alert(error.response?.data?.message || "Failed to set password");
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-
-        <h1 className="mb-2 text-center text-3xl font-bold">
-          Setup Password
-        </h1>
+        <h1 className="mb-2 text-center text-3xl font-bold">Setup Password</h1>
 
         <p className="mb-8 text-center text-sm text-slate-500">
           Create your account password
         </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium">
-              Password
-            </label>
+            <label className="mb-2 block text-sm font-medium">Password</label>
 
             <input
               type="password"
               required
               value={password}
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border px-3 py-2"
             />
           </div>
@@ -84,11 +77,7 @@ await axios.post(
               type="password"
               required
               value={confirmPassword}
-              onChange={(e) =>
-                setConfirmPassword(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full rounded-lg border px-3 py-2"
             />
           </div>
