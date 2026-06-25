@@ -7,18 +7,15 @@ export const getStudents = async () => {
   if (Array.isArray(response.data)) {
     return response.data;
   }
-  
 
   if (response.data && response.data.results) {
     return response.data.results;
   }
-  
 
   if (response.data && response.data.data) {
     return response.data.data;
   }
-  
-  
+
   console.warn("Unexpected API response format:", response.data);
   return [];
 };
@@ -47,13 +44,48 @@ export const deleteStudent = async (id) => {
   return response.data;
 };
 
-
+// GET /api/students/profile/
 export const getStudentProfile = async () => {
-  const { data } = await axiosInstance.get("/students/profile/");
-  return data;
+  try {
+    const response = await axiosInstance.get("/students/profile/");
+    console.log("Profile API response:", response.data);
+    
+    // If the response has a data property, return that
+    if (response.data && response.data.data) {
+      return response.data.data;
+    }
+    
+    // If the response is directly the student object
+    if (response.data && typeof response.data === 'object') {
+      return response.data;
+    }
+    
+    // If the response has a results array (like list endpoints)
+    if (response.data && response.data.results && Array.isArray(response.data.results)) {
+      return response.data.results[0] || {};
+    }
+    
+    // Fallback: return whatever we got
+    return response.data || {};
+  } catch (error) {
+    console.error("Error fetching student profile:", error);
+    // Return empty object instead of throwing to prevent UI crash
+    return {};
+  }
 };
 
+// GET /api/students/dashboard/stats/
 export const getStudentDashboardStats = async () => {
-  const { data } = await axiosInstance.get("/students/dashboard/stats/");
-  return data;
+  try {
+    const response = await axiosInstance.get("/students/dashboard/stats/");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dashboard stats:", error);
+    return {
+      totalStudents: 0,
+      averageAttendance: "0%",
+      activeAssignments: 0,
+      pendingLeaves: 0
+    };
+  }
 };

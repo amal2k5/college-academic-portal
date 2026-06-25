@@ -17,7 +17,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
-      <AppRoutes />;
+      <AppRoutes />
     </>
   );
 }

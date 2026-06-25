@@ -16,3 +16,12 @@ export const getHODs = async () => {
 
   return data;
 };
+
+
+export const getHODDashboardStats = async () => {
+  const { data } = await axiosInstance.get(
+    "students/dashboard/stats/"
+  );
+
+  return data;
+};

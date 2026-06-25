@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import {
   User,
   GraduationCap,
@@ -8,310 +9,318 @@ import {
   Calendar,
   Building2,
   Hash,
-  Copy,
-  CheckCircle2,
   Bookmark,
-  ShieldCheck,
+  School,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 import { getStudentProfile } from "../../services/studentService";
+
+const ease = [0.22, 1, 0.36, 1];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease } },
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.35, ease: "easeOut" } },
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+};
+
+const gridStagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
 
 function Profile() {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(null);
-
-  const copyToClipboard = (text, label) => {
-    if (text) {
-      navigator.clipboard.writeText(text);
-      setCopied(label);
-      setTimeout(() => setCopied(null), 1800);
-    }
-  };
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getStudentProfile();
-        setStudent(data);
+        if (data && typeof data === "object" && Object.keys(data).length > 0) {
+          setStudent(data);
+        } else {
+          setError("No profile data found.");
+        }
       } catch (err) {
-        setError("Failed to load student profile information.");
+        setError(err.message || "Failed to load profile.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 text-neutral-100 relative overflow-hidden">
-        {/* Soft core background loader aura */}
-        <div className="absolute w-80 h-80 bg-indigo-500/5 rounded-full blur-[130px] pointer-events-none" />
-        <div className="h-6 w-6 border border-neutral-800 border-t-indigo-400 rounded-full animate-spin relative z-10" />
-        <p className="mt-4 text-[10px] font-medium text-neutral-500 tracking-widest uppercase relative z-10">
-          Retrieving Profile Dossier...
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 gap-5">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-6 h-6 rounded-full border-2 border-neutral-800 border-t-indigo-400"
+        />
+        <p className="text-[11px] text-neutral-500 tracking-[0.2em] uppercase">
+          Loading profile
         </p>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !student) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-6">
-        <div className="max-w-md w-full p-5 bg-neutral-900 border border-neutral-800/60 rounded-3xl text-center shadow-2xl">
-          <p className="text-rose-400 text-xs font-medium uppercase tracking-wider">
-            {error}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen flex items-center justify-center bg-neutral-950 p-6"
+      >
+        <div className="w-full max-w-sm p-6 bg-neutral-900 border border-neutral-800 rounded-2xl text-center">
+          <p className="text-sm text-rose-400 tracking-wide">
+            {error || "No profile data available."}
           </p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
-  const InfoItem = ({
-    icon: Icon,
-    label,
-    value,
-    themeColor,
-    copyable = false,
-  }) => (
-    <div className="bg-neutral-900/30 border border-neutral-800/40 hover:border-neutral-700/60 rounded-3xl p-5 group transition-all duration-300 relative flex flex-col justify-between min-h-[115px] shadow-[0_4px_30px_rgba(0,0,0,0.3)] backdrop-blur-md">
-      {/* Structural Left-Side Micro Indicator Rail */}
-      <div className={`absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-${themeColor.split("-")[1]}-500/40 to-transparent rounded-l-3xl`} />
-      
-      <div className="flex justify-between items-start gap-4 relative z-10">
-        <div className="space-y-1 min-w-0">
-          <span className="text-[9px] font-medium text-neutral-500 uppercase tracking-widest block">
-            {label}
-          </span>
-          <p className="text-neutral-200 font-normal text-xs tracking-wide leading-relaxed break-all truncate pr-1">
-            {value || "—"}
-          </p>
-        </div>
+  const s = {
+    first_name: student.first_name || "",
+    last_name: student.last_name || "",
+    email: student.email || "",
+    phone: student.phone || "",
+    gender: student.gender || "",
+    date_of_birth: student.date_of_birth || "",
+    department_name: student.department_name || "",
+    college_name: student.college_name || "",
+    hod_name: student.hod_name || "",
+    roll_number: student.roll_number || "",
+    admission_number: student.admission_number || "",
+    academic_year: student.academic_year || "",
+    semester: student.semester || "",
+    parent_name: student.parent_name || "",
+    parent_phone: student.parent_phone || "",
+  };
 
-        <div className={`p-2 bg-neutral-950 border border-neutral-900 rounded-2xl ${themeColor} transition-all duration-300 group-hover:border-neutral-700 shrink-0`}>
-          <Icon size={13} strokeWidth={1.5} />
-        </div>
+  const fullName = `${s.first_name} ${s.last_name}`.trim() || "Student";
+  const initials = `${s.first_name[0] || ""}${s.last_name[0] || ""}` || "S";
+
+  // Info card used in the right grid sections
+  const InfoCard = ({ icon: Icon, label, value, iconClass }) => (
+    <motion.div
+      variants={fadeUp}
+      className="bg-neutral-800/50 border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-800 rounded-xl p-4 flex items-start gap-3 transition-all duration-200"
+    >
+      <div className={`mt-0.5 shrink-0 ${iconClass}`}>
+        <Icon size={15} strokeWidth={1.6} />
       </div>
-
-      {copyable && value && (
-        <div className="mt-2 pt-2 border-t border-neutral-800/40 flex justify-end relative z-10">
-          <button
-            type="button"
-            onClick={() => copyToClipboard(value, label)}
-            className="inline-flex items-center gap-1.5 text-[9px] font-medium uppercase tracking-widest text-neutral-500 hover:text-neutral-300 transition-colors cursor-pointer"
-          >
-            {copied === label ? (
-              <span className="text-emerald-400 flex items-center gap-1">
-                <CheckCircle2 size={11} /> Copied
-              </span>
-            ) : (
-              <>
-                <Copy size={10} strokeWidth={1.5} />
-                <span>Copy</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
-    </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em] mb-1.5">
+          {label}
+        </p>
+        <p className="text-[13px] font-medium text-neutral-100 tracking-wide truncate leading-snug">
+          {value || "—"}
+        </p>
+      </div>
+    </motion.div>
   );
 
-  const SectionTitle = ({ icon: Icon, title, highlightColor }) => (
-    <div className="flex items-center gap-3 mb-6 px-1 border-b border-neutral-800/40 pb-3">
-      <div className={`p-1.5 bg-neutral-900 border border-neutral-800 rounded-xl ${highlightColor}`}>
-        <Icon size={13} strokeWidth={1.5} />
+  // Divider row used in the left panel
+  const MetaRow = ({ label, value, mono = false }) => (
+    <motion.div
+      variants={fadeUp}
+      className="flex items-center justify-between py-3 border-b border-neutral-800 last:border-0"
+    >
+      <span className="text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.18em]">
+        {label}
+      </span>
+      <span
+        className={`text-[12px] font-medium text-neutral-200 max-w-[180px] truncate ${
+          mono ? "font-mono text-[11px] text-neutral-400" : ""
+        }`}
+      >
+        {value || "—"}
+      </span>
+    </motion.div>
+  );
+
+  // Section header with horizontal rule
+  const SectionHeader = ({ icon: Icon, label, iconClass }) => (
+    <motion.div
+      variants={fadeUp}
+      className="flex items-center gap-2.5 mb-5"
+    >
+      <div className={iconClass}>
+        <Icon size={14} strokeWidth={1.6} />
       </div>
-      <h2 className="text-[10px] font-medium uppercase tracking-widest text-neutral-300">
-        {title}
-      </h2>
-    </div>
+      <span className="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.22em]">
+        {label}
+      </span>
+      <div className="flex-1 h-px bg-neutral-700/60" />
+    </motion.div>
   );
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-400 font-sans antialiased p-4 md:p-8 lg:p-12 max-w-[1350px] mx-auto selection:bg-neutral-800 selection:text-white relative">
-      
-      {/* ── HIGH-END SHINING RADIANCE FIELDS ── */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(99,102,241,0.05),transparent_40%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_75%,rgba(139,92,246,0.03),transparent_45%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(16,185,129,0.02),transparent_50%)] pointer-events-none" />
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={stagger}
+      className="min-h-screen bg-neutral-950 text-neutral-400 antialiased p-4 md:p-6 lg:p-10 max-w-[1300px] mx-auto"
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
-        
-        {/* ── LEFT COLUMN: Profile Identity Badge Summary ── */}
-        <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-5">
-          <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-[32px] p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-            {/* Embedded shining corner flare */}
-            <div className="absolute -right-24 -top-24 w-64 h-64 bg-indigo-500/15 rounded-full blur-[90px] pointer-events-none" />
+        {/* ── LEFT PANEL ── */}
+        <motion.div
+          variants={fadeIn}
+          className="lg:col-span-4 lg:sticky lg:top-8 space-y-4"
+        >
 
-            <div className="flex flex-col items-center text-center pb-6 border-b border-neutral-800/60">
-              <div className="relative mb-5">
-                <div className="w-20 h-20 rounded-[22px] bg-neutral-950 border border-neutral-800 p-0.5 shadow-2xl">
-                  <div className="w-full h-full bg-neutral-900/60 rounded-[18px] flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-br from-neutral-200 via-neutral-100 to-indigo-400 font-sans text-2xl font-medium tracking-tight">
-                    {student.first_name?.[0]}{student.last_name?.[0]}
+          {/* Identity card */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+
+            {/* Colored top strip */}
+            <div className="h-[3px] w-full bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600" />
+
+            <div className="p-6">
+
+              {/* Avatar + name */}
+              <motion.div
+                variants={fadeUp}
+                className="flex flex-col items-center text-center mb-6 pb-6 border-b border-neutral-800"
+              >
+                <motion.div
+                  initial={{ scale: 0.75, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.45, ease, delay: 0.08 }}
+                  className="relative mb-4"
+                >
+                  <div className="w-[72px] h-[72px] rounded-2xl bg-neutral-800 border border-neutral-700 flex items-center justify-center text-[22px] font-semibold text-white select-none">
+                    {initials}
                   </div>
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-emerald-500 rounded-full border-[3px] border-neutral-950 flex items-center justify-center shadow-lg">
-                  <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
-                </div>
-              </div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-neutral-900" />
+                </motion.div>
 
-              <h1 className="text-lg font-medium tracking-tight text-neutral-200">
-                {student.first_name} {student.last_name}
-              </h1>
+                <h1 className="text-[16px] font-semibold text-white tracking-wide mb-1">
+                  {fullName}
+                </h1>
+                <p className="text-[10px] font-medium text-neutral-500 tracking-[0.18em] uppercase truncate max-w-[200px]">
+                  {s.department_name || "Student"}
+                </p>
+              </motion.div>
 
-            </div>
+              {/* Meta rows */}
+              <motion.div variants={gridStagger}>
+                <MetaRow label="Admission No" value={s.admission_number} mono />
+                <MetaRow label="College" value={s.college_name} />
+                <MetaRow label="HOD" value={s.hod_name} />
+                <MetaRow label="Academic Year" value={s.academic_year} />
 
-            {/* Parameter Field Breakdown */}
-            <div className="pt-6 space-y-3 text-xs">
-              
-              <div className="flex justify-between items-center p-3.5 bg-neutral-950/40 border border-neutral-800/40 rounded-2xl hover:border-neutral-700/60 transition-colors duration-200">
-                <span className="text-[9px] font-medium text-neutral-500 uppercase tracking-widest">
-                  Admission No
-                </span>
-                <span className="font-mono text-neutral-300 uppercase tracking-wider text-[10px] bg-neutral-950 px-2 py-0.5 border border-neutral-800 rounded-md">
-                  {student.admission_number || "—"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center p-3.5 bg-neutral-950/40 border border-neutral-800/40 rounded-2xl hover:border-neutral-700/60 transition-colors duration-200">
-                <span className="text-[9px] font-medium text-neutral-500 uppercase tracking-widest">
-                  Department
-                </span>
-                <span className="text-xs font-medium text-neutral-300 max-w-[170px] truncate">
-                  {student.department_name}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center p-3.5 bg-neutral-950/40 border border-neutral-800/40 rounded-2xl hover:border-neutral-700/60 transition-colors duration-200">
-                <span className="text-[9px] font-medium text-neutral-500 uppercase tracking-widest">
-                  Current Status
-                </span>
-                <span className="text-[10px] font-medium tracking-wide text-emerald-400 bg-emerald-950/10 border border-emerald-900/20 px-2.5 py-0.5 rounded-lg">
-                  Semester {student.semester} • {student.academic_year}
-                </span>
-              </div>
-
+                {/* Status badge row */}
+                <motion.div
+                  variants={fadeUp}
+                  className="flex items-center justify-between pt-3"
+                >
+                  <span className="text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.18em]">
+                    Status
+                  </span>
+                  <span className="text-[11px] font-semibold text-cyan-300 bg-cyan-500/10 border border-cyan-500/25 px-3 py-1 rounded-lg tracking-wide">
+                    Semester {s.semester}
+                  </span>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
-        </div>
 
-        {/* ── RIGHT COLUMN: Student Information Categories ── */}
-        <div className="lg:col-span-8 space-y-10">
-          
-          {/* Section 1: Personal Details */}
-          <div>
-            <SectionTitle
-              icon={User}
-              title="Personal Registration Record"
-              highlightColor="text-violet-400 border-neutral-800"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InfoItem
+          {/* Parent card */}
+          <motion.div
+            variants={fadeUp}
+            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden"
+          >
+            <div className="h-[3px] w-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-600" />
+            <div className="p-5">
+              <SectionHeader
+                icon={Users}
+                label="Parent & Guardian"
+                iconClass="text-amber-400"
+              />
+              <motion.div variants={gridStagger}>
+                <MetaRow label="Guardian Name" value={s.parent_name} />
+                <MetaRow label="Guardian Contact" value={s.parent_phone} />
+              </motion.div>
+            </div>
+          </motion.div>
+
+        </motion.div>
+
+        {/* ── RIGHT PANEL ── */}
+        <motion.div
+          variants={stagger}
+          className="lg:col-span-8 space-y-5"
+        >
+
+          {/* Personal section */}
+          <motion.div
+            variants={fadeUp}
+            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden"
+          >
+            <div className="h-[3px] w-full bg-gradient-to-r from-violet-600 via-violet-400 to-violet-600" />
+            <div className="p-5">
+              <SectionHeader
                 icon={User}
-                label="Full Name"
-                value={`${student.first_name} ${student.last_name}`}
-                themeColor="text-violet-400"
+                label="Personal Record"
+                iconClass="text-violet-400"
               />
-              <InfoItem
-                icon={Calendar}
-                label="Date of Birth"
-                value={student.date_of_birth}
-                themeColor="text-violet-400"
-              />
-              <InfoItem
-                icon={User}
-                label="Gender"
-                value={student.gender}
-                themeColor="text-violet-400"
-              />
-              <InfoItem
-                icon={Mail}
-                label="Email Address"
-                value={student.email}
-                themeColor="text-violet-400"
-                copyable
-              />
-              <InfoItem
-                icon={Phone}
-                label="Phone Number"
-                value={student.phone}
-                themeColor="text-violet-400"
-                copyable
-              />
+              <motion.div
+                variants={gridStagger}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+              >
+                <InfoCard icon={User} label="Full Name" value={fullName} iconClass="text-violet-400" />
+                <InfoCard icon={Calendar} label="Date of Birth" value={s.date_of_birth} iconClass="text-violet-400" />
+                <InfoCard icon={User} label="Gender" value={s.gender} iconClass="text-violet-400" />
+                <InfoCard icon={Mail} label="Email Address" value={s.email} iconClass="text-violet-400" />
+                <InfoCard icon={Phone} label="Phone Number" value={s.phone} iconClass="text-violet-400" />
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Section 2: Academic Registry */}
-          <div>
-            <SectionTitle
-              icon={GraduationCap}
-              title="Academic Standing Matrix"
-              highlightColor="text-cyan-400 border-neutral-800"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InfoItem
-                icon={Building2}
-                label="Department"
-                value={student.department_name}
-                themeColor="text-cyan-400"
+          {/* Academic section */}
+          <motion.div
+            variants={fadeUp}
+            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden"
+          >
+            <div className="h-[3px] w-full bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-600" />
+            <div className="p-5">
+              <SectionHeader
+                icon={GraduationCap}
+                label="Academic Record"
+                iconClass="text-cyan-400"
               />
-              <InfoItem
-                icon={Hash}
-                label="Roll Number"
-                value={student.roll_number}
-                themeColor="text-cyan-400"
-              />
-              <InfoItem
-                icon={Hash}
-                label="Admission Number"
-                value={student.admission_number}
-                themeColor="text-cyan-400"
-              />
-              <InfoItem
-                icon={Calendar}
-                label="Academic Year"
-                value={student.academic_year}
-                themeColor="text-cyan-400"
-              />
-              <InfoItem
-                icon={Bookmark}
-                label="Current Semester"
-                value={`Semester ${student.semester}`}
-                themeColor="text-cyan-400"
-              />
+              <motion.div
+                variants={gridStagger}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+              >
+                <InfoCard icon={Building2} label="Department" value={s.department_name} iconClass="text-cyan-400" />
+                <InfoCard icon={School} label="College" value={s.college_name} iconClass="text-cyan-400" />
+                <InfoCard icon={BriefcaseBusiness} label="Head of Department" value={s.hod_name} iconClass="text-cyan-400" />
+                <InfoCard icon={Hash} label="Roll Number" value={s.roll_number} iconClass="text-cyan-400" />
+                <InfoCard icon={Hash} label="Admission Number" value={s.admission_number} iconClass="text-cyan-400" />
+                <InfoCard icon={Calendar} label="Academic Year" value={s.academic_year} iconClass="text-cyan-400" />
+                <InfoCard icon={Bookmark} label="Semester" value={`Semester ${s.semester}`} iconClass="text-cyan-400" />
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Section 3: Parent & Guardian Details */}
-          <div>
-            <SectionTitle
-              icon={Users}
-              title="Parent & Guardian Roster"
-              highlightColor="text-amber-400 border-neutral-800"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InfoItem
-                icon={User}
-                label="Parent / Guardian Name"
-                value={student.parent_name}
-                themeColor="text-amber-400"
-              />
-              <InfoItem
-                icon={Phone}
-                label="Parent Contact Number"
-                value={student.parent_phone}
-                themeColor="text-amber-400"
-                copyable
-              />
-            </div>
-          </div>
-
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { getHODDashboardStats } from "../../services/hodService";
 import {
   Users,
   ClipboardCheck,
@@ -8,274 +10,300 @@ import {
   Activity,
   ArrowUpRight,
   Clock,
-  Megaphone
+  Megaphone,
 } from "lucide-react";
 
+const ease = [0.22, 1, 0.36, 1];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease } },
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+};
+
+const gridStagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+
 function HODDashboard() {
-  // State for real data
-  const [stats, setStats] = useState({
-    studentsEnrolled: 0,
-    avgAttendance: "0%",
-    activeAssignments: 0,
-    pendingLeaves: 0
-  });
+  const [stats, setStats] = useState(null);
   const [activities, setActivities] = useState([]);
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch dashboard data
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const data = await getHODDashboardStats();
+        setStats(data);
+        setError("");
+      } catch (err) {
+        console.error(err);
+        setError("Could not load dashboard data.");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      // Replace these with your actual API calls
-      // const statsData = await getDashboardStats();
-      // const activitiesData = await getRecentActivities();
-      // const noticesData = await getDepartmentNotices();
-      
-      // Example structure - replace with real API data
-      // setStats({
-      //   studentsEnrolled: statsData.totalStudents,
-      //   avgAttendance: statsData.averageAttendance,
-      //   activeAssignments: statsData.activeAssignments,
-      //   pendingLeaves: statsData.pendingLeaves
-      // });
-      // setActivities(activitiesData);
-      // setNotices(noticesData);
-      
-      setError("");
-    } catch (err) {
-      console.error("Failed to fetch dashboard data:", err);
-      setError("Could not load dashboard data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 gap-5">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-6 h-6 rounded-full border-2 border-neutral-800 border-t-indigo-400"
+        />
+        <p className="text-[10px] text-neutral-500 tracking-[0.25em] uppercase">
+          Loading dashboard
+        </p>
+      </div>
+    );
+  }
 
-  // Stats configuration with real data
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-6">
+        <div className="w-full max-w-sm p-5 bg-neutral-900 border border-rose-900/40 rounded-2xl flex items-center gap-3">
+          <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+          <span className="text-sm text-rose-400 tracking-wide">{error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  // Defined here — safely after all null checks
   const statsConfig = [
     {
       title: "Students Enrolled",
-      value: stats.studentsEnrolled,
+      value: stats.total_students ?? "—",
       icon: Users,
-      bgColor: "text-blue-400 bg-blue-950/10 border-blue-900/30",
+      iconClass: "text-blue-400",
+      strip: "from-blue-600 via-blue-400 to-blue-600",
     },
     {
       title: "Avg. Attendance",
-      value: stats.avgAttendance,
+      value: "—",
       icon: ClipboardCheck,
-      bgColor: "text-emerald-400 bg-emerald-950/10 border-emerald-900/30",
+      iconClass: "text-emerald-400",
+      strip: "from-emerald-600 via-emerald-400 to-emerald-600",
     },
     {
       title: "Active Assignments",
-      value: stats.activeAssignments,
+      value: "—",
       icon: BookOpen,
-      bgColor: "text-indigo-400 bg-indigo-950/10 border-indigo-900/30",
+      iconClass: "text-indigo-400",
+      strip: "from-indigo-600 via-indigo-400 to-indigo-600",
     },
     {
       title: "Pending Leaves",
-      value: stats.pendingLeaves,
+      value: "—",
       icon: CalendarCheck,
-      bgColor: "text-amber-400 bg-amber-950/10 border-amber-900/30",
+      iconClass: "text-amber-400",
+      strip: "from-amber-600 via-amber-400 to-amber-600",
     },
   ];
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-neutral-950 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.04),transparent_35%)] bg-[radial-gradient(circle_at_85%_75%,rgba(220,220,200,0.03),transparent_40%)] p-4 md:p-8 antialiased font-sans">
-        <div className="max-w-7xl mx-auto bg-neutral-900/30 backdrop-blur-xl border border-neutral-800/40 rounded-[32px] p-6 md:p-8 shadow-2xl">
-          <div className="flex flex-col items-center justify-center py-24">
-            <div className="animate-spin rounded-full h-9 w-9 border-2 border-neutral-700/50 border-b-neutral-200/30"></div>
-            <p className="text-[9px] font-medium text-neutral-500 mt-4 uppercase tracking-widest">
-              Loading dashboard...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-neutral-950 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.04),transparent_35%)] bg-[radial-gradient(circle_at_85%_75%,rgba(220,220,200,0.03),transparent_40%)] p-4 md:p-8 antialiased font-sans">
-        <div className="max-w-7xl mx-auto bg-neutral-900/30 backdrop-blur-xl border border-neutral-800/40 rounded-[32px] p-6 md:p-8 shadow-2xl">
-          <div className="relative p-4 bg-neutral-900/30 backdrop-blur-sm border border-neutral-800/50 rounded-3xl shadow-lg flex items-center gap-3">
-            <div className="absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-red-400/30 to-transparent rounded-l-3xl"></div>
-            <div className="h-2 w-2 rounded-full bg-red-400/50 animate-pulse shrink-0" />
-            <span className="text-sm font-medium text-neutral-300 tracking-wide">{error}</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-neutral-950 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.04),transparent_35%)] bg-[radial-gradient(circle_at_85%_75%,rgba(220,220,200,0.03),transparent_40%)] p-4 md:p-8 antialiased font-sans">
-      <div className="max-w-7xl mx-auto bg-neutral-900/30 backdrop-blur-xl border border-neutral-800/40 rounded-[32px] p-6 md:p-8 shadow-2xl">
-        
-        {/* Welcome Banner Header */}
-        <div className="border-b border-neutral-800/50 pb-6 mb-8">
-          <h1 className="text-xl md:text-2xl font-medium text-neutral-100 tracking-tight flex items-center gap-2">
-            Welcome Back, Director <span className="animate-wave origin-[70%_70%]">👋</span>
-          </h1>
-          <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest mt-1">
-            Computer Science & Engineering Department
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={stagger}
+      className="min-h-screen bg-neutral-950 antialiased font-sans p-4 md:p-6 lg:p-10"
+    >
+      <div className="max-w-7xl mx-auto space-y-8">
+
+        {/* ── HEADER ── */}
+        <motion.div
+          variants={fadeUp}
+          className="pb-7 border-b border-neutral-800"
+        >
+          <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-[0.22em] mb-2">
+            HOD Dashboard
           </p>
-        </div>
+          <h1 className="text-2xl font-semibold text-white tracking-tight mb-1">
+            Welcome back,{" "}
+            <span className="text-indigo-400">{stats.hod_name}</span> 👋
+          </h1>
+          <p className="text-[11px] text-neutral-500 tracking-wide">
+            {stats.department_name}
+            {stats.college_name ? ` · ${stats.college_name}` : ""}
+          </p>
+        </motion.div>
 
-        {/* Analytics Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-          {statsConfig.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={index}
-                className="bg-neutral-900/30 border border-neutral-800/40 hover:border-neutral-700/60 rounded-3xl p-6 transition-all duration-300 group relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.3)] backdrop-blur-md"
-              >
-                {/* Structural Left-Side Micro Indicator Rail */}
-                <div className="absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-white/10 to-transparent rounded-l-3xl" />
-                
-                <div className="flex justify-between items-start relative z-10">
-                  <div className="space-y-2">
-                    <p className="text-[9px] font-medium text-neutral-500 uppercase tracking-widest">
-                      {item.title}
-                    </p>
-                    <h2 className="text-2xl font-medium text-neutral-100 tracking-tight leading-none">
-                      {item.value}
-                    </h2>
-                  </div>
-
-                  <div className={`p-2.5 rounded-2xl border border-neutral-800 bg-neutral-950 ${item.bgColor} transition-all duration-300 group-hover:scale-105`}>
-                    <Icon className="w-4 h-4" strokeWidth={1.5} />
+        {/* ── STATS GRID ── */}
+        <motion.div
+          variants={gridStagger}
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+        >
+          {statsConfig.map(({ title, value, icon: Icon, iconClass, strip }) => (
+            <motion.div
+              key={title}
+              variants={fadeUp}
+              className="bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-2xl overflow-hidden transition-all duration-200 group"
+            >
+              <div className={`h-[3px] w-full bg-gradient-to-r ${strip}`} />
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <p className="text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
+                    {title}
+                  </p>
+                  <div className={`p-2 bg-neutral-800 border border-neutral-700 rounded-xl ${iconClass} shrink-0`}>
+                    <Icon size={14} strokeWidth={1.6} />
                   </div>
                 </div>
-                
-                {/* Subtle design micro-action anchor */}
-                <div className="mt-5 pt-3 border-t border-neutral-800/40 flex items-center justify-between text-[9px] font-medium uppercase tracking-widest text-neutral-500 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  <span>View deep analytics</span>
-                  <ArrowUpRight className="h-3 w-3 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <p className="text-2xl font-semibold text-neutral-100 tracking-tight leading-none">
+                  {value}
+                </p>
+                <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <span className="text-[9px] font-semibold text-neutral-500 uppercase tracking-widest">
+                    View analytics
+                  </span>
+                  <ArrowUpRight size={12} strokeWidth={2} className="text-neutral-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
-        {/* Operational Split Feed panels */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── FEED PANELS ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-          {/* Recent Activities Feed Component */}
-          <div className="bg-neutral-900/20 border border-neutral-800/40 rounded-[32px] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl flex flex-col">
-            <div>
-              <div className="flex items-center gap-3 mb-6 px-1 border-b border-neutral-800/40 pb-3">
-                <div className="p-1.5 bg-neutral-900 border border-neutral-800 rounded-xl text-neutral-400">
-                  <Activity className="w-3.5 h-3.5" strokeWidth={1.5} />
+          {/* Recent Activity */}
+          <motion.div
+            variants={fadeUp}
+            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col"
+          >
+            <div className="h-[3px] w-full bg-gradient-to-r from-violet-600 via-violet-400 to-violet-600" />
+            <div className="p-5 flex flex-col flex-1">
+
+              {/* Panel header */}
+              <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-neutral-800">
+                <div className="text-violet-400">
+                  <Activity size={14} strokeWidth={1.6} />
                 </div>
-                <h2 className="text-[10px] font-medium uppercase tracking-widest text-neutral-300">
+                <h2 className="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.22em]">
                   Recent Department Activity
                 </h2>
               </div>
 
-              <div className="space-y-4 px-1">
+              {/* Activity list */}
+              <div className="space-y-1 flex-1">
                 {activities.length > 0 ? (
                   activities.map((act, i) => (
-                    <div key={i} className="flex items-start justify-between gap-4 text-xs group pb-3 border-b border-neutral-900/40 last:border-0 last:pb-0">
-                      <div className="space-y-1 min-w-0">
-                        <p className="font-normal text-neutral-200 group-hover:text-white transition-colors duration-200 tracking-wide truncate">
+                    <div
+                      key={i}
+                      className="flex items-start justify-between gap-4 p-3 bg-neutral-800/50 border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-800 rounded-xl transition-all duration-200"
+                    >
+                      <div className="min-w-0 space-y-1">
+                        <p className="text-[13px] font-medium text-neutral-100 tracking-wide truncate">
                           {act.text}
                         </p>
-                        <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider truncate">
+                        <p className="text-[10px] text-neutral-500 uppercase tracking-wider truncate">
                           {act.detail}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[9px] font-medium uppercase tracking-widest text-neutral-500 whitespace-nowrap shrink-0 mt-0.5 bg-neutral-950 border border-neutral-800 px-2 py-0.5 rounded-md">
-                        <Clock className="h-3 w-3 text-neutral-500" strokeWidth={1.5} />
+                      <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-500 whitespace-nowrap shrink-0 bg-neutral-900 border border-neutral-700 px-2 py-1 rounded-lg">
+                        <Clock size={10} strokeWidth={1.6} />
                         <span>{act.time}</span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest">
+                  <div className="flex items-center justify-center py-10">
+                    <p className="text-[10px] font-semibold text-neutral-600 uppercase tracking-[0.2em]">
                       No recent activities
                     </p>
                   </div>
                 )}
               </div>
-            </div>
-            
-            <button 
-              type="button" 
-              className="w-full text-center text-[10px] font-medium uppercase tracking-widest text-neutral-400 hover:text-white transition duration-200 mt-6 pt-4 border-t border-neutral-800/40 cursor-pointer"
-              onClick={() => {/* Navigate to activity log */}}
-            >
-              Audit Activity Log
-            </button>
-          </div>
 
-          {/* Department Notices Component */}
-          <div className="bg-neutral-900/20 border border-neutral-800/40 rounded-[32px] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl flex flex-col">
-            <div>
-              <div className="flex items-center gap-3 mb-6 px-1 border-b border-neutral-800/40 pb-3">
-                <div className="p-1.5 bg-neutral-900 border border-neutral-800 rounded-xl text-neutral-400">
-                  <Bell className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <button
+                type="button"
+                className="w-full text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500 hover:text-neutral-200 transition-colors duration-200 mt-5 pt-4 border-t border-neutral-800 cursor-pointer"
+              >
+                Audit Activity Log
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Notices */}
+          <motion.div
+            variants={fadeUp}
+            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col"
+          >
+            <div className="h-[3px] w-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-600" />
+            <div className="p-5 flex flex-col flex-1">
+
+              {/* Panel header */}
+              <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-neutral-800">
+                <div className="text-amber-400">
+                  <Bell size={14} strokeWidth={1.6} />
                 </div>
-                <h2 className="text-[10px] font-medium uppercase tracking-widest text-neutral-300">
+                <h2 className="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.22em]">
                   Official Board Notices
                 </h2>
               </div>
 
-              <div className="space-y-3 px-1">
+              {/* Notices list */}
+              <div className="space-y-2 flex-1">
                 {notices.length > 0 ? (
                   notices.map((notice, i) => (
-                    <div key={i} className="p-4 bg-neutral-950/60 border border-neutral-900/60 rounded-2xl flex items-start gap-3.5 text-xs transition duration-200 hover:border-neutral-800">
+                    <div
+                      key={i}
+                      className="flex items-start gap-3.5 p-4 bg-neutral-800/50 border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-800 rounded-xl transition-all duration-200"
+                    >
                       <div className="mt-0.5 shrink-0">
                         {notice.urgent ? (
                           <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
                           </span>
                         ) : (
-                          <Megaphone className="h-3.5 w-3.5 text-neutral-500" strokeWidth={1.5} />
+                          <Megaphone size={14} strokeWidth={1.6} className="text-neutral-500" />
                         )}
                       </div>
                       <div className="space-y-1.5 min-w-0">
-                        <p className="font-normal text-neutral-200 leading-relaxed tracking-wide">
+                        <p className="text-[13px] font-medium text-neutral-100 tracking-wide leading-relaxed">
                           {notice.text}
                         </p>
-                        <span className="inline-block text-[9px] font-medium text-neutral-500 uppercase tracking-widest bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md">
+                        <span className="inline-block text-[9px] font-semibold text-neutral-500 uppercase tracking-widest bg-neutral-900 border border-neutral-700 px-2 py-0.5 rounded-lg">
                           {notice.meta}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest">
+                  <div className="flex items-center justify-center py-10">
+                    <p className="text-[10px] font-semibold text-neutral-600 uppercase tracking-[0.2em]">
                       No notices available
                     </p>
                   </div>
                 )}
               </div>
-            </div>
 
-            <button 
-              type="button" 
-              className="w-full text-center text-[10px] font-medium uppercase tracking-widest text-neutral-400 hover:text-white transition duration-200 mt-6 pt-4 border-t border-neutral-800/40 cursor-pointer"
-              onClick={() => {/* Navigate to notice creation */}}
-            >
-              Broadcast New Notice
-            </button>
-          </div>
+              <button
+                type="button"
+                className="w-full text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500 hover:text-neutral-200 transition-colors duration-200 mt-5 pt-4 border-t border-neutral-800 cursor-pointer"
+              >
+                Broadcast New Notice
+              </button>
+            </div>
+          </motion.div>
 
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
