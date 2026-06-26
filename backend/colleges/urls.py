@@ -1,8 +1,20 @@
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
-from .views import CollegeViewSet
+from .views import (
+    CollegeListCreateView,
+    CollegeDetailView,
+)
 
-router = DefaultRouter()
-router.register(r"", CollegeViewSet)
+urlpatterns = [
+    path(
+        "",
+        CollegeListCreateView.as_view(),
+        name="college-list-create",
+    ),
 
-urlpatterns = router.urls
+    path(
+        "<int:pk>/",
+        CollegeDetailView.as_view(),
+        name="college-detail",
+    ),
+]

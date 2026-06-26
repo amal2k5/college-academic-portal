@@ -7,5 +7,9 @@ urlpatterns = [
     
     path("api/colleges/", include("colleges.urls")),
     path("api/departments/", include("departments.urls")),
-    path("api/students/", include("students.urls"))
+    path("api/students/", include("students.urls")),
+    path(
+        "api/college-requests/",
+        include("college_requests.urls"),
+    ),
 ]

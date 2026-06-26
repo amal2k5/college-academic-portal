@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'colleges',
     'departments',
     'students',
+    'college_requests'
 ]
 
 

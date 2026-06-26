@@ -70,14 +70,19 @@ def send_setup_email(
 
     print(setup_link)
 
-    result=send_mail(
-        subject="Setup Your College Portal Account",
+    result = send_mail(
+        subject="Your College Registration Has Been Approved",
 
         message=(
             f"Hello {user.first_name},\n\n"
-            f"Your account has been created.\n\n"
+            f"Congratulations!\n\n"
+            f"Your college registration request has been approved.\n\n"
+            f"Your College Admin account has been created successfully.\n\n"
             f"Click the link below to set your password:\n\n"
-            f"{setup_link}"
+            f"{setup_link}\n\n"
+            f"⚠️ This setup link will expire in 24 hours.\n\n"
+            f"Thank you,\n"
+            f"College Academic Portal Team"
         ),
 
         from_email=None,
@@ -88,9 +93,50 @@ def send_setup_email(
 
         fail_silently=False,
     )
+
     print("SEND RESULT =", result)
 
-    print("EMAIL SENT SUCCESSFULLY")
+    print("APPROVAL EMAIL SENT SUCCESSFULLY")
+    
+def send_rejection_email(
+    email,
+    college_name,
+    reason=""
+):
+    """
+    Send rejection email to the college.
+    """
+
+    message = (
+        f"Dear {college_name},\n\n"
+        "Thank you for your interest in the College Academic Portal.\n\n"
+        "After reviewing your registration request, we regret to inform you "
+        "that your request has been rejected.\n\n"
+    )
+
+    if reason:
+        message += (
+            f"Reason:\n"
+            f"{reason}\n\n"
+        )
+
+    message += (
+        "You may correct the above issue(s) and submit a new registration request.\n\n"
+        "If you have any questions, please contact the Platform Administrator.\n\n"
+        "Thank you,\n"
+        "College Academic Portal Team"
+    )
+
+    result = send_mail(
+        subject="Update on Your College Registration Request",
+        message=message,
+        from_email=None,
+        recipient_list=[email],
+        fail_silently=False,
+    )
+
+    print("SEND RESULT =", result)
+    print("REJECTION EMAIL SENT SUCCESSFULLY")
     
 
 def setup_password(
