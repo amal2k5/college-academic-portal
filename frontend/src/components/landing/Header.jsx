@@ -1,0 +1,289 @@
+import { Link } from "react-router-dom";
+import { GraduationCap, ArrowRight, CheckCircle } from "lucide-react";
+import { motion } from "framer-motion";
+
+const ease = [0.22, 1, 0.36, 1];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease } },
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+};
+
+const pendingRequests = [
+  { name: "XYZ College of Engineering", time: "2 min ago" },
+  { name: "ABC Arts and Science College", time: "18 min ago" },
+  { name: "MEC Institute of Technology", time: "1 hr ago" },
+  { name: "National College of Commerce", time: "3 hr ago" },
+];
+
+const Header = () => {
+  return (
+    <>
+      {/* ── NAVBAR ── */}
+      <header className="w-full border-b border-neutral-800/60 bg-neutral-950/90 backdrop-blur-md text-white sticky top-0 z-50">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
+              <GraduationCap size={16} strokeWidth={2} className="text-white" />
+            </div>
+            <span className="text-[15px] font-semibold text-neutral-100 tracking-wide">
+              AcadPortal
+            </span>
+          </Link>
+
+          {/* Nav links - UPDATED with proper hrefs */}
+          <nav className="hidden items-center gap-8 md:flex">
+            <a
+              href="#features"
+              className="text-[13px] font-medium text-neutral-400 hover:text-neutral-100 transition-colors duration-200"
+            >
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+              className="text-[13px] font-medium text-neutral-400 hover:text-neutral-100 transition-colors duration-200"
+            >
+              How It Works
+            </a>
+            <a
+              href="#why-us"
+              className="text-[13px] font-medium text-neutral-400 hover:text-neutral-100 transition-colors duration-200"
+            >
+              Why Us
+            </a>
+          </nav>
+
+          {/* CTA buttons */}
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="text-[12px] font-semibold text-neutral-400 hover:text-neutral-100 transition-colors duration-200 px-3 py-2 hidden md:block"
+            >
+              Portal Login
+            </Link>
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 text-[12px] font-semibold bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl transition-all duration-200"
+            >
+              Register College
+              <ArrowRight size={13} strokeWidth={2} />
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* ── HERO ── */}
+      <section className="relative bg-neutral-950 text-white overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-600/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-[400px] h-[300px] bg-violet-600/5 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative mx-auto max-w-7xl px-6 pt-20 pb-10 lg:pt-28 lg:pb-16">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={stagger}
+            className="grid items-center gap-14 lg:grid-cols-2"
+          >
+            {/* ── LEFT ── */}
+            <div className="space-y-7">
+              {/* Badge */}
+              <motion.div variants={fadeUp}>
+                <span className="inline-flex items-center gap-2 text-[11px] font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                  Trusted Academic Management Platform
+                </span>
+              </motion.div>
+
+              {/* Headline */}
+              <motion.h1
+                variants={fadeUp}
+                className="text-4xl md:text-5xl lg:text-[52px] font-semibold text-white leading-[1.12] tracking-tight"
+              >
+                One Platform.{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-300">
+                  Every Academic
+                </span>{" "}
+                Operation.
+              </motion.h1>
+
+              {/* Subheading */}
+              <motion.p
+                variants={fadeUp}
+                className="text-[15px] text-neutral-400 leading-relaxed max-w-lg tracking-wide"
+              >
+                Digitize admissions, departments, HODs and students using one
+                secure cloud-based management system built for higher education.
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                variants={fadeUp}
+                className="flex flex-wrap items-center gap-4 pt-1"
+              >
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[13px] font-semibold px-6 py-3 rounded-xl transition-all duration-200"
+                >
+                  Register College
+                  <ArrowRight size={14} strokeWidth={2} />
+                </Link>
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-neutral-300 hover:text-white border border-neutral-700 hover:border-neutral-600 px-6 py-3 rounded-xl transition-all duration-200"
+                >
+                  Learn More
+                </a>
+              </motion.div>
+
+              {/* Trust indicators */}
+              <motion.div
+                variants={fadeUp}
+                className="flex flex-wrap items-center gap-5 pt-2"
+              >
+                {[
+                  "No setup fees",
+                  "Instant onboarding",
+                  "Secure & reliable",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-500"
+                  >
+                    <CheckCircle size={12} strokeWidth={2} className="text-emerald-500 shrink-0" />
+                    {item}
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* ── RIGHT — Dashboard Preview ── */}
+            <motion.div variants={fadeUp} className="relative">
+              {/* Glow behind card */}
+              <div className="absolute -inset-4 bg-indigo-600/5 rounded-3xl blur-2xl pointer-events-none" />
+
+              <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl">
+                {/* Card top strip */}
+                <div className="h-[3px] w-full bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600" />
+
+                {/* Card header */}
+                <div className="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
+                      Platform Admin
+                    </p>
+                    <h3 className="text-[14px] font-semibold text-neutral-100 mt-0.5">
+                      Dashboard Overview
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Live
+                  </div>
+                </div>
+
+                <div className="p-5 space-y-4">
+                  {/* Pending Requests panel */}
+                  <div className="bg-neutral-800/50 border border-neutral-700/60 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-neutral-700/60 flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.18em]">
+                        Pending Requests
+                      </p>
+                      <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
+                        {pendingRequests.length} new
+                      </span>
+                    </div>
+                    <div className="divide-y divide-neutral-700/40">
+                      {pendingRequests.map((req) => (
+                        <div
+                          key={req.name}
+                          className="flex items-center justify-between px-4 py-3 hover:bg-neutral-700/20 transition-colors duration-150"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                            <span className="text-[12px] font-medium text-neutral-200 truncate">
+                              {req.name}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-neutral-600 shrink-0 ml-3">
+                            {req.time}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Analytics row */}
+                  <div className="bg-neutral-800/50 border border-neutral-700/60 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-neutral-700/60">
+                      <p className="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.18em]">
+                        Analytics
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 divide-x divide-neutral-700/40">
+                      {[
+                        { label: "Colleges", value: "128", color: "text-indigo-400" },
+                        { label: "Students", value: "18,540", color: "text-emerald-400" },
+                        { label: "Departments", value: "846", color: "text-violet-400" },
+                      ].map(({ label, value, color }) => (
+                        <div key={label} className="px-4 py-4 text-center">
+                          <p className={`text-[18px] font-semibold ${color} leading-none`}>
+                            {value}
+                          </p>
+                          <p className="text-[9px] font-semibold text-neutral-600 uppercase tracking-[0.15em] mt-1.5">
+                            {label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* ── STATS BAR ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease, delay: 0.5 }}
+            id="stats"
+            className="mt-20 pt-10 border-t border-neutral-800"
+          >
+            <p className="text-center text-[10px] font-semibold text-neutral-600 uppercase tracking-[0.25em] mb-10">
+              Trusted by Modern Institutions
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { value: "120+", label: "Colleges", color: "text-indigo-400" },
+                { value: "18K+", label: "Students", color: "text-emerald-400" },
+                { value: "850+", label: "Departments", color: "text-violet-400" },
+                { value: "99.9%", label: "Availability", color: "text-amber-400" },
+              ].map(({ value, label, color }) => (
+                <div
+                  key={label}
+                  className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 text-center hover:border-neutral-700 transition-colors duration-200"
+                >
+                  <p className={`text-3xl font-semibold ${color} leading-none mb-2`}>
+                    {value}
+                  </p>
+                  <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default Header;
