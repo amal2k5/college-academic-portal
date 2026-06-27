@@ -21,8 +21,8 @@ import StudentCreate from "../pages/hod/StudentCreate";
 import StudentEdit from "../pages/hod/StudentEdit";
 import StudentDashboard from "../pages/student/StudentDashboard";
 import StudentProfile from "../pages/student/Profile";
-import StudentLayout from "../layouts/StudentLayout"
-
+import StudentLayout from "../layouts/StudentLayout";
+import CollegeRequestsPage from "../pages/admin/CollegeRequestsPage";
 
 function AdminRoutes() {
   return (
@@ -39,6 +39,10 @@ function AdminRoutes() {
         <Route path="/admin/colleges" element={<CollegeManagement />} />
         <Route path="/admin/college-admins" element={<CollegeAdmins />} />
         <Route path="/admin/hods" element={<HODs />} />
+        <Route
+          path="/admin/college-requests"
+          element={<CollegeRequestsPage />}
+        />
       </Route>
 
       {/* COLLEGE ADMIN */}
