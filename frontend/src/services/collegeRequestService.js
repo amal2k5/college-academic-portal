@@ -32,11 +32,11 @@ export const approveCollegeRequest = async (id) => {
 
 export const rejectCollegeRequest = async (
   id,
-  rejection_reason
+  reason
 ) => {
   const response = await axiosInstance.patch(
     `/college-requests/${id}/reject/`,
-    { rejection_reason }
+    { reason }
   );
 
   return response.data;

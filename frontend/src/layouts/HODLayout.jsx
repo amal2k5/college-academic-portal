@@ -6,8 +6,18 @@ import { AuthContext } from "../context/AuthContext";
 
 function HODLayout() {
   const [showConfirm, setShowConfirm] = useState(false);
-  const { logoutUser } = useContext(AuthContext);
+  const { user, logoutUser } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const displayName =
+    `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "HOD";
+
+  const initials = displayName
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -16,7 +26,6 @@ function HODLayout() {
 
   return (
     <div className="min-h-screen flex bg-neutral-950 font-sans antialiased text-neutral-400 selection:bg-neutral-800 selection:text-white relative overflow-hidden">
-
       {/* ── GLOBAL LIQUID SILVER SHINING RADIANCE BACKGROUND ── */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(255,255,255,0.04),transparent_35%)] pointer-events-none z-0" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(200,200,200,0.03),transparent_40%)] pointer-events-none z-0" />
@@ -28,15 +37,18 @@ function HODLayout() {
           <div className="bg-neutral-950 border border-neutral-900/80 rounded-3xl w-full max-w-sm p-6 relative overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.85)]">
             {/* Soft background attention indicator flare */}
             <div className="absolute -right-12 -top-12 w-28 h-28 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
-            
+
             <div className="flex gap-4">
               <div className="p-2.5 bg-neutral-900/50 border border-neutral-800/60 rounded-2xl text-rose-400 shrink-0">
                 <ShieldAlert className="h-5 w-5" strokeWidth={1.5} />
               </div>
               <div className="space-y-1">
-                <h3 className="text-xs font-medium text-white uppercase tracking-wider">Confirm Logout</h3>
+                <h3 className="text-xs font-medium text-white uppercase tracking-wider">
+                  Confirm Logout
+                </h3>
                 <p className="text-xs text-neutral-500 leading-relaxed">
-                  Are you sure you want to log out of your session? Any unsaved administrative changes may be lost.
+                  Are you sure you want to log out of your session? Any unsaved
+                  administrative changes may be lost.
                 </p>
               </div>
             </div>
@@ -72,8 +84,12 @@ function HODLayout() {
                 Ω
               </div>
               <div className="space-y-0.5">
-                <h1 className="text-xs font-medium text-neutral-200 uppercase tracking-widest leading-none">HOD Portal</h1>
-                <p className="text-[9px] font-medium text-neutral-500 uppercase tracking-wider block">Department Admin</p>
+                <h1 className="text-xs font-medium text-neutral-200 uppercase tracking-widest leading-none">
+                  HOD Portal
+                </h1>
+                <p className="text-[9px] font-medium text-neutral-500 uppercase tracking-wider block">
+                  Department Admin
+                </p>
               </div>
             </div>
           </div>
@@ -91,7 +107,11 @@ function HODLayout() {
                 }`
               }
             >
-              <LayoutDashboard size={15} strokeWidth={1.5} className="shrink-0" />
+              <LayoutDashboard
+                size={15}
+                strokeWidth={1.5}
+                className="shrink-0"
+              />
               <span>Dashboard</span>
             </NavLink>
 
@@ -118,7 +138,11 @@ function HODLayout() {
             onClick={() => setShowConfirm(true)}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-medium uppercase tracking-wider text-rose-500/80 hover:bg-rose-950/10 hover:text-rose-400 transition-all duration-150 group cursor-pointer"
           >
-            <LogOut size={15} strokeWidth={1.5} className="text-rose-500/60 group-hover:text-rose-400 transition-colors shrink-0" />
+            <LogOut
+              size={15}
+              strokeWidth={1.5}
+              className="text-rose-500/60 group-hover:text-rose-400 transition-colors shrink-0"
+            />
             <span>Logout</span>
           </button>
         </div>
@@ -128,14 +152,17 @@ function HODLayout() {
       <div className="flex-1 flex flex-col min-w-0 z-10">
         {/* Global Toolbar Header */}
         <header className="bg-neutral-950/40 backdrop-blur-md border-b border-neutral-800/40 px-8 h-16 flex justify-between items-center sticky top-0 z-40 shrink-0">
-          <div className="space-y-0.5">
-            <h2 className="text-xs font-medium text-neutral-200 uppercase tracking-widest">Head of Department</h2>
-            <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">Academic Administration & Systems</p>
+          <div>
+            <h2 className="text-sm font-semibold text-neutral-100">
+              {displayName}
+            </h2>
+
+            <p className="text-xs text-neutral-500">{user?.email}</p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-2xl bg-neutral-900 border border-neutral-800 text-neutral-300 flex items-center justify-center font-sans font-medium text-xs shadow-inner">
-              H
+            <div className="w-9 h-9 rounded-2xl bg-neutral-900 border border-neutral-800 text-neutral-300 flex items-center justify-center font-medium text-xs shadow-inner">
+              {initials}
             </div>
           </div>
         </header>
@@ -145,7 +172,6 @@ function HODLayout() {
           <Outlet />
         </main>
       </div>
-
     </div>
   );
 }

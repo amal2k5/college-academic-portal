@@ -163,8 +163,41 @@ class HODListSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "department",
+            "is_active"
         ]    
         
+        
+class HODDetailSerializer(serializers.ModelSerializer):
+
+    department = serializers.CharField(
+        source="hodprofile.department.name",
+        read_only=True
+    )
+
+    phone = serializers.CharField(
+        source="hodprofile.phone",
+        read_only=True
+    )
+
+    joined_at = serializers.DateTimeField(
+        source="hodprofile.joined_at",
+        read_only=True
+    )
+
+    class Meta:
+        model = User
+
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "department",
+            "role",
+            "is_active",
+            "joined_at",
+        ]        
         
 class CollegeAdminListSerializer(
     serializers.ModelSerializer
@@ -184,4 +217,14 @@ class CollegeAdminListSerializer(
             "email",
             "college",
             "is_active",
+            "created_at"
         ]        
+        
+
+class CollegeAdminStatusSerializer(serializers.Serializer):
+    is_active = serializers.BooleanField()        
+    
+    
+class HODStatusSerializer(serializers.Serializer):
+
+    is_active = serializers.BooleanField()    

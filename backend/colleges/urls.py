@@ -1,15 +1,14 @@
 from django.urls import path
 
-from .views import (
-    CollegeListCreateView,
-    CollegeDetailView,
-)
+from .views import *
+
+
 
 urlpatterns = [
     path(
-        "",
-        CollegeListCreateView.as_view(),
-        name="college-list-create",
+    "",
+    CollegeListView.as_view(),
+    name="college-list",
     ),
 
     path(

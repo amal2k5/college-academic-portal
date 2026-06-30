@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Request Update</title>
+
+</head>
+
+<body style="margin:0;padding:0;background:#000000;font-family:'Inter',Arial,Helvetica,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:60px 20px;background:#000000;">
+<tr>
+<td align="center">
+
+<!-- Main Container -->
+<table width="600" cellpadding="0" cellspacing="0"
+style="
+background:#0a0a0a;
+border-radius:24px;
+padding:48px 44px;
+border:1px solid rgba(255,255,255,0.06);
+box-shadow:0 24px 80px rgba(0,0,0,0.9);
+">
+
+<!-- Logo Section -->
+<tr>
+<td align="center" style="padding-bottom:8px;">
+<table cellpadding="0" cellspacing="0" style="margin:auto;">
+<tr>
+<td style="background:#2563eb;border-radius:12px;padding:12px 18px;">
+<span style="color:white;font-size:18px;">🎓</span>
+<span style="color:white;font-size:18px;font-weight:bold;">
+College Academic Portal
+</span>
+</td>
+</tr>
+</table>
+    <p style="color:#6b7280;font-size:12px;font-weight:400;margin-top:10px;letter-spacing:0.4px;">
+        Multi-College Management Platform
+    </p>
+</td>
+</tr>
+
+<!-- Divider -->
+<tr>
+<td style="padding:8px 0 16px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="border-bottom:1px solid rgba(255,255,255,0.05);"></td></tr>
+    </table>
+</td>
+</tr>
+
+<!-- Content -->
+<tr>
+<td>
+
+<!-- Header -->
+<h2 style="color:#f87171;font-size:22px;font-weight:400;margin:0 0 4px 0;letter-spacing:-0.2px;">
+    Registration Request Update
+</h2>
+
+<!-- Greeting -->
+<p style="color:#d1d5db;font-size:14px;font-weight:400;line-height:1.8;margin:18px 0 0 0;">
+    Hello <span style="color:#e5e7eb;font-weight:500;">{{ college_name }}</span>,
+</p>
+
+<p style="color:#9ca3af;font-size:14px;font-weight:400;line-height:1.8;margin:12px 0 0 0;">
+    Thank you for your interest in the <span style="color:#e5e7eb;font-weight:500;">College Academic Portal</span>.
+</p>
+
+<p style="color:#9ca3af;font-size:14px;font-weight:400;line-height:1.8;margin:12px 0 0 0;">
+    After reviewing your registration request, we regret to inform you that your application has not been approved at this time.
+</p>
+
+<!-- Reason Box -->
+{% if reason %}
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0;">
+    <tr>
+        <td style="
+            background:rgba(239,68,68,0.06);
+            border-left:3px solid #ef4444;
+            padding:16px 18px;
+            border-radius:6px;
+        ">
+            <p style="color:#fca5a5;font-size:11px;font-weight:500;margin:0 0 4px 0;text-transform:uppercase;letter-spacing:0.6px;">
+                Reason for rejection
+            </p>
+            <p style="color:#d1d5db;font-size:13px;font-weight:400;line-height:1.7;margin:0;">
+                {{ reason }}
+            </p>
+        </td>
+    </tr>
+</table>
+{% endif %}
+
+<p style="color:#9ca3af;font-size:14px;font-weight:400;line-height:1.8;margin:12px 0 0 0;">
+    You may correct the above issue(s) and submit a new registration request in the future.
+</p>
+
+<p style="color:#6b7280;font-size:13px;font-weight:400;line-height:1.8;margin:12px 0 0 0;">
+    If you believe this decision was made in error or need further clarification, please contact the Platform Administrator.
+</p>
+
+<!-- Footer Divider -->
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0 16px 0;">
+    <tr><td style="border-bottom:1px solid rgba(255,255,255,0.05);"></td></tr>
+</table>
+
+<!-- Footer -->
+<p style="color:#4b5563;font-size:11px;font-weight:400;text-align:center;letter-spacing:0.3px;margin:0;">
+    © 2026 College Academic Portal
+</p>
+<p style="color:#374151;font-size:10px;font-weight:400;text-align:center;margin:4px 0 0 0;letter-spacing:0.5px;">
+    Secure · Reliable · Trusted
+</p>
+
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>

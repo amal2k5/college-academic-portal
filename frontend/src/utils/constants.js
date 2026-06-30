@@ -4,6 +4,7 @@ export const ROUTES = {
   DEPARTMENTS: "/admin/departments",
   HODS: "/admin/hods",
   STUDENTS: "/admin/students",
+  COLLEGE_REQUESTS: "/admin/college-requests",
 };
 
 export const ROLES = {

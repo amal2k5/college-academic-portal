@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+ baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -24,34 +24,42 @@ axiosInstance.interceptors.response.use(
     const original = error.config;
 
     const is401 = error.response?.status === 401;
-    const alreadyRetried = original._retry;
-    const isRefreshCall = original.url?.includes("/auth/refresh/");
 
-    if (is401 && !alreadyRetried && !isRefreshCall) {
+
+const isLoginCall = original.url?.includes("/auth/login/");
+const isRefreshCall = original.url?.includes("/auth/refresh/");
+    const alreadyRetried = original._retry;
+
+
+    if (
+  is401 &&
+  !alreadyRetried &&
+  !isRefreshCall &&
+  !isLoginCall
+) {
       original._retry = true;
 
       const refresh = localStorage.getItem("refresh");
 
       if (refresh) {
         try {
-          // Use plain axios here — NOT axiosInstance — to avoid interceptor loop
+
           const { data } = await axios.post(
-            "http://127.0.0.1:8000/api/auth/refresh/",
+    `${import.meta.env.VITE_API_URL}/auth/refresh/`,
             { refresh },
             { headers: { "Content-Type": "application/json" } }
           );
 
           localStorage.setItem("access", data.access);
 
-          // Swap token and replay the failed request
           original.headers.Authorization = `Bearer ${data.access}`;
           return axiosInstance(original);
         } catch (_refreshError) {
-          // Refresh itself failed — token is dead
+
         }
       }
 
-      // No refresh token or refresh failed → force logout
+
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
       localStorage.removeItem("role");

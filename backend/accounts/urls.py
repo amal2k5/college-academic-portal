@@ -4,15 +4,7 @@ from rest_framework_simplejwt.views import (  # type: ignore
     TokenRefreshView,
 )
 
-from .views import (
-    LoginView,
-    LogoutView,
-    CollegeAdminCreateView,
-    SetupPasswordView,
-    HODCreateView,
-    HODListView,
-    CollegeAdminListView
-)
+from .views import *
 
 urlpatterns = [
 
@@ -56,10 +48,29 @@ urlpatterns = [
     "hods/",
     HODListView.as_view()
 ),
+    path(
+    "hods/<int:pk>/",
+    HODDetailView.as_view(),
+    name="hod-detail",
+),
+    
+path(
+    "hods/<int:pk>/status/",
+    HODStatusUpdateView.as_view(),
+    name="hod-status",
+),    
     
     path(
     "college-admins/",
     CollegeAdminListView.as_view(),
     name="college_admin_list"
 ),
+    
+    path(
+    "college-admins/<int:pk>/status/",
+    CollegeAdminStatusUpdateView.as_view(),
+    name="college-admin-status",
+),
+    
+    
 ]

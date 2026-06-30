@@ -6,6 +6,9 @@ from accounts.permissions import IsCollegeAdmin
 from .models import Department
 from accounts.models import CollegeAdminProfile
 from .serializers import *
+from rest_framework.decorators import action
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 
 from rest_framework import viewsets
@@ -73,6 +76,8 @@ class DepartmentViewSet(
             college=college
         )
     
+
+    
 class CollegeDepartmentListView(
     APIView
 ):
@@ -100,7 +105,6 @@ class CollegeDepartmentListView(
             Department.objects
             .filter(
                 college=college,
-                is_active=True
             )
             .order_by("name")
         )
@@ -114,4 +118,81 @@ class CollegeDepartmentListView(
 
         return Response(
             serializer.data
+        )    
+        
+        
+class DepartmentDetailView(APIView):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsCollegeAdmin,
+    ]
+
+    def get(self, request, pk):
+
+        college = (
+            CollegeAdminProfile.objects
+            .select_related("college")
+            .get(user=request.user)
+            .college
+        )
+
+        department = get_object_or_404(
+            Department,
+            pk=pk,
+            college=college
+        )
+
+        serializer = DepartmentDetailSerializer(
+            department
+        )
+
+        return Response(serializer.data)        
+    
+    
+class DepartmentStatusUpdateView(APIView):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsCollegeAdmin,
+    ]
+
+    def patch(self, request, pk):
+
+        college = (
+            CollegeAdminProfile.objects
+            .select_related("college")
+            .get(user=request.user)
+            .college
+        )
+
+        department = get_object_or_404(
+            Department,
+            pk=pk,
+            college=college,
+        )
+
+        is_active = request.data.get("is_active")
+
+        if is_active is None:
+            return Response(
+                {
+                    "message": "is_active field is required."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        department.is_active = is_active
+        department.save(update_fields=["is_active"])
+
+        return Response(
+            {
+                "message": (
+                    "Department activated successfully."
+                    if department.is_active
+                    else "Department deactivated successfully."
+                ),
+                "is_active": department.is_active,
+            },
+            status=status.HTTP_200_OK,
         )    

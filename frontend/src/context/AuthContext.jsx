@@ -4,7 +4,12 @@ import { logout } from "../services/authService";
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
-  const [user, setUser] = useState(localStorage.getItem("role") || null);
+  const [user, setUser] = useState(() => ({
+  role: localStorage.getItem("role"),
+  first_name: localStorage.getItem("first_name"),
+  last_name: localStorage.getItem("last_name"),
+  email: localStorage.getItem("email"),
+}));
 
   const loginUser = (data) => {
     localStorage.setItem("access", data.access);
@@ -15,7 +20,12 @@ function AuthProvider({ children }) {
     localStorage.setItem("last_name", data.last_name);
     localStorage.setItem("email", data.email);
 
-    setUser(data.role);
+    setUser({
+  role: data.role,
+  first_name: data.first_name,
+  last_name: data.last_name,
+  email: data.email,
+});
   };
 
   const logoutUser = async () => {

@@ -18,3 +18,15 @@ export const getCollegeAdmins =
 
     return data;
   };
+
+
+export const updateCollegeAdminStatus = async (id, is_active) => {
+  const { data } = await axiosInstance.patch(
+    `/auth/college-admins/${id}/status/`,
+    {
+      is_active,
+    }
+  );
+
+  return data;
+};  

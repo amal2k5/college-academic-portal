@@ -27,7 +27,7 @@ const initialFormData = {
   notes: "",
 };
 
-// ── Animation Variants ──
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -48,7 +48,7 @@ const itemVariants = {
   },
 };
 
-// ── Reusable Input Component ──
+
 const FormField = ({
   label,
   name,
@@ -138,7 +138,7 @@ const FormField = ({
   );
 };
 
-// ── Main Component ──
+
 const CollegeRegistrationForm = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
@@ -191,16 +191,37 @@ const CollegeRegistrationForm = () => {
       });
       setFormData(initialFormData);
     } catch (error) {
-      setModal({
-        isOpen: true,
-        type: "error",
-        title: "Submission Failed",
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Unable to submit request. Please try again later.",
-      });
-    } finally {
+        console.log(error.response.data);
+  console.log(error.response.data.errors);
+  console.log(error.response.data.errors.email);
+  console.log(error.response.data.errors.email[0]);
+  console.log("Registration Error:", error.response?.data);
+
+  const response = error?.response?.data;
+
+  let message =
+    response?.message ||
+    response?.detail ||
+    "Unable to submit request. Please try again later.";
+
+  if (response?.errors) {
+    const firstField = Object.keys(response.errors)[0];
+
+    if (
+      firstField &&
+      Array.isArray(response.errors[firstField])
+    ) {
+      message = response.errors[firstField][0];
+    }
+  }
+
+  setModal({
+    isOpen: true,
+    type: "error",
+    title: "Submission Failed",
+    message,
+  });
+} finally {
       setLoading(false);
     }
   };

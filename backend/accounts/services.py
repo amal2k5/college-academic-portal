@@ -1,9 +1,10 @@
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
 from django.utils import timezone
-
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
 from colleges.models import College
 from departments.models import Department
 
@@ -57,44 +58,45 @@ def generate_setup_token(user):
 
     return token
 
-def send_setup_email(
-    user,
-    token
-):
+def send_setup_email(user, token):
 
     print("EMAIL FUNCTION CALLED")
 
     setup_link = (
-        f"http://localhost:5173/setup-password/{token.token}"
+        f"{settings.FRONTEND_URL}/setup-password/{token.token}"
     )
 
-    print(setup_link)
+    context = {
+        "first_name": user.first_name,
+        "setup_link": setup_link,
+    }
 
-    result = send_mail(
+    html_message = render_to_string(
+        "emails/approval_email.html",
+        context
+    )
+
+    text_message = (
+        f"Hello {user.first_name},\n\n"
+        f"Your college registration has been approved.\n\n"
+        f"Set your password here:\n"
+        f"{setup_link}\n\n"
+        f"This link expires in 24 hours."
+    )
+
+    email = EmailMultiAlternatives(
         subject="Your College Registration Has Been Approved",
-
-        message=(
-            f"Hello {user.first_name},\n\n"
-            f"Congratulations!\n\n"
-            f"Your college registration request has been approved.\n\n"
-            f"Your College Admin account has been created successfully.\n\n"
-            f"Click the link below to set your password:\n\n"
-            f"{setup_link}\n\n"
-            f"⚠️ This setup link will expire in 24 hours.\n\n"
-            f"Thank you,\n"
-            f"College Academic Portal Team"
-        ),
-
-        from_email=None,
-
-        recipient_list=[
-            user.email
-        ],
-
-        fail_silently=False,
+        body=text_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
     )
 
-    print("SEND RESULT =", result)
+    email.attach_alternative(
+        html_message,
+        "text/html"
+    )
+
+    email.send()
 
     print("APPROVAL EMAIL SENT SUCCESSFULLY")
     
@@ -103,39 +105,45 @@ def send_rejection_email(
     college_name,
     reason=""
 ):
-    """
-    Send rejection email to the college.
-    """
 
-    message = (
+    context = {
+        "college_name": college_name,
+        "reason": reason,
+    }
+
+    html_message = render_to_string(
+        "emails/rejection_email.html",
+        context
+    )
+
+    text_message = (
         f"Dear {college_name},\n\n"
-        "Thank you for your interest in the College Academic Portal.\n\n"
-        "After reviewing your registration request, we regret to inform you "
-        "that your request has been rejected.\n\n"
+        f"Your registration request has been rejected.\n\n"
     )
 
     if reason:
-        message += (
-            f"Reason:\n"
-            f"{reason}\n\n"
-        )
+        text_message += f"Reason:\n{reason}\n\n"
 
-    message += (
-        "You may correct the above issue(s) and submit a new registration request.\n\n"
-        "If you have any questions, please contact the Platform Administrator.\n\n"
+    text_message += (
+        "You may correct the issue(s) and submit a new registration request.\n\n"
         "Thank you,\n"
         "College Academic Portal Team"
     )
 
-    result = send_mail(
+    email_message = EmailMultiAlternatives(
         subject="Update on Your College Registration Request",
-        message=message,
-        from_email=None,
-        recipient_list=[email],
-        fail_silently=False,
+        body=text_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email],
     )
 
-    print("SEND RESULT =", result)
+    email_message.attach_alternative(
+        html_message,
+        "text/html"
+    )
+
+    email_message.send()
+
     print("REJECTION EMAIL SENT SUCCESSFULLY")
     
 

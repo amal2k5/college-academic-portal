@@ -89,9 +89,7 @@ function CollegeAdminLayout() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1">
-          <p className="text-[9px] font-semibold text-neutral-600 uppercase tracking-[0.2em] px-3 mb-3">
-            Navigation
-          </p>
+
           {menuItems.map(({ label, icon: Icon, path }) => (
             <NavLink
               key={path}

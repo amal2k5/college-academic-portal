@@ -1,4 +1,5 @@
 from pathlib import Path
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -7,10 +8,9 @@ SECRET_KEY = 'django-insecure-*yk1b_t$sy93me6mh$16yspu9l6b!9_!d(ts!+1&tuskw3_g(q
 
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-]
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS"
+).split(",")
 
 
 # APPLICATIONS
@@ -61,7 +61,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -101,6 +101,7 @@ EMAIL_HOST_USER = "dominicproject96@gmail.com"
 EMAIL_HOST_PASSWORD = "qnet dqxr akus exjw"
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+FRONTEND_URL = config("FRONTEND_URL")
 
 
 # PASSWORD VALIDATION
@@ -160,10 +161,9 @@ REST_FRAMEWORK = {
 
 # CORS
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
-
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS"
+).split(",")
 
 CORS_ALLOW_CREDENTIALS = True
 
