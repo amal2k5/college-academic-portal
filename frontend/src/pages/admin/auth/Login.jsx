@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, GraduationCap, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, GraduationCap, Mail, Lock, ArrowLeft } from "lucide-react";
 import { AuthContext } from "../../../context/AuthContext";
 import { login } from "../../../services/authService";
 
@@ -22,7 +22,6 @@ const fadeUp = {
   }),
 };
 
-// ── Defined OUTSIDE Login — no remount on every keystroke ──
 const Field = ({ id, label, type, icon: Icon, value, onChange, error, placeholder, disabled, extra }) => (
   <div>
     <label
@@ -145,13 +144,35 @@ function Login() {
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
 
+      {/* Background glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-indigo-600/8 rounded-full blur-[100px] pointer-events-none" />
+
+      {/* Back to home — top left */}
+      <motion.div
+        custom={0}
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="absolute top-6 left-6"
+      >
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-[11px] font-semibold text-neutral-500 hover:text-neutral-200 uppercase tracking-[0.18em] transition-colors duration-200 group"
+        >
+          <ArrowLeft
+            size={13}
+            strokeWidth={2}
+            className="group-hover:-translate-x-0.5 transition-transform duration-200"
+          />
+          Home
+        </Link>
+      </motion.div>
 
       <div className="relative w-full max-w-sm">
 
         {/* Logo */}
         <motion.div
-          custom={0}
+          custom={1}
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -170,7 +191,7 @@ function Login() {
 
         {/* Card */}
         <motion.div
-          custom={1}
+          custom={2}
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -216,7 +237,7 @@ function Login() {
               }
             />
 
-            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="pt-2">
+            <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible" className="pt-2">
               <button
                 type="submit"
                 disabled={loading}
@@ -241,7 +262,7 @@ function Login() {
         </motion.div>
 
         <motion.p
-          custom={3}
+          custom={4}
           variants={fadeUp}
           initial="hidden"
           animate="visible"

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { toast } from "react-toastify";
 import {
   getCollegeRequests,
@@ -18,28 +18,28 @@ const CollegeRequestsPage = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  
+  // Pagination state (kept for future implementation)
   const [count, setCount] = useState(0);
   const [next, setNext] = useState(null);
   const [previous, setPrevious] = useState(null);
 
-const fetchRequests = async () => {
-  
-  try {
-    setLoading(true);
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      const data = await getCollegeRequests();
+      setRequests(data.results || []);
+      setCount(data.count);
+      setNext(data.next);
+      setPrevious(data.previous);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load registration requests.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const data = await getCollegeRequests();
-
-    setRequests(data.results);
-    setCount(data.count);
-    setNext(data.next);
-    setPrevious(data.previous);
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to load registration requests.");
-  } finally {
-    setLoading(false);
-  }
-};
   useEffect(() => {
     fetchRequests();
   }, []);
@@ -57,17 +57,15 @@ const fetchRequests = async () => {
   }, [requests, search]);
 
   const handleView = async (request) => {
-
     try {
       const data = await getCollegeRequest(request.id);
-
       setSelectedRequest(data);
-
       setDetailsOpen(true);
     } catch {
       toast.error("Unable to load request details.");
     }
   };
+
   const handleApprove = async () => {
     if (!selectedRequest) return;
     try {
@@ -96,28 +94,34 @@ const fetchRequests = async () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-6 md:p-10">
-      {/* Header Section */}
-      <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6">
+      {/* Premium Page Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-neutral-800/50 pb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-xl font-semibold text-white tracking-tight">
             Registration Requests
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-            Review incoming college applications and manage access permissions.
+          <p className="mt-1 text-sm text-neutral-500 leading-relaxed max-w-xl">
+            Review incoming college applications and manage platform access permissions.
           </p>
         </div>
 
-        {/* Premium Search Input */}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
-          <input
-            type="text"
-            placeholder="Search colleges or contacts..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-neutral-800 bg-neutral-900/50 py-3 pl-10 pr-4 text-sm text-white outline-none transition-all placeholder:text-neutral-600 focus:border-indigo-500/50 focus:bg-neutral-900 focus:ring-2 focus:ring-indigo-500/10"
-          />
+        {/* Search & Filter Controls */}
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search colleges or contacts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl bg-neutral-900/50 border border-neutral-800 py-2.5 pl-9 pr-4 text-sm text-white placeholder:text-neutral-600 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:bg-neutral-900 outline-none transition-all"
+            />
+          </div>
+          
+          <button className="p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700 transition-all shrink-0">
+            <Filter className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
