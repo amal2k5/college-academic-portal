@@ -11,6 +11,12 @@ class Student(models.Model):
         FEMALE = "FEMALE", "Female"
         OTHER = "OTHER", "Other"
 
+    class YearChoices(models.IntegerChoices):
+        FIRST = 1, "First Year"
+        SECOND = 2, "Second Year"
+        THIRD = 3, "Third Year"
+        FOURTH = 4, "Fourth Year"
+
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -58,6 +64,10 @@ class Student(models.Model):
     parent_phone = models.CharField(
         max_length=15,
         blank=True
+    )
+
+    year = models.PositiveSmallIntegerField(
+        choices=YearChoices.choices
     )
 
     semester = models.PositiveIntegerField()
