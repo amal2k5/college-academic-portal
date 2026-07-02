@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, LogOut, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Users, LogOut, ShieldAlert, Bell, ClipboardList } from "lucide-react";
 
 import { AuthContext } from "../context/AuthContext";
 
@@ -127,6 +127,34 @@ function HODLayout() {
             >
               <Users size={15} strokeWidth={1.5} className="shrink-0" />
               <span>Students</span>
+            </NavLink>
+
+            <NavLink
+              to="/hod/notices"
+              className={({ isActive }) =>
+                `w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-medium uppercase tracking-wider transition-all duration-150 group cursor-pointer ${
+                  isActive
+                    ? "bg-neutral-900/80 text-white border border-neutral-800/60 shadow-sm"
+                    : "text-neutral-500 hover:bg-neutral-900/30 hover:text-neutral-200"
+                }`
+              }
+            >
+              <Bell size={15} strokeWidth={1.5} className="shrink-0" />
+              <span>Notice Management</span>
+            </NavLink>
+
+            <NavLink
+              to="/hod/assignments"
+              className={({ isActive }) =>
+                `w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-medium uppercase tracking-wider transition-all duration-150 group cursor-pointer ${
+                  isActive
+                    ? "bg-neutral-900/80 text-white border border-neutral-800/60 shadow-sm"
+                    : "text-neutral-500 hover:bg-neutral-900/30 hover:text-neutral-200"
+                }`
+              }
+            >
+              <ClipboardList size={15} strokeWidth={1.5} className="shrink-0" />
+              <span>Assignment Management</span>
             </NavLink>
           </nav>
         </div>

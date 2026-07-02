@@ -6,6 +6,7 @@ import {
   LogOut,
   Building2,
   GraduationCap,
+  Bell,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
@@ -38,6 +39,11 @@ function CollegeAdminLayout() {
       path: "/college-admin/departments",
     },
     { label: "HODs", icon: Users, path: "/college-admin/hods" },
+    {
+      label: "Notice Management",
+      icon: Bell,
+      path: "/college-admin/notices",
+    },
   ];
 
   return (

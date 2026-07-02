@@ -258,6 +258,15 @@ function Login() {
               </button>
             </motion.div>
 
+            <div className="text-center pt-2">
+              <Link
+                to="/forgot-password"
+                className="inline-block text-[11px] font-semibold text-neutral-500 hover:text-neutral-200 uppercase tracking-[0.18em] transition-colors duration-200"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
           </form>
         </motion.div>
 

@@ -10,7 +10,8 @@ import {
   ChevronLeft, 
   Bell,
   GraduationCap,
-  AlertCircle
+  AlertCircle,
+  ClipboardList
 } from "lucide-react";
 
 function StudentLayout() {
@@ -49,7 +50,9 @@ function StudentLayout() {
 
   const navItems = [
     { path: "/student", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/student/profile", label: "Profile", icon: User }
+    { path: "/student/profile", label: "Profile", icon: User },
+    { path: "/student/notices", label: "Notices", icon: Bell },
+    { path: "/student/assignments", label: "Assignments", icon: ClipboardList }
   ];
 
   return (
