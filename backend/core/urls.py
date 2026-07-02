@@ -12,4 +12,9 @@ urlpatterns = [
         "api/college-requests/",
         include("college_requests.urls"),
     ),
+    path("api/notices/", include("notices.urls")),
+    path(
+    "api/assignments/",
+    include("assignments.urls"),
+),
 ]
