@@ -2,4 +2,8 @@ from django.apps import AppConfig
 
 
 class NoticesConfig(AppConfig):
-    name = 'notices'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "notices"
+
+    def ready(self):
+        import notices.signals 

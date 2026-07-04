@@ -24,8 +24,9 @@ ALLOWED_HOSTS = config(
 # ==============================================================================
 # APPLICATIONS
 # ==============================================================================
-
 INSTALLED_APPS = [
+    "daphne",
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -33,15 +34,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Third Party Apps
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "cloudinary",
     "cloudinary_storage",
+    "channels",
 
-    # Local Apps
     "accounts",
     "colleges",
     "departments",
@@ -93,6 +93,9 @@ TEMPLATES = [
 
 
 WSGI_APPLICATION = "core.wsgi.application"
+
+# Added for Django Channels
+ASGI_APPLICATION = "core.asgi.application"
 
 
 # ==============================================================================
@@ -178,7 +181,6 @@ USE_TZ = True
 # STATIC & MEDIA
 # ==============================================================================
 
-
 STATIC_URL = "static/"
 
 CLOUDINARY_STORAGE = {
@@ -197,6 +199,7 @@ STORAGES = {
     },
 }
 
+
 # ==============================================================================
 # CUSTOM USER MODEL
 # ==============================================================================
@@ -212,6 +215,7 @@ AUTHENTICATION_BACKENDS = [
     "accounts.backends.EmailBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
+
 
 # ==============================================================================
 # DJANGO REST FRAMEWORK
@@ -257,3 +261,19 @@ SIMPLE_JWT = {
 # ==============================================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# ==============================================================================
+# DJANGO CHANNELS
+# ==============================================================================
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                ("127.0.0.1", 6379),
+            ],
+        },
+    },
+}
