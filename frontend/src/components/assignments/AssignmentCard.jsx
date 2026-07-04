@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Clock, 
-  AlertCircle, 
-  Download, 
-  FileText, 
-  Pencil, 
-  Trash2, 
-  MoreVertical 
+import {
+  Clock,
+  AlertCircle,
+  FileText,
+  Pencil,
+  Trash2,
+  ArrowUpRight,
 } from "lucide-react";
 
 function getTimeLeft(deadline) {
@@ -15,101 +14,161 @@ function getTimeLeft(deadline) {
   const end = new Date(deadline);
   const diff = end - now;
 
-  if (diff <= 0) return { text: "Overdue", isLate: true, color: "text-red-400" };
-  
+  if (diff <= 0)
+    return { text: "Overdue", isLate: true, color: "text-red-400" };
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
-  if (days > 0) return { text: `${days}d ${hours}h left`, isLate: false, color: "text-indigo-400" };
-  if (hours > 0) return { text: `${hours}h left`, isLate: false, color: "text-amber-400" };
-  return { text: "Due soon", isLate: false, color: "text-emerald-400" };
+
+  if (days > 0)
+    return {
+      text: `${days}d ${hours}h left`,
+      isLate: false,
+      color: "text-neutral-300",
+    };
+  if (hours > 0)
+    return { text: `${hours}h left`, isLate: false, color: "text-amber-400" };
+  return { text: "Due soon", isLate: false, color: "text-amber-400" };
 }
 
-function AssignmentCard({ assignment, onEdit, onDelete }) {
+function AssignmentCard({ assignment, onEdit, onDelete, onView }) {
   const [timeInfo, setTimeInfo] = useState(getTimeLeft(assignment.deadline));
 
-  // Update countdown every minute
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeInfo(getTimeLeft(assignment.deadline));
-    }, 60000);
+    const interval = setInterval(
+      () => setTimeInfo(getTimeLeft(assignment.deadline)),
+      60000,
+    );
     return () => clearInterval(interval);
   }, [assignment.deadline]);
 
+  const hasAttachment = !!assignment.attachment_url || !!assignment.attachment;
+  const attachmentUrl = assignment.attachment_url || assignment.attachment;
+  const isImage =
+    assignment.attachment_resource_type === "image" ||
+    (attachmentUrl && /\.(jpg|jpeg|png|gif|webp)$/i.test(attachmentUrl));
+
+  // Delete handler with confirmation
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(assignment);
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
       layout
-      className="group relative rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300 overflow-hidden"
+      className={`group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-900 hover:border-neutral-700 transition-colors duration-200 overflow-hidden 
+       
+      `}
     >
-      {/* Status Bar */}
-      <div className={`h-1 w-full ${timeInfo.isLate ? 'bg-red-500' : 'bg-indigo-500'}`} />
+      {/* Status strip */}
+      <div
+        className={`h-[3px] w-full ${timeInfo.isLate ? "bg-red-500" : "bg-neutral-700"}`}
+      />
 
-      <div className="p-6 space-y-5">
-        {/* Header: Subject & Year */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
+      {/* Image preview */}
+      {isImage && attachmentUrl && (
+        <div className="h-32 w-full overflow-hidden border-b border-neutral-800 bg-neutral-950">
+          <img
+            src={attachmentUrl}
+            alt={assignment.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      <div className="p-5 flex flex-col gap-4 flex-1">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1.5">
             <span className="inline-block px-2 py-0.5 rounded-md bg-neutral-800 text-[10px] font-bold uppercase tracking-wider text-neutral-400 border border-neutral-700">
               {assignment.subject}
             </span>
-            <h3 className="text-lg font-semibold text-neutral-100 leading-snug line-clamp-1">
+            <h3 className="text-[15px] font-semibold text-neutral-100 leading-snug line-clamp-1">
               {assignment.title}
             </h3>
           </div>
-          
-          {/* Actions Dropdown Trigger (Simplified as buttons for this demo) */}
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => onEdit(assignment)} className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors">
-              <Pencil size={14} />
-            </button>
-            <button onClick={() => onDelete(assignment.id)} className="p-2 rounded-lg hover:bg-red-500/10 text-neutral-400 hover:text-red-400 transition-colors">
-              <Trash2 size={14} />
-            </button>
-          </div>
+
+          {(onEdit || onDelete) && (
+            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              {onEdit && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(assignment);
+                  }}
+                  className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-500 hover:text-neutral-200 transition-colors"
+                  aria-label="Edit assignment"
+                >
+                  <Pencil size={13} />
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={handleDelete}
+                  className="p-1.5 rounded-md hover:bg-red-500/10 text-neutral-500 hover:text-red-400 transition-colors"
+                  aria-label="Delete assignment"
+                >
+                  <Trash2 size={13} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Description */}
-        <p className="text-sm text-neutral-400 line-clamp-2 leading-relaxed">
+        <p className="text-[13px] text-neutral-500 line-clamp-2 leading-relaxed">
           {assignment.description}
         </p>
 
-        {/* Meta Data Grid */}
-        <div className="grid grid-cols-2 gap-4 pt-2">
-          {/* Deadline */}
-          <div className={`flex items-center gap-2 text-xs font-medium ${timeInfo.color}`}>
-            {timeInfo.isLate ? <AlertCircle size={14} /> : <Clock size={14} />}
+        {/* Meta row — highlighted */}
+        <div className="flex items-center justify-between text-xs pt-1">
+          <div
+            className={`flex items-center gap-1.5 font-semibold ${timeInfo.color}`}
+          >
+            {timeInfo.isLate ? <AlertCircle size={13} /> : <Clock size={13} />}
             <span>{timeInfo.text}</span>
           </div>
-
-          {/* Marks */}
-          <div className="flex items-center gap-2 text-xs font-medium text-neutral-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-neutral-600" />
-            Max Marks: {assignment.max_marks}
-          </div>
+          <span className="text-neutral-500">
+            Max Marks{" "}
+            <span className="text-neutral-200 font-semibold">
+              {assignment.max_marks}
+            </span>
+          </span>
         </div>
 
-        {/* Footer: Attachment & Target Year */}
-        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-500">
-              <FileText size={14} />
+        {/* Footer */}
+        <div className="pt-3 mt-auto border-t border-neutral-800 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 shrink-0 rounded-md bg-neutral-950 border border-neutral-800 flex items-center justify-center text-neutral-500">
+              <FileText size={13} />
             </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">Attachment</span>
-              {assignment.attachment ? (
-                <a href="#" className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                  Download PDF <Download size={10} />
-                </a>
-              ) : (
-                <span className="text-xs text-neutral-600 italic">No file</span>
-              )}
-            </div>
+            {hasAttachment ? (
+              <span className="text-xs text-neutral-400 truncate">
+                {isImage ? "Image attached" : "File attached"}
+              </span>
+            ) : (
+              <span className="text-xs text-neutral-600 italic">
+                No attachment
+              </span>
+            )}
+            <span className="ml-1 px-2 py-0.5 rounded-md bg-neutral-950 border border-neutral-800 text-[10px] font-bold text-neutral-400 shrink-0">
+              Year {assignment.target_year}
+            </span>
           </div>
 
-          <div className="px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[10px] font-bold text-neutral-400">
-            Year {assignment.target_year}
-          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onView?.(assignment);
+            }}
+            className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-medium transition-colors"
+          >
+            View info
+            <ArrowUpRight size={13} />
+          </button>
         </div>
       </div>
     </motion.div>

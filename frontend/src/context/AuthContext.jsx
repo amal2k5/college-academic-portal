@@ -4,28 +4,17 @@ import { logout } from "../services/authService";
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => ({
-  role: localStorage.getItem("role"),
-  first_name: localStorage.getItem("first_name"),
-  last_name: localStorage.getItem("last_name"),
-  email: localStorage.getItem("email"),
-}));
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   const loginUser = (data) => {
     localStorage.setItem("access", data.access);
     localStorage.setItem("refresh", data.refresh);
-    localStorage.setItem("role", data.role);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-    localStorage.setItem("first_name", data.first_name);
-    localStorage.setItem("last_name", data.last_name);
-    localStorage.setItem("email", data.email);
-
-    setUser({
-  role: data.role,
-  first_name: data.first_name,
-  last_name: data.last_name,
-  email: data.email,
-});
+    setUser(data.user);
   };
 
   const logoutUser = async () => {
@@ -40,10 +29,7 @@ function AuthProvider({ children }) {
     } finally {
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
-      localStorage.removeItem("role");
-      localStorage.removeItem("first_name");
-      localStorage.removeItem("last_name");
-      localStorage.removeItem("email");
+      localStorage.removeItem("user");
 
       setUser(null);
     }

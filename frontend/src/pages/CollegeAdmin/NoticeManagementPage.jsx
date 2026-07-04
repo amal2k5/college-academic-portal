@@ -1,14 +1,43 @@
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import NoticeFeed from "../../components/notices/NoticeFeed";
-import { mockNotices } from "../../mocks/notices";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import noticeService from "../../services/noticeService";
 import NoticeForm from "../../components/notices/NoticeForm";
+import { AuthContext } from "../../context/AuthContext";
+import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
+
+
 
 function NoticeManagement() {
   const [showForm, setShowForm] = useState(false);
-  const [notices, setNotices] = useState(mockNotices);
+  const [notices, setNotices] = useState([]);
   const [selectedNotice, setSelectedNotice] = useState(null);
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+  const [selectedViewNotice, setSelectedViewNotice] = useState(null);
+
+const loadNotices = async () => {
+  setLoading(true);
+
+  try {
+    const data = await noticeService.getNotices();
+    setNotices(data);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    loadNotices();
+  }, []);
+  if (loading) {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="w-10 h-10 border-2 border-neutral-700 border-t-white rounded-full animate-spin" />
+    </div>
+  );
+}
 
   return (
     <motion.div
@@ -44,25 +73,22 @@ function NoticeManagement() {
 
         {/* Notices Feed Render */}
         <NoticeFeed
-          notices={notices}
-          onEdit={(notice) => {
-            setSelectedNotice(notice);
-            setShowForm(true);
+    notices={notices}
+    currentUser={user}
+    onView={setSelectedViewNotice}
+    onEdit={(notice) => {
+        setSelectedNotice(notice);
+        setShowForm(true);
+    }}
+          onDelete={async (id) => {
+            await noticeService.deleteNotice(id);
+
+            await loadNotices();
           }}
-          onDelete={(id) => {
-            setNotices((prev) => prev.filter((notice) => notice.id !== id));
-          }}
-          onTogglePin={(id) => {
-            setNotices((prev) =>
-              prev.map((notice) =>
-                notice.id === id
-                  ? {
-                      ...notice,
-                      is_pinned: !notice.is_pinned,
-                    }
-                  : notice,
-              ),
-            );
+          onTogglePin={async (id) => {
+            const updatedNotice = await noticeService.togglePin(id);
+
+            await loadNotices();
           }}
         />
 
@@ -84,45 +110,32 @@ function NoticeManagement() {
                   setSelectedNotice(null);
                   setShowForm(false);
                 }}
-                onSubmit={(data) => {
-                  if (selectedNotice) {
-                    // EDIT NOTICE
-                    setNotices((prev) =>
-                      prev.map((notice) =>
-                        notice.id === selectedNotice.id
-                          ? {
-                              ...notice,
-                              ...data,
-                              image:
-                                data.image instanceof File
-                                  ? URL.createObjectURL(data.image)
-                                  : data.image || notice.image,
-                            }
-                          : notice,
-                      ),
-                    );
-                  } else {
-                    // CREATE NOTICE
-                    const newNotice = {
-                      id: Date.now(),
-                      ...data,
-                      image: data.image ? URL.createObjectURL(data.image) : "",
-                      posted_by: "Dr. Rajesh Kumar (HOD)",
-                      created_at: new Date().toISOString(),
-                       scope: "College",
-                    };
+onSubmit={async (data) => {
+  try {
+    if (selectedNotice) {
+      await noticeService.updateNotice(selectedNotice.id, data);
+    } else {
+      await noticeService.createNotice(data);
+    }
 
-                    setNotices((prev) => [newNotice, ...prev]);
-                  }
-
-                  setSelectedNotice(null);
-                  setShowForm(false);
-                }}
+    await loadNotices();
+    setSelectedNotice(null);
+    setShowForm(false);
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong.");
+  }
+}}
               />
             </div>
           </div>
         )}
       </div>
+
+      <NoticeDetailModal
+    notice={selectedViewNotice}
+    onClose={() => setSelectedViewNotice(null)}
+/>
     </motion.div>
   );
 }

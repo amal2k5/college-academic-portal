@@ -1,14 +1,26 @@
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import NoticeFeed from "../../components/notices/NoticeFeed";
-import { mockNotices } from "../../mocks/notices";
-import { useState } from "react";
+import noticeService from "../../services/noticeService";
+import { useEffect, useState } from "react";
 import NoticeForm from "../../components/notices/NoticeForm";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 function NoticeManagement() {
   const [showForm, setShowForm] = useState(false);
-  const [notices, setNotices] = useState(mockNotices);
+  const [notices, setNotices] = useState([]);
   const [selectedNotice, setSelectedNotice] = useState(null);
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    const loadNotices = async () => {
+      const data = await noticeService.getNotices();
+      setNotices(data);
+    };
+
+    loadNotices();
+  }, []);
 
   return (
     <motion.div
@@ -44,82 +56,82 @@ function NoticeManagement() {
 
         {/* Notices Feed Render */}
         <NoticeFeed
-  notices={notices}
-  onEdit={(notice) => {
-    setSelectedNotice(notice);
-    setShowForm(true);
-  }}
-  onDelete={(id) => {
-    setNotices((prev) =>
-      prev.filter((notice) => notice.id !== id)
-    );
-  }}
-  onTogglePin={(id) => {
-    setNotices((prev) =>
-      prev.map((notice) =>
-        notice.id === id
-          ? {
-              ...notice,
-              is_pinned: !notice.is_pinned,
-            }
-          : notice
-      )
-    );
-  }}
-/>
+          notices={notices}
+          currentUser={user}
+          onEdit={(notice) => {
+            setSelectedNotice(notice);
+            setShowForm(true);
+          }}
+          onDelete={(id) => {
+            setNotices((prev) => prev.filter((notice) => notice.id !== id));
+          }}
+          onTogglePin={(id) => {
+            setNotices((prev) =>
+              prev.map((notice) =>
+                notice.id === id
+                  ? {
+                      ...notice,
+                      is_pinned: !notice.is_pinned,
+                    }
+                  : notice,
+              ),
+            );
+          }}
+        />
 
         {showForm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
             <div className="w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-neutral-800 bg-neutral-950 p-8 shadow-2xl overflow-hidden">
               <div className="mb-6 shrink-0">
-   <h2 className="text-xl font-semibold text-white">
-  {selectedNotice ? "Edit Notice" : "Create Notice"}
-</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  {selectedNotice ? "Edit Notice" : "Create Notice"}
+                </h2>
                 <p className="text-sm text-neutral-500 mt-1">
                   Fill in the details below.
                 </p>
               </div>
 
-<NoticeForm
-  initialData={selectedNotice}
-  onCancel={() => {
-    setSelectedNotice(null);
-    setShowForm(false);
-  }}
-  onSubmit={(data) => {
-    if (selectedNotice) {
-      // EDIT NOTICE
-      setNotices((prev) =>
-        prev.map((notice) =>
-          notice.id === selectedNotice.id
-            ? {
-                ...notice,
-                ...data,
-                image:
-                  data.image instanceof File
-                    ? URL.createObjectURL(data.image)
-                    : data.image || notice.image,
-              }
-            : notice
-        )
-      );
-    } else {
-      // CREATE NOTICE
-      const newNotice = {
-        id: Date.now(),
-        ...data,
-        image: data.image ? URL.createObjectURL(data.image) : "",
-        posted_by: "Dr. Rajesh Kumar (HOD)",
-        created_at: new Date().toISOString(),
-      };
+              <NoticeForm
+                initialData={selectedNotice}
+                onCancel={() => {
+                  setSelectedNotice(null);
+                  setShowForm(false);
+                }}
+                onSubmit={async (data) => {
+                  if (selectedNotice) {
+                    const updatedNotice = await noticeService.updateNotice(
+                      selectedNotice.id,
+                      {
+                        ...data,
+                        image:
+                          data.image instanceof File
+                            ? URL.createObjectURL(data.image)
+                            : data.image,
+                      },
+                    );
 
-      setNotices((prev) => [newNotice, ...prev]);
-    }
+                    setNotices((prev) =>
+                      prev.map((notice) =>
+                        notice.id === updatedNotice.id ? updatedNotice : notice,
+                      ),
+                    );
+                  } else {
+                    // CREATE NOTICE
+                    const newNotice = {
+                      id: Date.now(),
+                      ...data,
+                      image: data.image ? URL.createObjectURL(data.image) : "",
+                      posted_by: user.id,
+                      created_at: new Date().toISOString(),
+                    };
 
-    setSelectedNotice(null);
-    setShowForm(false);
-  }}
-/>
+                    setNotices((prev) => [newNotice, ...prev]);
+                  }
+
+                  setSelectedNotice(null);
+                  setShowForm(false);
+                }}
+              />
             </div>
           </div>
         )}

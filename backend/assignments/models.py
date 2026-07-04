@@ -6,8 +6,15 @@ from departments.models import Department
 from students.models import Student
 
 
-class Assignment(models.Model):
+from django.db import models
+from cloudinary.models import CloudinaryField
 
+from accounts.models import User
+from departments.models import Department
+from students.models import Student
+
+
+class Assignment(models.Model):
     title = models.CharField(
         max_length=255
     )
@@ -18,8 +25,31 @@ class Assignment(models.Model):
 
     description = models.TextField()
 
-    attachment = CloudinaryField(
-        "assignment_attachment",
+    attachment_url = models.URLField(
+        blank=True,
+        null=True
+    )
+
+    attachment_public_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    attachment_resource_type = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
+    attachment_original_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    attachment_format = models.CharField(
+        max_length=30,
         blank=True,
         null=True
     )

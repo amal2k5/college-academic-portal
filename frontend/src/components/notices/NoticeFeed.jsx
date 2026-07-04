@@ -15,9 +15,11 @@ const containerVariants = {
 
 function NoticeFeed({
   notices = [],
+  currentUser,
   onEdit,
   onDelete,
   onTogglePin,
+  onView,
 }) {
   if (!notices || notices.length === 0) {
     return (
@@ -50,12 +52,14 @@ function NoticeFeed({
       className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
     >
       {notices.map((notice) => (
-        <NoticeCard
+<NoticeCard
   key={notice.id}
   notice={notice}
+  canManage={notice.posted_by === currentUser?.id}
   onEdit={onEdit}
   onDelete={onDelete}
   onTogglePin={onTogglePin}
+  onView={onView}
 />
       ))}
     </motion.div>
