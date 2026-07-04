@@ -228,3 +228,62 @@ class CollegeAdminStatusSerializer(serializers.Serializer):
 class HODStatusSerializer(serializers.Serializer):
 
     is_active = serializers.BooleanField()    
+
+# ==========================================
+# Forgot Password Serializers
+# ==========================================
+
+class ForgotPasswordSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        """
+        Do not reveal whether the email exists.
+        Validation only checks format.
+        """
+        return value
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+    otp = serializers.CharField(
+        min_length=6,
+        max_length=6
+    )
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+
+    reset_token = serializers.UUIDField()
+
+    password = serializers.CharField(
+        write_only=True,
+        min_length=8
+    )
+
+    confirm_password = serializers.CharField(
+        write_only=True,
+        min_length=8
+    )
+
+    def validate(
+        self,
+        attrs
+    ):
+
+        if (
+            attrs["password"]
+            != attrs["confirm_password"]
+        ):
+
+            raise serializers.ValidationError(
+                {
+                    "confirm_password":
+                    "Passwords do not match."
+                }
+            )
+
+        return attrs

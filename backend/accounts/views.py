@@ -5,6 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from colleges.models import College
+from college_requests.models import CollegeRegistration
+from students.models import Student
+from notices.models import Notice
+from assignments.models import Assignment
+from .models import HODProfile
 
 from .models import User, CollegeAdminProfile
 from .serializers import (
@@ -17,6 +23,9 @@ from .serializers import (
     HODStatusSerializer,
     CollegeAdminListSerializer,
     CollegeAdminStatusSerializer,
+    ForgotPasswordSerializer,
+    VerifyOTPSerializer,
+    ResetPasswordSerializer,
 )
 from .services import (
     create_college_admin,
@@ -24,11 +33,48 @@ from .services import (
     send_setup_email,
     setup_password,
     create_hod,
+    generate_reset_otp,
+    send_reset_otp_email,
+    verify_reset_otp,
+    reset_password,
 )
 from .permissions import IsPlatformAdmin, IsCollegeAdmin
 from departments.models import Department
 
+class PlatformDashboardStatsView(APIView):
+    """
+    Platform Admin Dashboard Statistics
+    """
 
+    permission_classes = [IsAuthenticated, IsPlatformAdmin]
+
+    def get(self, request):
+        data = {
+            "total_colleges": College.objects.count(),
+
+            "active_colleges": College.objects.filter(
+                is_active=True
+            ).count(),
+
+            "inactive_colleges": College.objects.filter(
+                is_active=False
+            ).count(),
+
+            "pending_requests": CollegeRegistration.objects.filter(
+                status=CollegeRegistration.Status.PENDING
+            ).count(),
+
+            "approved_requests": CollegeRegistration.objects.filter(
+                status=CollegeRegistration.Status.APPROVED
+            ).count(),
+
+            "rejected_requests": CollegeRegistration.objects.filter(
+                status=CollegeRegistration.Status.REJECTED
+            ).count(),
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+    
 class LoginView(APIView):
     """Handles user login and JWT token generation."""
 
@@ -311,3 +357,109 @@ class CollegeAdminStatusUpdateView(APIView):
             "message": message,
             "is_active": user.is_active,
         }, status=status.HTTP_200_OK)
+    
+class ForgotPasswordView(APIView):
+    """
+    Sends a password reset OTP to the user's email.
+    """
+
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+
+            if (
+                user.is_active
+                and user.role != User.Role.PLATFORM_ADMIN
+            ):
+                otp = generate_reset_otp(user)
+
+                if otp:
+                    send_reset_otp_email(user, otp)
+
+        except User.DoesNotExist:
+            pass
+
+        return Response(
+            {
+                "message": (
+                    "If an account with this email exists, "
+                    "an OTP has been sent."
+                )
+            },
+            status=status.HTTP_200_OK,
+        )
+class VerifyOTPView(APIView):
+    """
+    Verifies the password reset OTP.
+    """
+
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        serializer = VerifyOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            otp_record = verify_reset_otp(
+                serializer.validated_data["email"],
+                serializer.validated_data["otp"],
+            )
+
+        except ValueError as e:
+            return Response(
+                {
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {
+                "message": "OTP verified successfully.",
+                "reset_token": str(otp_record.reset_token),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class ResetPasswordView(APIView):
+    """
+    Resets the user's password after OTP verification.
+    """
+
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            reset_password(
+                serializer.validated_data["reset_token"],
+                serializer.validated_data["password"],
+            )
+
+        except ValueError as e:
+            return Response(
+                {
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {
+                "message": "Password reset successfully. You can now log in."
+            },
+            status=status.HTTP_200_OK,
+        )
