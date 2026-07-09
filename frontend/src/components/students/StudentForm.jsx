@@ -1,5 +1,305 @@
-import React from 'react';
+﻿// StudentForm.jsx
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  User, Mail, Phone, Calendar, Hash,
+  BookOpen, Users, Shield, GraduationCap,
+  Award, MapPin, Briefcase
+} from 'lucide-react';
 
+// Field configuration with icons and sections
+const FIELD_SECTIONS = {
+  personal: {
+    title: 'Personal Information',
+    icon: User,
+    fields: ['first_name', 'last_name', 'date_of_birth', 'gender']
+  },
+  contact: {
+    title: 'Contact Details',
+    icon: Mail,
+    fields: ['email', 'phone', 'parent_name', 'parent_phone']
+  },
+  academic: {
+    title: 'Academic Information',
+    icon: GraduationCap,
+    fields: ['roll_number', 'admission_number', 'semester', 'academic_year']
+  }
+};
+
+const FIELD_CONFIGS = {
+  first_name: {
+    label: 'First Name',
+    required: true,
+    protected: true,
+    type: 'text',
+    placeholder: '',
+    icon: User
+  },
+  last_name: {
+    label: 'Last Name',
+    required: true,
+    protected: true,
+    type: 'text',
+    placeholder: '',
+    icon: User
+  },
+  email: {
+    label: 'Email Address',
+    required: true,
+    protected: false,
+    type: 'email',
+    placeholder: '',
+    icon: Mail
+  },
+  phone: {
+    label: 'Phone Number',
+    required: false,
+    protected: false,
+    type: 'tel',
+    placeholder: '',
+    icon: Phone
+  },
+  roll_number: {
+    label: 'Roll Number',
+    required: true,
+    protected: true,
+    type: 'text',
+    placeholder: '',
+    icon: Hash
+  },
+  admission_number: {
+    label: 'Admission Number',
+    required: true,
+    protected: true,
+    type: 'text',
+    placeholder: '',
+    icon: Award
+  },
+  semester: {
+    label: 'Semester',
+    required: true,
+    protected: false,
+    type: 'number',
+    min: 1,
+    max: 8,
+    placeholder: '',
+    icon: BookOpen
+  },
+  academic_year: {
+    label: 'Academic Year',
+    required: true,
+    protected: false,
+    type: 'text',
+    placeholder: '2024-2025',
+    icon: Calendar
+  },
+  date_of_birth: {
+    label: 'Date of Birth',
+    required: false,
+    protected: false,
+    type: 'date',
+    placeholder: 'Select date',
+    icon: Calendar
+  },
+  gender: {
+    label: 'Gender',
+    required: false,
+    protected: false,
+    type: 'select',
+    options: ['Male', 'Female', 'Other'],
+    placeholder: 'Select gender',
+    icon: Users
+  },
+  parent_name: {
+    label: 'Parent/Guardian',
+    required: false,
+    protected: false,
+    type: 'text',
+    placeholder: '',
+    icon: Users
+  },
+  parent_phone: {
+    label: 'Parent Contact',
+    required: false,
+    protected: false,
+    type: 'tel',
+    placeholder: '',
+    icon: Phone
+  },
+};
+
+// Individual Form Field
+const FormField = ({ field, value, onChange, disabled, isEditMode, index }) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const config = FIELD_CONFIGS[field];
+  const isProtected = config.protected && isEditMode;
+  const hasValue = value && value.toString().length > 0;
+  const Icon = config.icon;
+
+  const fieldVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: index * 0.03,
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const inputBaseClasses = `
+    w-full h-[48px] text-sm px-3 pl-10
+    rounded-lg border
+    bg-neutral-900
+    text-white
+    placeholder:text-neutral-500
+    transition-colors duration-150
+    focus:outline-none
+    appearance-none
+  `;
+
+  const getInputClasses = () => {
+    if (isProtected) {
+      return `${inputBaseClasses} text-neutral-400 cursor-not-allowed border-neutral-700/40 bg-neutral-800/50`;
+    }
+    return `${inputBaseClasses} border-neutral-700 hover:border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-700/50`;
+  };
+
+  const renderInput = () => {
+    const commonProps = {
+      id: field,
+      name: field,
+      value: value || '',
+      onChange,
+      disabled: isProtected,
+      required: config.required,
+      onFocus: () => setIsFocused(true),
+      onBlur: () => setIsFocused(false),
+      placeholder: config.placeholder || '',
+      className: getInputClasses(),
+    };
+
+    if (config.type === 'select') {
+      return (
+        <select {...commonProps} className={`${getInputClasses()} pr-10`}>
+          <option value="" className="bg-neutral-900 text-neutral-500">
+            {config.placeholder}
+          </option>
+          {config.options.map(opt => (
+            <option key={opt} value={opt.toUpperCase()} className="bg-neutral-900 text-white">
+              {opt}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    if (config.type === 'number') {
+      return (
+        <input
+          type="number"
+          {...commonProps}
+          min={config.min}
+          max={config.max}
+          onWheel={(e) => e.target.blur()}
+        />
+      );
+    }
+
+    return <input type={config.type} {...commonProps} />;
+  };
+
+  return (
+    <motion.div
+      variants={fieldVariants}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col gap-1.5"
+    >
+      {/* Label — always above input, never floating */}
+      <label
+        htmlFor={field}
+        className="flex items-center gap-1.5 text-sm font-medium text-neutral-300 select-none"
+      >
+        {config.label}
+        {config.required && <span className="text-neutral-400 text-xs">*</span>}
+        {isProtected && (
+          <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-neutral-500 font-normal">
+            <Shield className="h-3 w-3" />
+            Protected
+          </span>
+        )}
+      </label>
+
+      {/* Input wrapper */}
+      <div className="relative">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <Icon
+            className={`h-4 w-4 ${isProtected
+              ? 'text-neutral-600'
+              : isFocused
+                ? 'text-neutral-300'
+                : 'text-neutral-500'
+              }`}
+          />
+        </div>
+
+        {renderInput()}
+
+        {/* Select dropdown arrow */}
+        {config.type === 'select' && !isProtected && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg className="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+// Section Component
+const FormSection = ({ title, icon: Icon, fields, formData, handleChange, isEditMode, startIndex }) => {
+  const requiredCount = fields.filter(f => FIELD_CONFIGS[f].required).length;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="bg-neutral-900 border border-neutral-800 rounded-xl p-6"
+    >
+      {/* Section Header */}
+      <div className="flex items-center gap-3 mb-5 pb-4 border-b border-neutral-800">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-neutral-800 border border-neutral-700/60">
+          <Icon className="h-4 w-4 text-neutral-300" />
+        </div>
+        <h3 className="text-sm font-semibold text-neutral-100 tracking-tight">{title}</h3>
+
+      </div>
+
+      {/* Fields */}
+      <div className="space-y-5">
+        {fields.map((field, idx) => (
+          <FormField
+            key={field}
+            field={field}
+            value={formData[field]}
+            onChange={handleChange}
+            disabled={isEditMode && FIELD_CONFIGS[field].protected}
+            isEditMode={isEditMode}
+            index={startIndex + idx}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+// Main StudentForm
 function StudentForm({
   formData = {},
   handleChange,
@@ -8,317 +308,142 @@ function StudentForm({
   loading = false,
   isEditMode = false,
 }) {
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-neutral-900/40 border border-neutral-800/60 rounded-[32px] p-6 md:p-10 max-w-4xl mx-auto font-sans text-neutral-400 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl"
-    >
-      {/* Soft silver corner reflection flare */}
-      <div className="absolute -right-24 -top-24 w-64 h-64 bg-white/5 rounded-full blur-[80px] pointer-events-none z-0" />
 
-      <div className="relative z-10 space-y-8">
-        {/* Form Section Header */}
-        <div className="border-b border-neutral-800/60 pb-5">
-          <h2 className="text-base font-medium text-neutral-200 tracking-wide">
-            {isEditMode ? 'Modify Student Record' : 'Student Profile Information'}
+  const allFields = Object.values(FIELD_SECTIONS).flatMap(s => s.fields);
+
+  return (
+    <motion.form
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      onSubmit={handleSubmit}
+      className="w-full"
+    >
+      {/* Form Header */}
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-neutral-100 tracking-tight">
+            {isEditMode ? 'Edit Student Profile' : 'Student Profile Information'}
           </h2>
-          <p className="text-xs text-neutral-500 mt-1">
-            {isEditMode 
-              ? 'Core structural account identification settings remain protected after registration.' 
-              : 'Please populate all fields marked with an asterisk to generate an active institutional profile.'}
+          <p className="text-sm text-neutral-500 mt-0.5">
+            {isEditMode
+              ? 'Update editable fields while core identifiers remain protected'
+              : 'Complete all required fields marked with an asterisk (*)'}
           </p>
         </div>
 
-        {/* Read-only Notice for Edit Mode */}
         {isEditMode && (
-          <div className="p-4 bg-amber-950/10 border border-amber-900/30 rounded-2xl shadow-inner">
-            <p className="text-xs text-amber-400/90 flex items-center gap-3 font-normal leading-relaxed">
-              <span className="text-sm">🔒</span>
-              <span>
-                <span className="text-amber-300 font-medium">Account Metrics Protected:</span> First Name, Last Name, Roll Number, and Admission Number are permanently locked onto the ledger.
-              </span>
-            </p>
-          </div>
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="text-[11px] text-amber-400 font-medium">Edit Mode</span>
+          </motion.div>
         )}
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-7">
-
-          {/* First Name - Read-only in Edit Mode */}
-          <div className="relative group">
-            <input
-              type="text"
-              name="first_name"
-              id="first_name"
-              value={formData.first_name || ''}
-              onChange={handleChange}
-              disabled={isEditMode}
-              className={`peer w-full text-xs px-4 py-3 rounded-2xl font-normal tracking-wide transition-all duration-200
-                ${isEditMode 
-                  ? 'bg-neutral-950/60 text-neutral-600 cursor-not-allowed border border-neutral-900/80 shadow-inner' 
-                  : 'bg-neutral-950 text-neutral-200 border-l-2 border-l-indigo-500/50 border-y border-r border-neutral-800/80 focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5'
-                }`}
-              required
-            />
-            <label 
-              htmlFor="first_name"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-400 uppercase tracking-widest transition-all peer-focus:text-neutral-300 rounded"
-            >
-              First Name *
-              {isEditMode && ' 🔒'}
-            </label>
-          </div>
-
-          {/* Last Name - Read-only in Edit Mode */}
-          <div className="relative group">
-            <input
-              type="text"
-              name="last_name"
-              id="last_name"
-              value={formData.last_name || ''}
-              onChange={handleChange}
-              disabled={isEditMode}
-              className={`peer w-full text-xs px-4 py-3 rounded-2xl font-normal tracking-wide transition-all duration-200
-                ${isEditMode 
-                  ? 'bg-neutral-950/60 text-neutral-600 cursor-not-allowed border border-neutral-900/80 shadow-inner' 
-                  : 'bg-neutral-950 text-neutral-200 border-l-2 border-l-indigo-500/50 border-y border-r border-neutral-800/80 focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5'
-                }`}
-              required
-            />
-            <label 
-              htmlFor="last_name"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-400 uppercase tracking-widest transition-all peer-focus:text-neutral-300 rounded"
-            >
-              Last Name *
-              {isEditMode && ' 🔒'}
-            </label>
-          </div>
-
-          {/* Email Address - Always Editable */}
-          <div className="relative group">
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={formData.email || ''}
-              onChange={handleChange}
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-indigo-500/50 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide"
-              required
-            />
-            <label 
-              htmlFor="email"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-400 uppercase tracking-widest transition-all peer-focus:text-neutral-300 rounded"
-            >
-              Email Address *
-            </label>
-          </div>
-
-          {/* Phone Number - Always Editable */}
-          <div className="relative group">
-            <input
-              type="tel"
-              name="phone"
-              id="phone"
-              value={formData.phone || ''}
-              onChange={handleChange}
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-neutral-600 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide"
-            />
-            <label 
-              htmlFor="phone"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-500 uppercase tracking-widest transition-all peer-focus:text-neutral-400 rounded"
-            >
-              Phone Number
-            </label>
-          </div>
-
-          {/* Roll Number - Read-only in Edit Mode */}
-          <div className="relative group">
-            <input
-              type="text"
-              name="roll_number"
-              id="roll_number"
-              value={formData.roll_number || ''}
-              onChange={handleChange}
-              disabled={isEditMode}
-              className={`peer w-full text-xs px-4 py-3 rounded-2xl font-normal tracking-wide transition-all duration-200
-                ${isEditMode 
-                  ? 'bg-neutral-950/60 text-neutral-600 cursor-not-allowed border border-neutral-900/80 shadow-inner' 
-                  : 'bg-neutral-950 text-neutral-200 border-l-2 border-l-indigo-500/50 border-y border-r border-neutral-800/80 focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5'
-                }`}
-              required
-            />
-            <label 
-              htmlFor="roll_number"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-400 uppercase tracking-widest transition-all peer-focus:text-neutral-300 rounded"
-            >
-              Roll Number *
-              {isEditMode && ' 🔒'}
-            </label>
-          </div>
-
-          {/* Admission Number - Read-only in Edit Mode */}
-          <div className="relative group">
-            <input
-              type="text"
-              name="admission_number"
-              id="admission_number"
-              value={formData.admission_number || ''}
-              onChange={handleChange}
-              disabled={isEditMode}
-              className={`peer w-full text-xs px-4 py-3 rounded-2xl font-normal tracking-wide transition-all duration-200
-                ${isEditMode 
-                  ? 'bg-neutral-950/60 text-neutral-600 cursor-not-allowed border border-neutral-900/80 shadow-inner' 
-                  : 'bg-neutral-950 text-neutral-200 border-l-2 border-l-indigo-500/50 border-y border-r border-neutral-800/80 focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5'
-                }`}
-              required
-            />
-            <label 
-              htmlFor="admission_number"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-400 uppercase tracking-widest transition-all peer-focus:text-neutral-300 rounded"
-            >
-              Admission Number *
-              {isEditMode && ' 🔒'}
-            </label>
-          </div>
-
-          {/* Semester - Always Editable */}
-          <div className="relative group">
-            <input
-              type="number"
-              name="semester"
-              id="semester"
-              value={formData.semester || ''}
-              onChange={handleChange}
-              min="1"
-              max="8"
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-indigo-500/50 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide"
-              required
-            />
-            <label 
-              htmlFor="semester"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-400 uppercase tracking-widest transition-all peer-focus:text-neutral-300 rounded"
-            >
-              Current Semester *
-            </label>
-          </div>
-
-          {/* Academic Year - Always Editable */}
-          <div className="relative group">
-            <input
-              type="text"
-              name="academic_year"
-              id="academic_year"
-              value={formData.academic_year || ''}
-              onChange={handleChange}
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-indigo-500/50 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide"
-              required
-            />
-            <label 
-              htmlFor="academic_year"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-400 uppercase tracking-widest transition-all peer-focus:text-neutral-300 rounded"
-            >
-              Academic Year *
-            </label>
-          </div>
-
-          {/* Date of Birth - Always Editable */}
-          <div className="relative group">
-            <input
-              type="date"
-              name="date_of_birth"
-              id="date_of_birth"
-              value={formData.date_of_birth || ''}
-              onChange={handleChange}
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-neutral-600 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide custom-calendar-picker"
-            />
-            <label 
-              htmlFor="date_of_birth"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-neutral-500 uppercase tracking-widest transition-all peer-focus:text-neutral-400 rounded"
-            >
-              Date of Birth
-            </label>
-          </div>
-
-          {/* Gender - Always Editable */}
-          <div className="relative group">
-            <select
-              name="gender"
-              id="gender"
-              value={formData.gender || ''}
-              onChange={handleChange}
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-neutral-600 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide appearance-none cursor-pointer"
-            >
-              <option value="" className="bg-neutral-950 text-neutral-500">Select Gender</option>
-              <option value="MALE" className="bg-neutral-950 text-neutral-200">Male</option>
-              <option value="FEMALE" className="bg-neutral-950 text-neutral-200">Female</option>
-              <option value="OTHER" className="bg-neutral-950 text-neutral-200">Other</option>
-            </select>
-            <label 
-              htmlFor="gender"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-slate-500 uppercase tracking-widest transition-all peer-focus:text-neutral-400 rounded"
-            >
-              Gender
-            </label>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-              </svg>
+      {/* Protected Notice */}
+      <AnimatePresence>
+        {isEditMode && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="mb-6 overflow-hidden"
+          >
+            <div className="p-4 bg-amber-500/5 border border-amber-500/15 rounded-xl flex items-start gap-3">
+              <Shield className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-400/90 leading-relaxed">
+                <span className="font-medium text-amber-300">Protected Fields:</span>{' '}
+                First Name, Last Name, Roll Number, and Admission Number cannot be modified
+              </p>
             </div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Parent Name - Always Editable */}
-          <div className="relative group">
-            <input
-              type="text"
-              name="parent_name"
-              id="parent_name"
-              value={formData.parent_name || ''}
-              onChange={handleChange}
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-neutral-600 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide"
-            />
-            <label 
-              htmlFor="parent_name"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-slate-500 uppercase tracking-widest transition-all peer-focus:text-neutral-400 rounded"
-            >
-              Parent / Guardian Name
-            </label>
-          </div>
-
-          {/* Parent Phone - Always Editable */}
-          <div className="relative group">
-            <input
-              type="tel"
-              name="parent_phone"
-              id="parent_phone"
-              value={formData.parent_phone || ''}
-              onChange={handleChange}
-              className="peer w-full text-xs px-4 py-3 bg-neutral-950 text-neutral-200 border-l-2 border-l-neutral-600 border-y border-r border-neutral-800/80 rounded-2xl transition-all focus:outline-none focus:border-neutral-700 focus:ring-4 focus:ring-white/5 font-normal tracking-wide"
-            />
-            <label 
-              htmlFor="parent_phone"
-              className="absolute left-4 -top-2 px-1.5 bg-neutral-950 text-[9px] font-medium text-slate-500 uppercase tracking-widest transition-all peer-focus:text-neutral-400 rounded"
-            >
-              Parent's Contact Number
-            </label>
-          </div>
-
+      {/* Form Sections — Two columns on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column — Personal + Contact */}
+        <div className="flex flex-col gap-6">
+          {Object.entries(FIELD_SECTIONS).map(([key, section]) => {
+            if (key === 'personal' || key === 'contact') {
+              const startIndex = allFields.indexOf(section.fields[0]);
+              return (
+                <FormSection
+                  key={key}
+                  title={section.title}
+                  icon={section.icon}
+                  fields={section.fields}
+                  formData={formData}
+                  handleChange={handleChange}
+                  isEditMode={isEditMode}
+                  startIndex={startIndex}
+                />
+              );
+            }
+            return null;
+          })}
         </div>
 
-        {/* Footer Actions */}
-        <div className="mt-10 pt-6 border-t border-neutral-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-neutral-500">
-            
-          </span>
-          
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto inline-flex items-center justify-center bg-white hover:bg-neutral-200 active:bg-neutral-300 text-black text-xs font-medium uppercase tracking-widest px-8 py-3.5 rounded-xl shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:translate-y-0"
-          >
-            {loading ? (isEditMode ? 'Updating...' : 'Registering...') : submitLabel}
-          </button>
+        {/* Right Column — Academic */}
+        <div className="flex flex-col gap-6">
+          {Object.entries(FIELD_SECTIONS).map(([key, section]) => {
+            if (key === 'academic') {
+              const startIndex = allFields.indexOf(section.fields[0]);
+              return (
+                <FormSection
+                  key={key}
+                  title={section.title}
+                  icon={section.icon}
+                  fields={section.fields}
+                  formData={formData}
+                  handleChange={handleChange}
+                  isEditMode={isEditMode}
+                  startIndex={startIndex}
+                />
+              );
+            }
+            return null;
+          })}
         </div>
       </div>
-    </form>
+
+      {/* Footer */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25, duration: 0.3, ease: 'easeOut' }}
+        className="mt-8 pt-6 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+
+
+        <motion.button
+          whileHover={{ scale: loading ? 1 : 1.01 }}
+          whileTap={{ scale: loading ? 1 : 0.99 }}
+          transition={{ duration: 0.15 }}
+          type="submit"
+          disabled={loading}
+          className="w-full sm:w-auto h-[44px] px-8 bg-white text-neutral-900 text-sm font-semibold rounded-lg hover:bg-neutral-100 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
+        >
+          {loading ? (
+            <>
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              {isEditMode ? 'Updating...' : 'Creating...'}
+            </>
+          ) : (
+            submitLabel
+          )}
+        </motion.button>
+      </motion.div>
+    </motion.form>
   );
 }
 

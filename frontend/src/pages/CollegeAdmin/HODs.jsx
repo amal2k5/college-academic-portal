@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import HODForm from "../../components/hods/HODForm";
+import PageHeader from "../../components/common/PageHeader";
 import {
   createHOD,
   getHODs,
@@ -130,42 +131,28 @@ function HODs() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-8 font-sans">
+    <div className="min-h-screen bg-neutral-950 text-white py-8 px-4 md:px-8 space-y-8 max-w-7xl mx-auto font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <div>
-          <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-[0.22em] mb-1.5">
-            Management
-          </p>
-          <h1 className="text-2xl font-semibold text-white tracking-tight">
-            HOD Management
-          </h1>
-          <p className="text-[12px] text-neutral-500 mt-1 tracking-wide">
-            Manage and assign department heads.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all duration-200 text-[11px] font-semibold uppercase tracking-wider cursor-pointer self-start sm:self-auto whitespace-nowrap"
-        >
-          <UserPlus size={14} strokeWidth={2} />
-          Add HOD
-        </button>
-      </div>
+      <PageHeader
+        title="HOD Management"
+        subtitle="Manage and assign department heads for your college."
+        buttonText="Add HOD"
+        onButtonClick={() => setShowForm(true)}
+      />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {[
           { label: "Total HODs", value: hods.length, color: "text-white" },
           { label: "Active HODs", value: activeCount, color: "text-emerald-400" },
           { label: "Inactive HODs", value: inactiveCount, color: "text-red-400" },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-zinc-900 border border-white/10 rounded-xl p-5 flex items-center justify-between">
+          <div key={idx} className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 flex items-center justify-between">
             <div>
               <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider mb-1">{stat.label}</p>
               <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
             </div>
-            <div className="p-2 bg-white/5 rounded-lg">
+            <div className="p-2 bg-neutral-850 rounded-lg">
               <Users className="w-5 h-5 text-neutral-400" />
             </div>
           </div>
@@ -173,15 +160,15 @@ function HODs() {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+      <div className="flex items-center gap-3">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
           <input
             type="text"
-            placeholder="Search by name, email or department..."
+            placeholder="Search heads..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-zinc-900 pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-indigo-500/50 focus:bg-black focus:outline-none transition-all"
+            className="w-full rounded-lg border border-neutral-700 bg-neutral-900 pl-10 pr-4 py-2 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-700/50 focus:bg-neutral-900 focus:outline-none transition-all"
           />
         </div>
       </div>
@@ -190,11 +177,11 @@ function HODs() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border border-white/10 rounded-2xl bg-zinc-900 overflow-hidden shadow-xl"
+        className="border border-neutral-800 rounded-xl bg-neutral-900 overflow-hidden shadow-xl"
       >
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-sm min-w-[800px]">
-            <thead className="bg-black/40 text-gray-500 font-medium border-b border-white/5 uppercase tracking-wider text-[11px]">
+            <thead className="bg-neutral-950 text-neutral-400 font-semibold border-b border-neutral-850 uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="px-6 py-4">HOD Profile</th>
                 <th className="px-6 py-4">Contact</th>
@@ -203,12 +190,12 @@ function HODs() {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-neutral-800/40">
               {filteredHODs.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="px-6 py-16 text-center">
-                    <div className="flex flex-col items-center justify-center text-gray-600">
-                      <Users className="w-8 h-8 mb-3 opacity-50" />
+                    <div className="flex flex-col items-center justify-center text-neutral-600">
+                      <Users className="w-8 h-8 mb-3 opacity-50 text-neutral-500" />
                       <p className="text-sm font-medium">No HODs found</p>
                     </div>
                   </td>

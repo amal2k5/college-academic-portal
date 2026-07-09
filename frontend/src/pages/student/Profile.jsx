@@ -173,7 +173,7 @@ function Profile() {
       initial="hidden"
       animate="visible"
       variants={stagger}
-      className="min-h-screen bg-neutral-950 text-neutral-400 antialiased p-4 md:p-6 lg:p-10 max-w-[1300px] mx-auto"
+      className="max-w-7xl mx-auto py-8 px-4 md:px-8 min-h-screen text-neutral-400 space-y-8"
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 

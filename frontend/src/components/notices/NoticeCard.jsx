@@ -1,7 +1,11 @@
 import { motion } from "framer-motion";
 import { Pin, Calendar, Globe, Building2, Pencil, Trash2, ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import DeleteConfirmDialog from "./DeleteConfirmDialog";
 
 function NoticeCard({ notice, canManage, onEdit, onDelete, onTogglePin, onView }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   if (!notice) return null;
 
   const {
@@ -10,6 +14,7 @@ function NoticeCard({ notice, canManage, onEdit, onDelete, onTogglePin, onView }
     category = "",
     scope = "",
     department = "",
+    department_name = "",
     image = "",
     image_url = "",
     is_pinned = false,
@@ -67,6 +72,7 @@ function NoticeCard({ notice, canManage, onEdit, onDelete, onTogglePin, onView }
   const formattedDate = getFormattedDate(created_at);
 
   return (
+    <>
     <motion.div
       layout
       initial={{ opacity: 0, y: 12 }}
@@ -124,7 +130,7 @@ function NoticeCard({ notice, canManage, onEdit, onDelete, onTogglePin, onView }
               )}
               {onDelete && (
                 <button
-                  onClick={() => onDelete(notice.id)}
+                  onClick={() => setShowDeleteConfirm(true)}
                   className="p-1.5 hover:bg-red-500/10 rounded text-neutral-400 hover:text-red-400 transition"
                 >
                   <Trash2 size={14} />
@@ -156,10 +162,10 @@ function NoticeCard({ notice, canManage, onEdit, onDelete, onTogglePin, onView }
             {body}
           </p>
 
-          {isScopeDepartment && department && (
+          {isScopeDepartment && (department_name || department) && (
             <p className="text-xs text-neutral-400 flex items-center gap-1.5">
               <Building2 size={12} />
-              {department}
+              {department_name || department}
             </p>
           )}
         </div>
@@ -200,6 +206,16 @@ function NoticeCard({ notice, canManage, onEdit, onDelete, onTogglePin, onView }
         </div>
       </div>
     </motion.div>
+
+      <DeleteConfirmDialog
+        isOpen={showDeleteConfirm}
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={async () => {
+          await onDelete(notice.id);
+          setShowDeleteConfirm(false);
+        }}
+      />
+    </>
   );
 }
 

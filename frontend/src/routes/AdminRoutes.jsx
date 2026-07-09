@@ -30,6 +30,7 @@ import CollegeRequestsPage from "../pages/admin/CollegeRequestsPage";
 import NoticeManagement from "../pages/collegeAdmin/NoticeManagementPage";
 import NoticesPage from "../pages/student/NoticesPage";
 import AssignmentsPage from "../pages/student/AssignmentsPage";
+import NotificationsPage from "../pages/student/NotificationsPage";
 
 function AdminRoutes() {
   return (
@@ -111,6 +112,7 @@ function AdminRoutes() {
 
   <Route path="/student/notices" element={<NoticesPage />} />
   <Route path="/student/assignments" element={<AssignmentsPage />} />
+  <Route path="/student/notifications" element={<NotificationsPage />} />
 </Route>
     </Routes>
   );

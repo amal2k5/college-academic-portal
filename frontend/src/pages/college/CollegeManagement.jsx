@@ -68,8 +68,11 @@ function Colleges() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Colleges" />
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8">
+      <PageHeader 
+        title="Colleges" 
+        subtitle="Manage registered colleges, access credentials, and institutional domains across the portal."
+      />
 
 <CollegeTable
   colleges={colleges}

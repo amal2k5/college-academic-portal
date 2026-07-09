@@ -136,9 +136,10 @@ function Departments() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-8">
+    <div className="min-h-screen bg-neutral-950 text-white py-8 px-4 md:px-8 space-y-8 max-w-7xl mx-auto">
       <PageHeader
         title="Departments"
+        subtitle="Manage academic departments, courses, and configurations for your institution."
         buttonText="Add Department"
         onButtonClick={() => {
           setSelectedDepartment(null);

@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import NoticeFeed from "../../components/notices/NoticeFeed";
 import noticeService from "../../services/noticeService";
 import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -35,6 +37,7 @@ function NoticeSkeleton() {
 }
 
 function NoticesPage() {
+  const { user } = useContext(AuthContext);
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedNotice, setSelectedNotice] = useState(null);
@@ -53,28 +56,22 @@ function NoticesPage() {
   };
 
   useEffect(() => {
-    loadNotices();
-  }, []);
+    if (user) {
+      loadNotices();
+    }
+  }, [user]);
 
   return (
     <motion.div
       initial="hidden"
       animate="visible"
       variants={pageVariants}
-      className="max-w-7xl mx-auto p-4 md:p-8 min-h-screen relative text-neutral-400"
+      className="max-w-7xl mx-auto py-8 px-4 md:px-8 min-h-screen text-neutral-400 space-y-8"
     >
-      {/* Background Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.04),transparent_35%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_75%,rgba(200,200,200,0.03),transparent_40%)] pointer-events-none" />
-
-      <div className="relative z-10 space-y-8">
-        {/* Header */}
-        <div className="border-b border-neutral-800/40 pb-6">
-          <h1 className="text-2xl font-semibold text-white">Notice Board</h1>
-          <p className="text-sm text-neutral-500 mt-1">
-            Stay updated with department and college announcements.
-          </p>
-        </div>
+      <PageHeader
+        title="Notice Board"
+        subtitle="Stay updated with department and college announcements."
+      />
 
         {/* Pinned Indicator */}
         {!loading && notices.some((n) => n.is_pinned) && (
@@ -95,8 +92,7 @@ function NoticesPage() {
   onView={setSelectedNotice}
 />
         )}
-      </div>
-
+      
       <NoticeDetailModal
   notice={selectedNotice}
   onClose={() => setSelectedNotice(null)}

@@ -1,39 +1,38 @@
-import { Outlet, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import Sidebar from "../components/common/Sidebar";
-import Navbar from "../components/common/Navbar";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import AppLayout from "./AppLayout";
+import { Shield } from "lucide-react";
+import { adminNavSections } from "../config/sidebarConfig";
 
 function AdminLayout() {
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logoutUser } = useContext(AuthContext);
+
+  const displayName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "System Admin";
+  const initials = displayName
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate("/login", { replace: true });
+  };
 
   return (
-    <div className="flex min-h-screen bg-[#050505] text-white font-sans antialiased selection:bg-blue-500/30">
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 999px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
-      `}</style>
-
-      <Sidebar />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <Navbar />
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto custom-scrollbar">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
-        </main>
-      </div>
-    </div>
+    <AppLayout
+      navSections={adminNavSections}
+      brandIcon={Shield}
+      brandTitle="Super Admin"
+      brandSubtitle="System Management"
+      userName={displayName}
+      userInitials={initials}
+      userEmail={user?.email || ""}
+      onLogout={handleLogout}
+    />
   );
 }
 

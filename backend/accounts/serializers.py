@@ -163,6 +163,7 @@ class AuthUserSerializer(serializers.ModelSerializer):
             "role",
             "college",
             "department",
+            "is_active"
         ]
 
     def get_college(self, obj):

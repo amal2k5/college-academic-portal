@@ -1,6 +1,8 @@
+﻿// StudentCreate.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, AlertCircle, User, Mail, Phone, Calendar, Hash, BookOpen, Users, Shield } from "lucide-react";
 import StudentForm from "../../components/students/StudentForm";
 import { createStudent } from "../../services/studentService";
 
@@ -26,25 +28,23 @@ function StudentCreate() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       const payload = {
         ...formData,
-        semester: parseInt(formData.semester),
+        semester: formData.semester ? parseInt(formData.semester) : "",
       };
-      
-      console.log("Sending payload:", payload); 
-      
       await createStudent(payload);
       navigate("/hod/students");
     } catch (err) {
@@ -55,42 +55,72 @@ function StudentCreate() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 antialiased text-neutral-400 font-sans min-h-screen relative">
-      
-      {/* ── HIGH-END SILVER SHINING LIQUID GLOW FIELDS ── */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.04),transparent_35%)] pointer-events-none z-0" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_75%,rgba(200,200,200,0.03),transparent_40%)] pointer-events-none z-0" />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="min-h-screen bg-neutral-950 px-4 py-10 md:px-8 md:py-12"
+    >
+      <div className="max-w-7xl mx-auto">
 
-      <div className="relative z-10 space-y-8">
-        
-        {/* Navigation Breadcrumb & Header Title */}
-        <div>
-          <button
+        {/* Page Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="mb-10"
+        >
+          <motion.button
+            whileHover={{ x: -3 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.15 }}
             type="button"
             onClick={() => window.history.back()}
-            className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-neutral-500 hover:text-neutral-300 transition-colors duration-150 mb-4 group cursor-pointer"
+            className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-300 transition-colors duration-150 mb-6 group"
           >
-            <ArrowLeft className="h-3.5 w-3.5 transform group-hover:-translate-x-0.5 transition-transform duration-150" />
+            <ArrowLeft className="h-4 w-4" />
             <span>Back to Students</span>
-          </button>
+          </motion.button>
 
-          <h1 className="text-xl md:text-2xl font-medium text-neutral-100 tracking-tight">
-            Create Student Record
-          </h1>
-          <p className="text-xs text-neutral-500 tracking-wide font-normal mt-1">
-            Register a new student profile within the official academic management system.
-          </p>
-        </div>
-
-        {/* High-Visibility Clean Error Panel */}
-        {error && (
-          <div className="p-4 bg-rose-950/10 border border-rose-900/30 text-rose-400 rounded-2xl text-xs font-medium tracking-wide uppercase shadow-sm">
-            {typeof error === 'object' ? JSON.stringify(error, null, 2) : error}
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
+              Create Student Record
+            </h1>
+            <p className="text-sm text-neutral-500 mt-1.5">
+              Register a new student profile within the academic management system
+            </p>
           </div>
-        )}
+        </motion.div>
 
-        {/* Transparent Canvas Mount for Child Form */}
-        <div className="bg-transparent rounded-3xl">
+        {/* Error Display */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="mb-6 overflow-hidden"
+            >
+              <div className="p-4 bg-red-500/8 border border-red-500/20 rounded-xl flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold text-red-400 uppercase tracking-wider">Error</p>
+                  <p className="text-sm text-red-300/80 mt-0.5">
+                    {typeof error === 'object' ? error.message || JSON.stringify(error) : error}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
+        >
           <StudentForm
             formData={formData}
             handleChange={handleChange}
@@ -99,10 +129,10 @@ function StudentCreate() {
             loading={loading}
             isEditMode={false}
           />
-        </div>
+        </motion.div>
 
       </div>
-    </div>
+    </motion.div>
   );
 }
 

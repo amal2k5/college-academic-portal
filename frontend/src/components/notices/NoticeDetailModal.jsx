@@ -10,6 +10,7 @@ function NoticeDetailModal({ notice, onClose }) {
     category,
     scope,
     department,
+    department_name,
     image,
     image_url,
     is_pinned,
@@ -125,10 +126,12 @@ function NoticeDetailModal({ notice, onClose }) {
               </div>
 
               {/* Department Info */}
-              {scope?.toUpperCase() === "DEPARTMENT" && department && (
+              {scope?.toUpperCase() === "DEPARTMENT" && (department_name || department) && (
                 <div className="rounded-lg border border-neutral-800/50 bg-neutral-800/30 px-4 py-3">
                   <p className="text-xs text-neutral-500 mb-1">Department</p>
-                  <p className="text-sm text-white">{department}</p>
+                  <p className="text-sm text-white">
+                    {department_name || department}
+                  </p>
                 </div>
               )}
             </div>

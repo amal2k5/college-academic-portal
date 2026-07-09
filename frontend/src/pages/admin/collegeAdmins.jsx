@@ -73,26 +73,24 @@ function CollegeAdmins() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Unified Header Section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-neutral-800/50 pb-6">
-        <PageHeader 
-          title="College Admins" 
-          subtitle="Manage platform administrators and their college assignments."
-        />
-
-        {/* Search Control */}
-        <div className="relative w-full sm:w-72 shrink-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Search admins..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl bg-neutral-900/50 border border-neutral-800 py-2.5 pl-9 pr-4 text-sm text-white placeholder:text-neutral-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 focus:bg-neutral-900 outline-none transition-all"
-          />
-        </div>
-      </div>
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8">
+      {/* Page Header */}
+      <PageHeader 
+        title="College Admins" 
+        subtitle="Manage platform administrators and their college assignments."
+        actions={
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search admins..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg bg-neutral-900 border border-neutral-700 hover:border-neutral-600 py-2 pl-9 pr-4 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-700/50 outline-none transition-all"
+            />
+          </div>
+        }
+      />
 
       {/* Table Container */}
 <motion.div

@@ -1,13 +1,10 @@
-import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
 import NoticeFeed from "../../components/notices/NoticeFeed";
 import { useContext, useEffect, useState } from "react";
 import noticeService from "../../services/noticeService";
 import NoticeForm from "../../components/notices/NoticeForm";
 import { AuthContext } from "../../context/AuthContext";
 import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
-
-
+import PageHeader from "../../components/common/PageHeader";
 
 function NoticeManagement() {
   const [showForm, setShowForm] = useState(false);
@@ -16,80 +13,118 @@ function NoticeManagement() {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [selectedViewNotice, setSelectedViewNotice] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-const loadNotices = async () => {
-  setLoading(true);
-
-  try {
-    const data = await noticeService.getNotices();
-    setNotices(data);
-  } finally {
-    setLoading(false);
-  }
-};
+  const loadNotices = async () => {
+    setLoading(true);
+    try {
+      const data = await noticeService.getNotices();
+      setNotices(data);
+    } catch (error) {
+      console.error("Failed to load notices:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    loadNotices();
-  }, []);
+    let isMounted = true;
+
+    const fetchNotices = async () => {
+      setLoading(true);
+      try {
+        const data = await noticeService.getNotices();
+        if (isMounted) {
+          setNotices(data);
+        }
+      } catch (error) {
+        console.error("Failed to load notices:", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    if (user) {
+      fetchNotices();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  const handleSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const payload = { ...data, scope: "COLLEGE" };
+      if (selectedNotice) {
+        await noticeService.updateNotice(selectedNotice.id, payload);
+      } else {
+        await noticeService.createNotice(payload);
+      }
+      await loadNotices();
+      setSelectedNotice(null);
+      setShowForm(false);
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this notice?")) return;
+
+    try {
+      await noticeService.deleteNotice(id);
+      await loadNotices();
+    } catch (error) {
+      console.error("Failed to delete:", error);
+      alert("Failed to delete notice.");
+    }
+  };
+
+  const handleTogglePin = async (id) => {
+    try {
+      await noticeService.togglePin(id);
+      await loadNotices();
+    } catch (error) {
+      console.error("Failed to toggle pin:", error);
+      alert("Failed to update pin status.");
+    }
+  };
+
   if (loading) {
-  return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="w-10 h-10 border-2 border-neutral-700 border-t-white rounded-full animate-spin" />
-    </div>
-  );
-}
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-neutral-700 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      className="max-w-7xl mx-auto p-4 md:p-8 antialiased text-neutral-400 font-sans min-h-screen relative"
-    >
-      {/* Liquid silver shine glow background elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.04),transparent_35%)] pointer-events-none z-0" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_75%,rgba(200,200,200,0.03),transparent_40%)] pointer-events-none z-0" />
+    <>
+      <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8">
+        <PageHeader
+          title="College Notice Management"
+          subtitle="Create, manage and publish notices for your college."
+          buttonText="Create Notice"
+          onButtonClick={() => setShowForm(true)}
+        />
 
-      <div className="relative z-10 space-y-8">
-        {/* Header Area */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-800/40 pb-6">
-          <div className="space-y-1">
-            <h1 className="text-xl md:text-2xl font-medium text-neutral-100 tracking-tight">
-              College Notice Management
-            </h1>
-            <p className="text-xs text-neutral-500 tracking-wide font-normal">
-              Create, manage and publish notices for your college.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-neutral-200 active:bg-neutral-300 text-black text-xs font-medium uppercase tracking-widest px-5 py-3 transition duration-150 cursor-pointer group whitespace-nowrap self-start sm:self-auto shadow-md"
-          >
-            <Plus size={14} strokeWidth={1.5} className="text-black" />
-            <span>Create Notice</span>
-          </button>
-        </div>
-
-        {/* Notices Feed Render */}
         <NoticeFeed
-    notices={notices}
-    currentUser={user}
-    onView={setSelectedViewNotice}
-    onEdit={(notice) => {
-        setSelectedNotice(notice);
-        setShowForm(true);
-    }}
-          onDelete={async (id) => {
-            await noticeService.deleteNotice(id);
-
-            await loadNotices();
+          notices={notices}
+          currentUser={user}
+          onView={setSelectedViewNotice}
+          onEdit={(notice) => {
+            setSelectedNotice(notice);
+            setShowForm(true);
           }}
-          onTogglePin={async (id) => {
-            const updatedNotice = await noticeService.togglePin(id);
-
-            await loadNotices();
-          }}
+          onDelete={handleDelete}
+          onTogglePin={handleTogglePin}
         />
 
         {showForm && (
@@ -110,33 +145,21 @@ const loadNotices = async () => {
                   setSelectedNotice(null);
                   setShowForm(false);
                 }}
-onSubmit={async (data) => {
-  try {
-    if (selectedNotice) {
-      await noticeService.updateNotice(selectedNotice.id, data);
-    } else {
-      await noticeService.createNotice(data);
-    }
-
-    await loadNotices();
-    setSelectedNotice(null);
-    setShowForm(false);
-  } catch (error) {
-    console.error(error);
-    alert("Something went wrong.");
-  }
-}}
+                onSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
               />
             </div>
           </div>
         )}
-      </div>
 
-      <NoticeDetailModal
-    notice={selectedViewNotice}
-    onClose={() => setSelectedViewNotice(null)}
-/>
-    </motion.div>
+        {selectedViewNotice && (
+          <NoticeDetailModal
+            notice={selectedViewNotice}
+            onClose={() => setSelectedViewNotice(null)}
+          />
+        )}
+      </div>
+    </>
   );
 }
 

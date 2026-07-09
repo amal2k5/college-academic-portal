@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save, X, UploadCloud, Image as ImageIcon, Pin } from "lucide-react";
+import { Save, X, UploadCloud, Image as ImageIcon, Pin, Building2, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function NoticeForm({
@@ -7,24 +7,25 @@ function NoticeForm({
   onSubmit,
   onCancel,
   loading = false,
+  role = null,
+  departmentName = null,
 }) {
   const [formData, setFormData] = useState({
     title: "",
     body: "",
     category: "",
-    scope: "Department",
-    department: "",
     image: null,
     is_pinned: false,
   });
 
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // Initialize form with data if editing
+
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
-      // If there's an existing image URL (string), set preview
+      const { scope, department, ...rest } = initialData;
+      setFormData(rest);
+
       if (initialData.image && typeof initialData.image === "string") {
         setPreviewUrl(initialData.image);
       } else {
@@ -38,20 +39,19 @@ function NoticeForm({
 
     if (type === "file" && files[0]) {
       setFormData((prev) => ({ ...prev, [name]: files[0] }));
-      // Create local preview for new files
       setPreviewUrl(URL.createObjectURL(files[0]));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]:
-  type === "checkbox"
-    ? checked
-    : type === "file"
-    ? {
-        file: files[0],
-        preview: URL.createObjectURL(files[0]),
-      }
-    : value,
+          type === "checkbox"
+            ? checked
+            : type === "file"
+              ? {
+                file: files[0],
+                preview: URL.createObjectURL(files[0]),
+              }
+              : value,
       }));
     }
   };
@@ -63,11 +63,16 @@ function NoticeForm({
     }
   };
 
-  // Premium Input Styles
+
   const inputBase =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-neutral-500 outline-none transition-all duration-200 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50";
   const labelStyle =
     "block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2 ml-1";
+
+
+  const isHOD = role === "hod";
+  const isCollegeAdmin = role === "college_admin";
+  const showAudienceBadge = isHOD || isCollegeAdmin;
 
   return (
     <>
@@ -128,66 +133,65 @@ function NoticeForm({
             />
           </div>
 
-          {/* Grid: Category & Scope */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={labelStyle}>Category</label>
-              <div className="relative">
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className={`${inputBase} appearance-none cursor-pointer`}
-                >
-                  <option value="" className="bg-neutral-900">Select Category</option>
-                  <option value="General" className="bg-neutral-900">General</option>
-                  <option value="Exam" className="bg-neutral-900">Exam</option>
-                  <option value="Event" className="bg-neutral-900">Event</option>
-                  <option value="Holiday" className="bg-neutral-900">Holiday</option>
-                  <option value="Fee" className="bg-neutral-900">Fee</option>
-                </select>
-                {/* Custom Arrow for Select */}
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400">
-                  <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className={labelStyle}>Scope</label>
-              <div className="relative">
-                <select
-                  name="scope"
-                  value={formData.scope}
-                  onChange={handleChange}
-                  className={`${inputBase} appearance-none cursor-pointer`}
-                >
-                  <option value="Department" className="bg-neutral-900">Department</option>
-                  <option value="College" className="bg-neutral-900">College</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400">
-                  <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Department */}
+          {/* Category — full width when scope is hidden */}
           <div>
-            <label className={labelStyle}>Department</label>
-            <input
-              type="text"
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              placeholder="e.g. Computer Science"
-              className={inputBase}
-            />
+            <label className={labelStyle}>Category</label>
+            <div className="relative">
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className={`${inputBase} appearance-none cursor-pointer`}
+              >
+                <option value="" className="bg-neutral-900">Select Category</option>
+                <option value="General" className="bg-neutral-900">General</option>
+                <option value="Exam" className="bg-neutral-900">Exam</option>
+                <option value="Event" className="bg-neutral-900">Event</option>
+                <option value="Holiday" className="bg-neutral-900">Holiday</option>
+                <option value="Fee" className="bg-neutral-900">Fee</option>
+              </select>
+              {/* Custom Arrow for Select */}
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400">
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+              </div>
+            </div>
           </div>
+
+          {/* Target Audience — read-only for HOD and College Admin */}
+          {showAudienceBadge && (
+            <div>
+              <label className={labelStyle}>Target Audience</label>
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                {isHOD ? (
+                  <>
+                    <Building2 size={16} className="text-violet-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">
+                        {departmentName || "Your Department"}
+                      </p>
+                      <p className="text-xs text-neutral-500 mt-0.5">
+                        This notice will be published to your department.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Globe size={16} className="text-indigo-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        Entire College
+                      </p>
+                      <p className="text-xs text-neutral-500 mt-0.5">
+                        This notice will be published to all departments.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Attachment Upload */}
           <div>

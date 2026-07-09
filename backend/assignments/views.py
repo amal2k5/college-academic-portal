@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -12,6 +14,28 @@ from students.models import Student
 from .models import Assignment
 from .serializers import AssignmentSerializer
 from .filters import AssignmentFilter
+
+# Image extensions that Cloudinary handles natively under resource_type="image".
+_IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.tiff', '.ico'}
+# Video extensions for completeness.
+_VIDEO_EXTS = {'.mp4', '.mov', '.avi', '.mkv', '.webm', '.ogg', '.flv'}
+
+
+def _cloudinary_resource_type(file):
+    """
+    Return the correct Cloudinary resource_type for an uploaded file.
+
+    Cloudinary classifies PDFs as 'image' when resource_type='auto' because it
+    can generate image previews, which causes browsers to fail when opening the
+    resulting URL as a document.  By explicitly using 'raw' for non-image files
+    we ensure documents are stored and served with the correct Content-Type.
+    """
+    ext = os.path.splitext(file.name.lower())[1]
+    if ext in _IMAGE_EXTS:
+        return 'image'
+    if ext in _VIDEO_EXTS:
+        return 'video'
+    return 'raw'
 
 class AssignmentListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -65,10 +89,11 @@ class AssignmentListCreateView(APIView):
         upload_result = None
 
         if "attachment" in request.FILES:
+            attachment = request.FILES["attachment"]
             upload_result = cloudinary.uploader.upload(
-                request.FILES["attachment"],
+                attachment,
                 folder="assignments",
-                resource_type="auto",
+                resource_type=_cloudinary_resource_type(attachment),
             )
         print(upload_result)
         serializer.save(
@@ -78,7 +103,7 @@ class AssignmentListCreateView(APIView):
             attachment_public_id=upload_result["public_id"] if upload_result else None,
             attachment_resource_type=upload_result["resource_type"] if upload_result else None,
             attachment_original_name=request.FILES["attachment"].name if upload_result else None,
-            attachment_format=upload_result["format"] if upload_result else None,
+            attachment_format=upload_result.get("format") if upload_result else None,
         )
 
         return Response(
@@ -146,10 +171,11 @@ class AssignmentDetailView(APIView):
                     resource_type=assignment.attachment_resource_type or "auto",
                 )
 
+            attachment = request.FILES["attachment"]
             upload_result = cloudinary.uploader.upload(
-                request.FILES["attachment"],
+                attachment,
                 folder="assignments",
-                resource_type="auto",
+                resource_type=_cloudinary_resource_type(attachment),
             )
 
         serializer.save(
@@ -159,7 +185,7 @@ class AssignmentDetailView(APIView):
             attachment_public_id=upload_result["public_id"] if upload_result else assignment.attachment_public_id,
             attachment_resource_type=upload_result["resource_type"] if upload_result else assignment.attachment_resource_type,
             attachment_original_name=request.FILES["attachment"].name if upload_result else assignment.attachment_original_name,
-            attachment_format=upload_result["format"] if upload_result else assignment.attachment_format,
+            attachment_format=upload_result.get("format") if upload_result else assignment.attachment_format,
         )
 
         return Response(serializer.data, status=status.HTTP_200_OK)

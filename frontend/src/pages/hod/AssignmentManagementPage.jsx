@@ -7,6 +7,7 @@ import AssignmentForm from "../../components/assignments/AssignmentForm";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import AssignmentDetailModal from "../../components/assignments/AssignmentDetailModal";
 import assignmentService from "../../services/assignmentService";
+import PageHeader from "../../components/common/PageHeader";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -136,71 +137,10 @@ const handleDelete = (assignment) => {
   }
 };
 
-  // Loading State - using a simple loading spinner
   if (loading) {
     return (
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={pageVariants}
-        className="max-w-7xl mx-auto p-4 md:p-8 min-h-screen relative text-neutral-400"
-      >
-        <div className="relative z-10 space-y-8">
-          {/* Header Skeleton */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-800/40 pb-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-white">
-                Assignment Management
-              </h1>
-              <p className="text-sm text-neutral-500 mt-1">
-                Create, manage and distribute assignments for students.
-              </p>
-            </div>
-            <div className="w-40 h-10 bg-neutral-800/50 rounded-xl animate-pulse" />
-          </div>
-
-          {/* Loading Cards Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="bg-neutral-900/50 rounded-xl border border-neutral-800/50 p-6 animate-pulse"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3 flex-1">
-                    <div className="h-5 bg-neutral-800 rounded-lg w-1/3" />
-                    <div className="h-4 bg-neutral-800 rounded-lg w-2/3" />
-                    <div className="flex gap-4 mt-2">
-                      <div className="h-3 bg-neutral-800 rounded-lg w-20" />
-                      <div className="h-3 bg-neutral-800 rounded-lg w-24" />
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="w-8 h-8 bg-neutral-800 rounded-lg" />
-                    <div className="w-8 h-8 bg-neutral-800 rounded-lg" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={pageVariants}
-      className="max-w-7xl mx-auto p-4 md:p-8 min-h-screen relative text-neutral-400"
-    >
-      {/* Background Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.04),transparent_35%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_75%,rgba(200,200,200,0.03),transparent_40%)] pointer-events-none" />
-
-      <div className="relative z-10 space-y-8">
-        {/* Header */}
+      <div className="space-y-6 text-neutral-400">
+        {/* Header Skeleton */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-800/40 pb-6">
           <div>
             <h1 className="text-2xl font-semibold text-white">
@@ -210,25 +150,53 @@ const handleDelete = (assignment) => {
               Create, manage and distribute assignments for students.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => handleOpenForm()}
-            disabled={submitting}
-            className="inline-flex disabled:opacity-50 disabled:cursor-not-allowed items-center gap-2 bg-white text-black px-5 py-3 rounded-xl text-sm font-medium hover:bg-neutral-200 transition shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
-          >
-            <Plus size={16} /> Create Assignment
-          </button>
+          <div className="w-40 h-10 bg-neutral-800/50 rounded-xl animate-pulse" />
         </div>
 
-        {/* Assignment List with handlers */}
-        <AssignmentList
-          assignments={assignments}
-          onEdit={handleOpenForm}
-          onDelete={handleDelete}
-          onView={handleViewAssignment}
-        />
+        {/* Loading Cards Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-neutral-900/50 rounded-xl border border-neutral-800/50 p-6 animate-pulse"
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-3 flex-1">
+                  <div className="h-5 bg-neutral-800 rounded-lg w-1/3" />
+                  <div className="h-4 bg-neutral-800 rounded-lg w-2/3" />
+                  <div className="flex gap-4 mt-2">
+                    <div className="h-3 bg-neutral-800 rounded-lg w-20" />
+                    <div className="h-3 bg-neutral-800 rounded-lg w-24" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-8 h-8 bg-neutral-800 rounded-lg" />
+                  <div className="w-8 h-8 bg-neutral-800 rounded-lg" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8">
+      <PageHeader
+        title="Assignment Management"
+        subtitle="Create, manage and distribute assignments for students."
+        buttonText="Create Assignment"
+        onButtonClick={() => handleOpenForm()}
+      />
+
+      {/* Assignment List with handlers */}
+      <AssignmentList
+        assignments={assignments}
+        onEdit={handleOpenForm}
+        onDelete={handleDelete}
+        onView={handleViewAssignment}
+      />
 
       {/* Create/Edit Form Modal */}
       <AnimatePresence>
@@ -290,7 +258,7 @@ const handleDelete = (assignment) => {
   onConfirm={confirmDelete}
   onCancel={() => setDeleteTarget(null)}
 />
-    </motion.div>
+    </div>
   );
 }
 

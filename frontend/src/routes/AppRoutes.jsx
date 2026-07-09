@@ -1,6 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "../pages/admin/auth/Login";
 import SetupPassword from "../pages/admin/auth/SetPassword";
+import ForgotPassword from "../pages/admin/auth/ForgotPassword";
+import VerifyOTP from "../pages/admin/auth/VerifyOTP";
+import ResetPassword from "../pages/admin/auth/ResetPassword";
 import PublicLayout from "../layouts/PublicLayout";
 import LandingPage from "../pages/LandingPage";
 import CollegeRegistrationPage from "../pages/CollegeRegistrationPage";
@@ -22,6 +25,9 @@ function AppRoutes() {
       {/* Authentication */}
       <Route path="/login" element={<Login />} />
       <Route path="/setup-password/:token" element={<SetupPassword />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/verify-otp" element={<VerifyOTP />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Protected Routes */}
       <Route path="/*" element={<AdminRoutes />} />
@@ -30,4 +36,4 @@ function AppRoutes() {
   );
 }
 
-export default AppRoutes;
+export default AppRoutes;

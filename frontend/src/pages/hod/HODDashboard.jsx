@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { getHODDashboardStats } from "../../services/hodService";
 import {
@@ -12,6 +12,8 @@ import {
   Clock,
   Megaphone,
 } from "lucide-react";
+import { AuthContext } from "../../context/AuthContext";
+import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -114,6 +116,9 @@ function HODDashboard() {
     },
   ];
 
+  const { user } = useContext(AuthContext);
+  const hodEmail = user?.email || "";
+
   return (
     <motion.div
       initial="hidden"
@@ -122,6 +127,15 @@ function HODDashboard() {
       className="min-h-screen bg-neutral-950 antialiased font-sans p-4 md:p-6 lg:p-10"
     >
       <div className="max-w-7xl mx-auto space-y-8">
+
+        {/* ── PROFILE SUMMARY CARD ── */}
+        <ProfileSummaryCard
+          role="HOD"
+          collegeName={stats.college_name}
+          userName={stats.hod_name}
+          userEmail={hodEmail}
+          departmentName={stats.department_name}
+        />
 
         {/* ── HEADER ── */}
         <motion.div
