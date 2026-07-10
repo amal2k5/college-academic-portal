@@ -7,6 +7,7 @@ class NoticeSerializer(serializers.ModelSerializer):
 
     image_url = serializers.SerializerMethodField()
     posted_by_name = serializers.SerializerMethodField()
+    department_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Notice
@@ -19,6 +20,7 @@ class NoticeSerializer(serializers.ModelSerializer):
             "scope",
             "college",
             "department",
+            "department_name",
             "image",
             "image_url",
             "is_pinned",
@@ -50,3 +52,10 @@ class NoticeSerializer(serializers.ModelSerializer):
             f"{obj.posted_by.first_name} "
             f"{obj.posted_by.last_name}"
         ).strip()
+
+    def get_department_name(self, obj):
+
+        if obj.department:
+            return obj.department.name
+
+        return None

@@ -5,7 +5,6 @@ from .models import Assignment
 
 class AssignmentSerializer(serializers.ModelSerializer):
 
-    attachment_url = serializers.SerializerMethodField()
     created_by_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -16,8 +15,11 @@ class AssignmentSerializer(serializers.ModelSerializer):
             "title",
             "subject",
             "description",
-            "attachment",
             "attachment_url",
+            "attachment_public_id",
+            "attachment_resource_type",
+            "attachment_original_name",
+            "attachment_format",
             "target_year",
             "department",
             "deadline",
@@ -31,19 +33,16 @@ class AssignmentSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "department",
             "created_by",
+            "attachment_url",
+            "attachment_public_id",
+            "attachment_resource_type",
+            "attachment_original_name",
+            "attachment_format",
             "created_at",
             "updated_at",
         ]
 
-    def get_attachment_url(self, obj):
-
-        if obj.attachment:
-            return obj.attachment.url
-
-        return None
-
     def get_created_by_name(self, obj):
-
         return (
             f"{obj.created_by.first_name} "
             f"{obj.created_by.last_name}"

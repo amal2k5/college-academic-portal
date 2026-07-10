@@ -26,7 +26,10 @@ class JWTAuthMiddleware:
         self.inner = inner
 
     async def __call__(self, scope, receive, send):
+       
+
         query_string = scope["query_string"].decode()
+     
 
         query_params = parse_qs(query_string)
 

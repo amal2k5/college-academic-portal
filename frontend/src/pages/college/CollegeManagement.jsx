@@ -5,6 +5,8 @@ import {
   getColleges,
   deleteCollege,
 } from "../../services/collegeService";
+import { AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function Colleges() {
   const [colleges, setColleges] = useState([]);
@@ -66,8 +68,11 @@ function Colleges() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Colleges" />
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8">
+      <PageHeader 
+        title="Colleges" 
+        subtitle="Manage registered colleges, access credentials, and institutional domains across the portal."
+      />
 
 <CollegeTable
   colleges={colleges}
@@ -80,59 +85,80 @@ function Colleges() {
 
 
       {/* Deactivate College Modal */}
-      {showDeactivateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 animate-in fade-in zoom-in duration-200">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-8 h-8 text-orange-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
+{showDeactivateModal && (
+  <AnimatePresence>
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={() => {
+        setShowDeactivateModal(false);
+        setCollegeToDeactivate(null);
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 16 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl"
+      >
+        {/* Top strip */}
+        <div className="h-[3px] w-full bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600" />
 
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Deactivate College
-              </h2>
+        <div className="p-6">
 
-              <p className="text-gray-500 mb-6">
-                Are you sure you want to deactivate this college?
-                <br />
-                The college can be reactivated later if required.
-              </p>
-
-              <div className="flex gap-3 w-full">
-                <button
-                  onClick={() => {
-                    setShowDeactivateModal(false);
-                    setCollegeToDeactivate(null);
-                  }}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all font-medium"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  onClick={handleDeactivateCollege}
-                  className="flex-1 py-2.5 rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition-all font-medium"
-                >
-                  Deactivate
-                </button>
-              </div>
+          {/* Icon */}
+          <div className="flex items-center justify-center mb-5">
+            <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+              <AlertTriangle size={20} strokeWidth={1.6} className="text-orange-400" />
             </div>
           </div>
+
+          {/* Text */}
+          <div className="text-center mb-6">
+            <h2 className="text-[16px] font-semibold text-neutral-100 tracking-tight mb-2">
+              Deactivate College
+            </h2>
+            <p className="text-[13px] text-neutral-500 leading-relaxed tracking-wide">
+              Are you sure you want to deactivate this college?
+              The college can be reactivated later if required.
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3">
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setShowDeactivateModal(false);
+                setCollegeToDeactivate(null);
+              }}
+              className="flex-1 py-2.5 rounded-xl border border-neutral-700 hover:border-neutral-600 text-neutral-400 hover:text-neutral-200 transition-all duration-200 text-[11px] font-semibold uppercase tracking-widest cursor-pointer"
+            >
+              Cancel
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleDeactivateCollege}
+              className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 border border-orange-500/20 hover:border-orange-500/40 transition-all duration-200 text-[11px] font-semibold uppercase tracking-widest cursor-pointer"
+            >
+              <AlertTriangle size={13} strokeWidth={2} />
+              Deactivate
+            </motion.button>
+          </div>
+
         </div>
-      )}
+      </motion.div>
+    </motion.div>
+  </AnimatePresence>
+)}
     </div>
   );
 }

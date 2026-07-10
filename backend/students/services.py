@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import transaction
 
 from accounts.services import (
     generate_setup_token,
@@ -10,6 +11,7 @@ from .models import Student
 User = get_user_model()
 
 
+@transaction.atomic
 def create_student(
     *,
     first_name,
@@ -25,7 +27,16 @@ def create_student(
     semester,
     academic_year,
     department,
+    year
 ):
+    if User.objects.filter(email=email).exists():
+        raise ValueError("A user with this email already exists.")
+
+    if Student.objects.filter(roll_number=roll_number).exists():
+        raise ValueError("Roll number already exists.")
+
+    if Student.objects.filter(admission_number=admission_number).exists():
+        raise ValueError("Admission number already exists.")
 
     user = User.objects.create_user(
         email=email,
@@ -39,6 +50,7 @@ def create_student(
         user=user,
         department=department,
         phone=phone,
+        yaer=year,
         date_of_birth=date_of_birth,
         gender=gender,
         parent_name=parent_name,
@@ -49,13 +61,8 @@ def create_student(
         academic_year=academic_year,
     )
 
-    token = generate_setup_token(
-        user
-    )
+    token = generate_setup_token(user)
 
-    send_setup_email(
-        user,
-        token
-    )
+    send_setup_email(user, token)
 
     return student

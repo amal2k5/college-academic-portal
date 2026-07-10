@@ -128,7 +128,7 @@ const benefits = [
 
 const Features = () => {
   return (
-    <section className="bg-neutral-950 text-white py-24 px-6 overflow-hidden">
+    <section className="bg-neutral-950 text-white py-16 sm:py-20 lg:py-24 px-4 sm:px-6 overflow-hidden">
       <div className="mx-auto max-w-7xl">
         {/* ─── FEATURES SECTION ─── */}
         <motion.div
@@ -137,28 +137,28 @@ const Features = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={stagger}
-          className="mb-28"
+          className="mb-16 sm:mb-20 lg:mb-28"
         >
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 lg:mb-16">
             <motion.div variants={fadeUp}>
-              <span className="text-[11px] font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 sm:px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
                 Features
               </span>
             </motion.div>
             <motion.h2
               variants={fadeUp}
-              className="text-3xl md:text-4xl font-semibold mt-4 mb-4 tracking-tight"
+              className="text-2xl sm:text-3xl md:text-4xl font-semibold mt-4 mb-3 sm:mb-4 tracking-tight"
             >
               Everything You Need to Manage
-              <br />
+              <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-300">
                 Your Academic Institution
               </span>
             </motion.h2>
             <motion.p
               variants={fadeUp}
-              className="text-neutral-400 text-[15px] max-w-2xl mx-auto leading-relaxed"
+              className="text-[14px] sm:text-[15px] text-neutral-400 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
             >
               Designed to simplify administration, improve collaboration and
               modernize academic operations.
@@ -168,7 +168,7 @@ const Features = () => {
           {/* Features Grid */}
           <motion.div
             variants={stagger}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6"
           >
             {features.map((feature, index) => {
               const Icon = feature.icon;
@@ -180,19 +180,18 @@ const Features = () => {
                     y: -8,
                     transition: { duration: 0.3, ease },
                   }}
-                  className="group relative bg-neutral-900 border border-neutral-800 rounded-2xl p-7 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/5"
+                  className="group relative bg-neutral-900 border border-neutral-800 rounded-2xl p-5 sm:p-6 lg:p-7 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/5"
                 >
                   <div className="relative z-10">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4 group-hover:bg-indigo-500/20 group-hover:scale-110 transition-all duration-300">
-                      <Icon size={20} className="text-indigo-400" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-indigo-500/20 group-hover:scale-110 transition-all duration-300">
+                      <Icon size={18} className="text-indigo-400 sm:size-[20px]" />
                     </div>
-                    <h3 className="text-[15px] font-semibold text-white mb-2">
+                    <h3 className="text-[14px] sm:text-[15px] font-semibold text-white mb-1.5 sm:mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-[13px] text-neutral-400 leading-relaxed">
+                    <p className="text-[12px] sm:text-[13px] text-neutral-400 leading-relaxed">
                       {feature.description}
                     </p>
-
                   </div>
                   {/* Glow effect */}
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-500/0 via-indigo-500/5 to-violet-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -209,23 +208,23 @@ const Features = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={stagger}
-          className="mb-28"
+          className="mb-16 sm:mb-20 lg:mb-28"
         >
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 lg:mb-16">
             <motion.div variants={fadeUp}>
-              <span className="text-[11px] font-semibold text-violet-400 bg-violet-500/10 border border-violet-500/20 px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-violet-400 bg-violet-500/10 border border-violet-500/20 px-3 sm:px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
                 How It Works
               </span>
             </motion.div>
             <motion.h2
               variants={fadeUp}
-              className="text-3xl md:text-4xl font-semibold mt-4 mb-4 tracking-tight"
+              className="text-2xl sm:text-3xl md:text-4xl font-semibold mt-4 mb-3 sm:mb-4 tracking-tight"
             >
               How It Works
             </motion.h2>
             <motion.p
               variants={fadeUp}
-              className="text-neutral-400 text-[15px] max-w-2xl mx-auto leading-relaxed"
+              className="text-[14px] sm:text-[15px] text-neutral-400 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
             >
               Get started in minutes with our simple onboarding process.
             </motion.p>
@@ -259,24 +258,24 @@ const Features = () => {
           {/* Mobile Timeline */}
           <div className="lg:hidden relative">
             {/* Vertical line */}
-            <div className="absolute left-8 top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-500 via-violet-500 to-indigo-500" />
+            <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-500 via-violet-500 to-indigo-500" />
 
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               {workflowSteps.map((step, index) => (
                 <motion.div
                   key={index}
                   variants={fadeUp}
-                  className="relative pl-16"
+                  className="relative pl-12 sm:pl-16"
                 >
                   {/* Step number */}
-                  <div className="absolute left-0 top-0 w-12 h-12 rounded-full bg-neutral-900 border-2 border-indigo-500 flex items-center justify-center text-lg font-bold text-indigo-400 z-10">
+                  <div className="absolute left-0 top-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neutral-900 border-2 border-indigo-500 flex items-center justify-center text-base sm:text-lg font-bold text-indigo-400 z-10">
                     {step.number}
                   </div>
                   <div>
-                    <h4 className="text-[14px] font-semibold text-white mb-1">
+                    <h4 className="text-[13px] sm:text-[14px] font-semibold text-white mb-0.5 sm:mb-1">
                       {step.title}
                     </h4>
-                    <p className="text-[12px] text-neutral-500 leading-relaxed">
+                    <p className="text-[11px] sm:text-[12px] text-neutral-500 leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -295,18 +294,18 @@ const Features = () => {
           viewport={{ once: true, margin: "-100px" }}
           variants={stagger}
         >
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 lg:mb-16">
             <motion.div variants={fadeUp}>
-              <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 sm:px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
                 Why Choose Us
               </span>
             </motion.div>
             <motion.h2
               variants={fadeUp}
-              className="text-3xl md:text-4xl font-semibold mt-4 mb-4 tracking-tight"
+              className="text-2xl sm:text-3xl md:text-4xl font-semibold mt-4 mb-3 sm:mb-4 tracking-tight"
             >
               Why Institutions Choose
-              <br />
+              <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300">
                 Our Platform
               </span>
@@ -315,7 +314,7 @@ const Features = () => {
 
           <motion.div
             variants={stagger}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6"
           >
             {benefits.map((benefit, index) => {
               const Icon = benefit.icon;
@@ -327,15 +326,15 @@ const Features = () => {
                     y: -4,
                     transition: { duration: 0.3, ease },
                   }}
-                  className="group bg-neutral-900 border border-neutral-800 rounded-2xl p-7 text-center hover:border-emerald-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5"
+                  className="group bg-neutral-900 border border-neutral-800 rounded-2xl p-5 sm:p-6 lg:p-7 text-center hover:border-emerald-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5"
                 >
-                  <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all duration-300">
-                    <Icon size={24} className="text-emerald-400" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all duration-300">
+                    <Icon size={20} className="text-emerald-400 sm:size-[24px]" />
                   </div>
-                  <h4 className="text-[14px] font-semibold text-white mb-2">
+                  <h4 className="text-[13px] sm:text-[14px] font-semibold text-white mb-1.5 sm:mb-2">
                     {benefit.title}
                   </h4>
-                  <p className="text-[12px] text-neutral-500 leading-relaxed">
+                  <p className="text-[11px] sm:text-[12px] text-neutral-500 leading-relaxed">
                     {benefit.description}
                   </p>
                 </motion.div>

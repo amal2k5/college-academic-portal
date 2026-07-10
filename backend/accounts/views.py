@@ -5,12 +5,16 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+
+from .serializers import AuthUserSerializer
+
 from colleges.models import College
 from college_requests.models import CollegeRegistration
 from students.models import Student
 from notices.models import Notice
 from assignments.models import Assignment
 from .models import HODProfile
+
 
 from .models import User, CollegeAdminProfile
 from .serializers import (
@@ -102,13 +106,10 @@ class LoginView(APIView):
         refresh = RefreshToken.for_user(user)
 
         return Response({
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "role": user.role,
-        }, status=status.HTTP_200_OK)
+    "access": str(refresh.access_token),
+    "refresh": str(refresh),
+    "user": AuthUserSerializer(user).data,
+}, status=status.HTTP_200_OK)
 
 
 class LogoutView(APIView):

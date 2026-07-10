@@ -10,6 +10,7 @@ import {
 import CollegeRequestsTable from "../../components/collegeAdmins/CollegeRequestsTable";
 import RequestDetailsModal from "../../components/collegeAdmins/RequestDetailsModal";
 import RejectRequestModal from "../../components/collegeAdmins/RejectRequestModal";
+import PageHeader from "../../components/common/PageHeader";
 
 const CollegeRequestsPage = () => {
   const [requests, setRequests] = useState([]);
@@ -18,28 +19,28 @@ const CollegeRequestsPage = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  
+  // Pagination state (kept for future implementation)
   const [count, setCount] = useState(0);
   const [next, setNext] = useState(null);
   const [previous, setPrevious] = useState(null);
 
-const fetchRequests = async () => {
-  
-  try {
-    setLoading(true);
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      const data = await getCollegeRequests();
+      setRequests(data.results || []);
+      setCount(data.count);
+      setNext(data.next);
+      setPrevious(data.previous);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load registration requests.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const data = await getCollegeRequests();
-
-    setRequests(data.results);
-    setCount(data.count);
-    setNext(data.next);
-    setPrevious(data.previous);
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to load registration requests.");
-  } finally {
-    setLoading(false);
-  }
-};
   useEffect(() => {
     fetchRequests();
   }, []);
@@ -57,17 +58,15 @@ const fetchRequests = async () => {
   }, [requests, search]);
 
   const handleView = async (request) => {
-
     try {
       const data = await getCollegeRequest(request.id);
-
       setSelectedRequest(data);
-
       setDetailsOpen(true);
     } catch {
       toast.error("Unable to load request details.");
     }
   };
+
   const handleApprove = async () => {
     if (!selectedRequest) return;
     try {
@@ -96,30 +95,24 @@ const fetchRequests = async () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-6 md:p-10">
-      {/* Header Section */}
-      <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Registration Requests
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-            Review incoming college applications and manage access permissions.
-          </p>
-        </div>
-
-        {/* Premium Search Input */}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
-          <input
-            type="text"
-            placeholder="Search colleges or contacts..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-neutral-800 bg-neutral-900/50 py-3 pl-10 pr-4 text-sm text-white outline-none transition-all placeholder:text-neutral-600 focus:border-indigo-500/50 focus:bg-neutral-900 focus:ring-2 focus:ring-indigo-500/10"
-          />
-        </div>
-      </div>
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8">
+      {/* Premium Page Header */}
+      <PageHeader
+        title="Registration Requests"
+        subtitle="Review incoming college applications and manage platform access permissions."
+        actions={
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search requests..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg bg-neutral-900 border border-neutral-700 hover:border-neutral-600 py-2 pl-9 pr-4 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-700/50 outline-none transition-all"
+            />
+          </div>
+        }
+      />
 
       {/* Data Table */}
       <CollegeRequestsTable

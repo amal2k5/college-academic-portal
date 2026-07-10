@@ -1,8 +1,15 @@
-import { useState, useContext } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useState, useContext, useMemo } from "react";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, GraduationCap, Mail, Lock } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  GraduationCap,
+  Mail,
+  Lock,
+  ArrowLeft,
+} from "lucide-react";
 import { AuthContext } from "../../../context/AuthContext";
 import { login } from "../../../services/authService";
 
@@ -22,8 +29,18 @@ const fadeUp = {
   }),
 };
 
-// ── Defined OUTSIDE Login — no remount on every keystroke ──
-const Field = ({ id, label, type, icon: Icon, value, onChange, error, placeholder, disabled, extra }) => (
+const Field = ({
+  id,
+  label,
+  type,
+  icon: Icon,
+  value,
+  onChange,
+  error,
+  placeholder,
+  disabled,
+  extra,
+}) => (
   <div>
     <label
       htmlFor={id}
@@ -71,11 +88,18 @@ function Login() {
   const { loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("access");
-  const role = localStorage.getItem("role");
+  // Compute once, don't recompute every render off localStorage directly
+  const [redirectPath] = useState(() => {
+    const token = localStorage.getItem("access");
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    const role = storedUser?.role;
+    return token && ROLE_ROUTES[role] ? ROLE_ROUTES[role] : null;
+  });
 
-  if (token && ROLE_ROUTES[role]) {
-    return <Navigate to={ROLE_ROUTES[role]} replace />;
+
+
+  if (redirectPath) {
+    return <Navigate to={redirectPath} replace />;
   }
 
   const validate = () => {
@@ -108,7 +132,7 @@ function Login() {
       const data = await login(form.email, form.password);
       loginUser(data);
 
-      const route = ROLE_ROUTES[data.role];
+      const route = ROLE_ROUTES[data.user.role];
       if (route) {
         toast.success("Welcome back!");
         navigate(route, { replace: true });
@@ -127,15 +151,19 @@ function Login() {
 
       setErrors({
         email: res?.email
-          ? Array.isArray(res.email) ? res.email[0] : res.email
+          ? Array.isArray(res.email)
+            ? res.email[0]
+            : res.email
           : err.response?.status === 400 || err.response?.status === 401
-          ? message
-          : "",
+            ? message
+            : "",
         password: res?.password
-          ? Array.isArray(res.password) ? res.password[0] : res.password
+          ? Array.isArray(res.password)
+            ? res.password[0]
+            : res.password
           : err.response?.status === 400 || err.response?.status === 401
-          ? message
-          : "",
+            ? message
+            : "",
       });
     } finally {
       setLoading(false);
@@ -144,14 +172,34 @@ function Login() {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
-
+      {/* Background glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-indigo-600/8 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="relative w-full max-w-sm">
+      {/* Back to home — top left */}
+      <motion.div
+        custom={0}
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="absolute top-6 left-6"
+      >
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-[11px] font-semibold text-neutral-500 hover:text-neutral-200 uppercase tracking-[0.18em] transition-colors duration-200 group"
+        >
+          <ArrowLeft
+            size={13}
+            strokeWidth={2}
+            className="group-hover:-translate-x-0.5 transition-transform duration-200"
+          />
+          Home
+        </Link>
+      </motion.div>
 
+      <div className="relative w-full max-w-sm">
         {/* Logo */}
         <motion.div
-          custom={0}
+          custom={1}
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -170,7 +218,7 @@ function Login() {
 
         {/* Card */}
         <motion.div
-          custom={1}
+          custom={2}
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -179,7 +227,6 @@ function Login() {
           <div className="h-[3px] w-full bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600" />
 
           <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
-
             <Field
               id="email"
               label="Email Address"
@@ -208,15 +255,22 @@ function Login() {
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-neutral-600 hover:text-neutral-300 transition-colors duration-200 cursor-pointer"
                 >
-                  {showPassword
-                    ? <EyeOff size={14} strokeWidth={1.6} />
-                    : <Eye size={14} strokeWidth={1.6} />
-                  }
+                  {showPassword ? (
+                    <EyeOff size={14} strokeWidth={1.6} />
+                  ) : (
+                    <Eye size={14} strokeWidth={1.6} />
+                  )}
                 </button>
               }
             />
 
-            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="pt-2">
+            <motion.div
+              custom={3}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="pt-2"
+            >
               <button
                 type="submit"
                 disabled={loading}
@@ -226,7 +280,11 @@ function Login() {
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                       className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white"
                     />
                     Signing in...
@@ -237,11 +295,19 @@ function Login() {
               </button>
             </motion.div>
 
+            <div className="text-center pt-2">
+              <Link
+                to="/forgot-password"
+                className="inline-block text-[11px] font-semibold text-neutral-500 hover:text-neutral-200 uppercase tracking-[0.18em] transition-colors duration-200"
+              >
+                Forgot Password?
+              </Link>
+            </div>
           </form>
         </motion.div>
 
         <motion.p
-          custom={3}
+          custom={4}
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -249,7 +315,6 @@ function Login() {
         >
           Access is granted by your institution administrator.
         </motion.p>
-
       </div>
     </div>
   );

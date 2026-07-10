@@ -1,5 +1,9 @@
 import { motion } from "framer-motion";
 import { Building2, Users, GraduationCap, UserCog } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { getColleges } from "../../services/collegeService";
+import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -19,6 +23,25 @@ const gridStagger = {
 };
 
 function CollegeDashboard() {
+  const { user } = useContext(AuthContext);
+  const [collegeName, setCollegeName] = useState("");
+
+  // Resolve college name once from user.college (ID) — reuses existing service
+  useEffect(() => {
+    if (!user?.college) return;
+    getColleges()
+      .then((colleges) => {
+        const found = Array.isArray(colleges)
+          ? colleges.find((c) => c.id === user.college)
+          : null;
+        if (found) setCollegeName(found.name || "");
+      })
+      .catch(() => { /* silently ignore — college name is optional context */ });
+  }, [user?.college]);
+
+  const adminName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "College Admin";
+  const adminEmail = user?.email || "";
+
   const stats = [
     {
       title: "Departments",
@@ -63,6 +86,14 @@ function CollegeDashboard() {
       variants={stagger}
       className="max-w-7xl mx-auto space-y-6"
     >
+      {/* Profile Summary */}
+      <ProfileSummaryCard
+        role="COLLEGE_ADMIN"
+        collegeName={collegeName}
+        userName={adminName}
+        userEmail={adminEmail}
+      />
+
       {/* Header */}
       <motion.div
         variants={fadeUp}

@@ -1,53 +1,38 @@
-import { Outlet, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import Sidebar from "../components/common/Sidebar";
-import Navbar from "../components/common/Navbar";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import AppLayout from "./AppLayout";
+import { Shield } from "lucide-react";
+import { adminNavSections } from "../config/sidebarConfig";
 
 function AdminLayout() {
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logoutUser } = useContext(AuthContext);
+
+  const displayName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "System Admin";
+  const initials = displayName
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate("/login", { replace: true });
+  };
 
   return (
-    <div className="flex min-h-screen bg-[#050505] text-white selection:bg-blue-500/30 font-sans antialiased overflow-hidden">
-      {/* Global Scrollbar & Noise Texture Styles */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
-        
-        .noise-bg::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-          pointer-events: none;
-          z-index: 1;
-        }
-      `}</style>
-
-      <Sidebar />
-
-      <div className="flex-1 flex flex-col min-w-0 relative noise-bg">
-        {/* Ambient Glow Effect */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
-        
-        <Navbar />
-
-        <main className="relative flex-1 p-6 md:p-8 overflow-y-auto custom-scrollbar z-10">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname + location.search}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8, scale: 0.98 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
-        </main>
-      </div>
-    </div>
+    <AppLayout
+      navSections={adminNavSections}
+      brandIcon={Shield}
+      brandTitle="Super Admin"
+      brandSubtitle="System Management"
+      userName={displayName}
+      userInitials={initials}
+      userEmail={user?.email || ""}
+      onLogout={handleLogout}
+    />
   );
 }
 

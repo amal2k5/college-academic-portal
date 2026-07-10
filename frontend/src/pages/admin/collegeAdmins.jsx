@@ -1,24 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Search,
-  Eye,
-  X,
-  Calendar,
-  Mail,
-  Building2,
-  User,
-  CheckCircle,
-  Clock,
-  Power,
-  UserCircle,
-  AlertTriangle,
-} from "lucide-react";
+import { Search, Eye, X, Mail, Building2, User, CheckCircle, Power, AlertTriangle } from "lucide-react";
+import { toast } from "react-toastify";
 import PageHeader from "../../components/common/PageHeader";
-import {
-  getCollegeAdmins,
-  updateCollegeAdminStatus,
-} from "../../services/collegeAdminService";
+import { getCollegeAdmins, updateCollegeAdminStatus } from "../../services/collegeAdminService";
 
 function CollegeAdmins() {
   const [collegeAdmins, setCollegeAdmins] = useState([]);
@@ -37,6 +22,7 @@ function CollegeAdmins() {
       setCollegeAdmins(data);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to load college admins");
     }
   };
 
@@ -54,193 +40,190 @@ function CollegeAdmins() {
         !statusActionAdmin.is_active
       );
 
+      toast.success(
+        statusActionAdmin.is_active 
+          ? "Admin deactivated successfully" 
+          : "Admin activated successfully"
+      );
+
       await fetchCollegeAdmins();
 
       if (selectedAdmin?.id === statusActionAdmin.id) {
-        setSelectedAdmin({
-          ...selectedAdmin,
+        setSelectedAdmin(prev => ({
+          ...prev,
           is_active: !statusActionAdmin.is_active,
-        });
+        }));
       }
 
       setShowStatusModal(false);
       setStatusActionAdmin(null);
     } catch (error) {
       console.error(error);
+      toast.error(error?.response?.data?.message || "Failed to update admin status");
     }
   };
 
   const filteredAdmins = collegeAdmins.filter((admin) => {
     const keyword = search.toLowerCase();
     return (
-      `${admin.first_name} ${admin.last_name}`
-        .toLowerCase()
-        .includes(keyword) ||
+      `${admin.first_name} ${admin.last_name}`.toLowerCase().includes(keyword) ||
       admin.email.toLowerCase().includes(keyword) ||
       (admin.college || "").toLowerCase().includes(keyword)
     );
   });
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-8 font-sans">
-      <PageHeader title="College Admins" />
-
-      {/* Search Bar */}
-      <div className="mt-6 mb-6">
-        <input
-          type="text"
-          placeholder="Search admins..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-md rounded-lg border border-white/10 bg-zinc-900/50 px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:bg-zinc-900 focus:outline-none transition-all"
-        />
-      </div>
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8">
+      {/* Page Header */}
+      <PageHeader 
+        title="College Admins" 
+        subtitle="Manage platform administrators and their college assignments."
+        actions={
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search admins..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg bg-neutral-900 border border-neutral-700 hover:border-neutral-600 py-2 pl-9 pr-4 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-700/50 outline-none transition-all"
+            />
+          </div>
+        }
+      />
 
       {/* Table Container */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="border border-neutral-800/50 rounded-xl bg-neutral-900/20 backdrop-blur-sm overflow-hidden"
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-neutral-800/50 bg-neutral-900/30">
-                <th className="px-6 py-3 text-left">
-                  <div className="flex items-center gap-2 text-[11px] font-medium text-neutral-500 uppercase tracking-wider">
-                    <User className="w-3.5 h-3.5" />
-                    Admin
+<motion.div
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="border border-neutral-800/50 rounded-xl bg-neutral-950/30 backdrop-blur-sm overflow-hidden"
+>
+  <div className="overflow-x-auto">
+    <table className="w-full">
+      <thead>
+        <tr className="border-b border-neutral-800/50 bg-neutral-950/50">
+          <th className="px-6 py-4 text-left">
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <User className="w-3.5 h-3.5" /> Admin
+            </div>
+          </th>
+          <th className="px-6 py-4 text-left">
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <Mail className="w-3.5 h-3.5" /> Email
+            </div>
+          </th>
+          <th className="px-6 py-4 text-left">
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <Building2 className="w-3.5 h-3.5" /> College
+            </div>
+          </th>
+          <th className="px-6 py-4 text-left">
+            <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">Status</span>
+          </th>
+          <th className="px-6 py-4 text-right">
+            <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-neutral-800/30">
+        {filteredAdmins.length === 0 ? (
+          <tr>
+            <td colSpan="5" className="px-6 py-12 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <Search className="w-8 h-8 text-neutral-700" />
+                <span className="text-sm text-neutral-500">No admins found matching your search</span>
+              </div>
+            </td>
+          </tr>
+        ) : (
+          filteredAdmins.map((admin) => (
+            <motion.tr
+              key={admin.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.015)" }}
+              className="group transition-colors duration-150"
+            >
+              {/* Admin Name */}
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4 text-neutral-500" />
                   </div>
-                </th>
-                <th className="px-6 py-3 text-left">
-                  <div className="flex items-center gap-2 text-[11px] font-medium text-neutral-500 uppercase tracking-wider">
-                    <Mail className="w-3.5 h-3.5" />
-                    Email
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left">
-                  <div className="flex items-center gap-2 text-[11px] font-medium text-neutral-500 uppercase tracking-wider">
-                    <Building2 className="w-3.5 h-3.5" />
-                    College
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left">
-                  <div className="flex items-center gap-2 text-[11px] font-medium text-neutral-500 uppercase tracking-wider">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Status
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-right">
-                  <span className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">
-                    Actions
+                  <span className="text-sm text-white font-medium tracking-wide truncate max-w-[180px]">
+                    {admin.first_name} {admin.last_name}
                   </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-800/30">
-              {filteredAdmins.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="w-8 h-8 text-neutral-700" />
-                      <span className="text-sm text-neutral-500">
-                        No admins found
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredAdmins.map((admin) => (
-                  <motion.tr
-                    key={admin.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="group hover:bg-white/[0.02] transition-colors duration-150"
+                </div>
+              </td>
+
+              {/* Email Pill */}
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-neutral-600 shrink-0" />
+                  <span className="text-xs text-neutral-400 font-mono bg-neutral-900/50 px-2.5 py-1 rounded-md border border-neutral-800/50 truncate max-w-[220px] block">
+                    {admin.email}
+                  </span>
+                </div>
+              </td>
+
+              {/* College */}
+              <td className="px-6 py-4">
+                <span className="text-sm text-neutral-400 truncate max-w-[160px] block">
+                  {admin.college || "—"}
+                </span>
+              </td>
+
+              {/* Status Badge */}
+              <td className="px-6 py-4">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${
+                  admin.is_active 
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                    : "bg-red-500/10 text-red-400 border-red-500/20"
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${admin.is_active ? "bg-emerald-400" : "bg-red-400"}`} />
+                  {admin.is_active ? "ACTIVE" : "INACTIVE"}
+                </span>
+              </td>
+
+              {/* Actions */}
+              <td className="px-6 py-4 text-right">
+                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  <button
+                    onClick={() => setSelectedAdmin(admin)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 bg-neutral-900/50 border border-neutral-800/50 hover:text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/30 transition-all"
                   >
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center border border-blue-500/10">
-                          <span className="text-xs font-medium text-blue-400">
-                            {`${admin.first_name?.charAt(0) || ""}${admin.last_name?.charAt(0) || ""}`.toUpperCase()}
-                          </span>
-                        </div>
-                        <span className="text-sm text-white font-medium tracking-wide">
-                          {admin.first_name} {admin.last_name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <span className="text-sm text-neutral-400 font-mono">
-                        {admin.email}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <span className="text-sm text-neutral-400">
-                        {admin.college || "—"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            admin.is_active
-                              ? "bg-emerald-400"
-                              : "bg-neutral-500"
-                          }`}
-                        />
-                        <span
-                          className={`text-xs font-medium ${
-                            admin.is_active
-                              ? "text-emerald-400"
-                              : "text-neutral-400"
-                          }`}
-                        >
-                          {admin.is_active ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => setSelectedAdmin(admin)}
-                          className="p-2 rounded-lg text-neutral-500 hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-150"
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(admin)}
-                          className={`p-2 rounded-lg transition-all duration-150 group/btn ${
-                            admin.is_active
-                              ? "text-neutral-500 hover:text-red-400 hover:bg-red-500/10"
-                              : "text-neutral-500 hover:text-emerald-400 hover:bg-emerald-500/10"
-                          }`}
-                          title={admin.is_active ? "Deactivate" : "Activate"}
-                        >
-                          <Power className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
+                    <Eye className="w-3.5 h-3.5" />
+                    View
+                  </button>
+                  
+                  <button
+                    onClick={() => handleToggleStatus(admin)}
+                    className={`p-2 rounded-lg transition-all ${
+                      admin.is_active
+                        ? "text-neutral-500 hover:text-red-400 hover:bg-red-500/10"
+                        : "text-neutral-500 hover:text-emerald-400 hover:bg-emerald-500/10"
+                    }`}
+                    title={admin.is_active ? "Deactivate" : "Activate"}
+                  >
+                    <Power className="w-4 h-4" />
+                  </button>
+                </div>
+              </td>
+            </motion.tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+</motion.div>
 
       {/* Status Confirmation Modal */}
       <AnimatePresence>
         {showStatusModal && statusActionAdmin && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            onClick={() => {
-              setShowStatusModal(false);
-              setStatusActionAdmin(null);
-            }}
+            onClick={() => { setShowStatusModal(false); setStatusActionAdmin(null); }}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -248,60 +231,39 @@ function CollegeAdmins() {
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-black border border-neutral-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+              className="bg-neutral-950 border border-neutral-900/80 rounded-3xl w-full max-w-sm p-6 relative overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.85)]"
             >
-              {/* Header */}
-              <div className="px-6 py-5 border-b border-neutral-800 flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${
-                  statusActionAdmin.is_active
-                    ? "bg-red-500/10 text-red-400"
-                    : "bg-emerald-500/10 text-emerald-400"
-                }`}>
-                  <AlertTriangle className="w-5 h-5" />
+              <div className="absolute -right-12 -top-12 w-28 h-28 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
+              
+              <div className="flex gap-4 mb-6 pt-4">
+                <div className="p-2.5 bg-neutral-900/50 border border-neutral-800/60 rounded-2xl text-rose-400 shrink-0">
+                  <AlertTriangle size={18} />
                 </div>
-                <h3 className="text-sm font-semibold text-white">
-                  {statusActionAdmin.is_active ? "Deactivate" : "Activate"} Admin
-                </h3>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-medium text-white uppercase tracking-wider">
+                    {statusActionAdmin.is_active ? "Confirm Deactivation" : "Confirm Activation"}
+                  </h3>
+                  <p className="text-xs text-neutral-500 leading-relaxed">
+                    Are you sure you want to {statusActionAdmin.is_active ? "deactivate" : "activate"}{" "}
+                    <span className="text-neutral-300">{statusActionAdmin.first_name} {statusActionAdmin.last_name}</span>?
+                    {statusActionAdmin.is_active && " They will lose access to the system immediately."}
+                  </p>
+                </div>
               </div>
 
-              {/* Body */}
-              <div className="px-6 py-6">
-                <p className="text-sm text-neutral-300">
-                  Are you sure you want to{" "}
-                  <span className={`font-medium ${
-                    statusActionAdmin.is_active ? "text-red-400" : "text-emerald-400"
-                  }`}>
-                    {statusActionAdmin.is_active ? "deactivate" : "activate"}
-                  </span>{" "}
-                  <span className="text-white font-medium">
-                    {statusActionAdmin.first_name} {statusActionAdmin.last_name}
-                  </span>
-                  ?
-                </p>
-                <p className="text-xs text-neutral-500 mt-2">
-                  {statusActionAdmin.is_active
-                    ? "This admin will lose access to the system."
-                    : "This admin will regain access to the system."}
-                </p>
-              </div>
-
-              {/* Footer */}
-              <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/30 flex gap-3">
+              <div className="flex items-center gap-3 pt-4 border-t border-neutral-900/60">
                 <button
-                  onClick={() => {
-                    setShowStatusModal(false);
-                    setStatusActionAdmin(null);
-                  }}
-                  className="flex-1 py-2.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium transition-colors"
+                  onClick={() => { setShowStatusModal(false); setStatusActionAdmin(null); }}
+                  className="flex-1 px-4 py-2.5 rounded-2xl border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-white text-xs font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmStatusToggle}
-                  className={`flex-1 py-2.5 rounded-lg text-white text-sm font-medium transition-colors ${
-                    statusActionAdmin.is_active
-                      ? "bg-red-600 hover:bg-red-700"
-                      : "bg-emerald-600 hover:bg-emerald-700"
+                  className={`flex-1 px-4 py-2.5 rounded-2xl text-black text-xs font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                    statusActionAdmin.is_active 
+                      ? "bg-white hover:bg-neutral-200" 
+                      : "bg-emerald-400 hover:bg-emerald-300"
                   }`}
                 >
                   {statusActionAdmin.is_active ? "Deactivate" : "Activate"}
@@ -316,9 +278,7 @@ function CollegeAdmins() {
       <AnimatePresence>
         {selectedAdmin && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={() => setSelectedAdmin(null)}
           >
@@ -328,12 +288,11 @@ function CollegeAdmins() {
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-black border border-neutral-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+              className="bg-neutral-950 border border-neutral-900/80 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.85)] overflow-hidden"
             >
-              {/* Header */}
-              <div className="px-6 py-5 border-b border-neutral-800 flex items-center justify-between">
+              <div className="px-6 py-5 border-b border-neutral-900/60 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
+                  <div className="w-10 h-10 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white text-sm font-semibold">
                     {`${selectedAdmin.first_name?.charAt(0) || ''}${selectedAdmin.last_name?.charAt(0) || ''}`.toUpperCase()}
                   </div>
                   <div>
@@ -343,53 +302,36 @@ function CollegeAdmins() {
                     <p className="text-xs text-neutral-500">College Administrator</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setSelectedAdmin(null)}
-                  className="p-1.5 rounded-lg hover:bg-neutral-800/50 transition-colors"
-                >
-                  <X className="w-4 h-4 text-neutral-400 hover:text-white transition-colors" />
+                <button onClick={() => setSelectedAdmin(null)} className="p-1.5 rounded-xl hover:bg-neutral-900/50 transition-colors">
+                  <X className="w-4 h-4 text-neutral-500 hover:text-white" />
                 </button>
               </div>
 
-              {/* Body */}
               <div className="px-6 py-6 space-y-5">
-                {/* Email */}
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Email Address
-                  </label>
-                  <div className="mt-1.5 flex items-center gap-2.5 p-3 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <label className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">Email Address</label>
+                  <div className="mt-1.5 flex items-center gap-2.5 p-3 rounded-2xl bg-neutral-900/50 border border-neutral-800/60">
                     <Mail className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-                    <span className="text-sm text-neutral-300 font-mono truncate">
-                      {selectedAdmin.email}
-                    </span>
+                    <span className="text-sm text-neutral-300 font-mono truncate">{selectedAdmin.email}</span>
                   </div>
                 </div>
 
-                {/* College */}
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    College
-                  </label>
-                  <div className="mt-1.5 flex items-center gap-2.5 p-3 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <label className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">Assigned College</label>
+                  <div className="mt-1.5 flex items-center gap-2.5 p-3 rounded-2xl bg-neutral-900/50 border border-neutral-800/60">
                     <Building2 className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-                    <span className="text-sm text-neutral-300 font-medium">
-                      {selectedAdmin.college || "Not Assigned"}
-                    </span>
+                    <span className="text-sm text-neutral-300 font-medium">{selectedAdmin.college || "Not Assigned"}</span>
                   </div>
                 </div>
 
-                {/* Status & Joined */}
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div>
-                    <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                      Status
-                    </label>
+                    <label className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">Status</label>
                     <div className="mt-1.5">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border ${
                         selectedAdmin.is_active
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-red-500/10 text-red-400 border border-red-500/20"
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                          : "bg-red-500/10 text-red-400 border-red-500/20"
                       }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${selectedAdmin.is_active ? "bg-emerald-400" : "bg-red-400"}`} />
                         {selectedAdmin.is_active ? "Active" : "Inactive"}
@@ -397,29 +339,22 @@ function CollegeAdmins() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                      Joined
-                    </label>
+                    <label className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">Joined Date</label>
                     <p className="mt-1.5 text-sm text-neutral-300 font-medium">
                       {selectedAdmin.created_at
-                        ? new Date(selectedAdmin.created_at).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })
+                        ? new Date(selectedAdmin.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                         : "—"}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/30">
+              <div className="px-6 py-4 border-t border-neutral-900/60 bg-neutral-900/20">
                 <button
                   onClick={() => setSelectedAdmin(null)}
-                  className="w-full py-2.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium transition-colors"
+                  className="w-full py-2.5 rounded-2xl border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-white text-xs font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer"
                 >
-                  Close
+                  Close Details
                 </button>
               </div>
             </motion.div>

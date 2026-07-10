@@ -14,15 +14,23 @@ import CollegeAdmins from "../pages/admin/collegeAdmins";
 
 import CollegeDashboard from "../pages/CollegeAdmin/Dashboard";
 import HODs from "../pages/CollegeAdmin/HODs";
+import NoticeManagementPage from "../pages/CollegeAdmin/NoticeManagementPage";
 
 import HODDashboard from "../pages/hod/HODDashboard";
 import Students from "../pages/hod/Students";
 import StudentCreate from "../pages/hod/StudentCreate";
 import StudentEdit from "../pages/hod/StudentEdit";
+import HODNoticeManagementPage from "../pages/hod/NoticeManagementPage";
+import AssignmentManagementPage from "../pages/hod/AssignmentManagementPage";
+
 import StudentDashboard from "../pages/student/StudentDashboard";
 import StudentProfile from "../pages/student/Profile";
 import StudentLayout from "../layouts/StudentLayout";
 import CollegeRequestsPage from "../pages/admin/CollegeRequestsPage";
+import NoticeManagement from "../pages/collegeAdmin/NoticeManagementPage";
+import NoticesPage from "../pages/student/NoticesPage";
+import AssignmentsPage from "../pages/student/AssignmentsPage";
+import NotificationsPage from "../pages/student/NotificationsPage";
 
 function AdminRoutes() {
   return (
@@ -56,6 +64,14 @@ function AdminRoutes() {
         <Route path="/college-admin" element={<CollegeDashboard />} />
         <Route path="/college-admin/departments" element={<Departments />} />
         <Route path="/college-admin/hods" element={<HODs />} />
+        <Route path="/college-admin/notices" element={<NoticeManagementPage />} />
+
+        <Route
+  path="/college-admin/notices"
+  element={<NoticeManagement />}
+/>
+
+
       </Route>
 
       {/* HOD */}
@@ -70,6 +86,8 @@ function AdminRoutes() {
         <Route path="/hod/students" element={<Students />} />
         <Route path="/hod/students/create" element={<StudentCreate />} />
         <Route path="/hod/students/:id/edit" element={<StudentEdit />} />
+        <Route path="/hod/notices" element={<HODNoticeManagementPage />} />
+        <Route path="/hod/assignments" element={<AssignmentManagementPage />} />
       </Route>
 
       {/* STUDENT */}
@@ -83,6 +101,19 @@ function AdminRoutes() {
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/student/profile" element={<StudentProfile />} />
       </Route>
+
+      <Route
+  element={
+    <ProtectedRoute allowedRoles={["STUDENT"]}>
+      <StudentLayout />
+    </ProtectedRoute>
+  }
+>
+
+  <Route path="/student/notices" element={<NoticesPage />} />
+  <Route path="/student/assignments" element={<AssignmentsPage />} />
+  <Route path="/student/notifications" element={<NotificationsPage />} />
+</Route>
     </Routes>
   );
 }

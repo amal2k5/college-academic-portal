@@ -48,6 +48,7 @@ class StudentCreateView(APIView):
             semester=serializer.validated_data["semester"],
             academic_year=serializer.validated_data["academic_year"],
             department=request.user.hodprofile.department,
+            year=serializer.validated_data["year"],
         )
 
         return Response(
@@ -275,40 +276,32 @@ class StudentDeleteView(APIView):
 
 
 class StudentProfileView(APIView):
-
     permission_classes = [
         IsAuthenticated,
         IsStudent,
     ]
 
     def get(self, request):
-
-        try:
-
-            student = Student.objects.select_related(
+        student = (
+            Student.objects.select_related(
                 "user",
                 "department",
-                "department__college"
-            ).get(
-                user=request.user
+                "department__college",
             )
+            .filter(user=request.user)
+            .first()
+        )
 
-        except Student.DoesNotExist:
-
+        if not student:
             return Response(
                 {
-                    "message": "Student profile not found"
+                    "message": "No student profile is linked to this account. Please contact your administrator."
                 },
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = StudentSerializer(
-            student
-        )
-
-        return Response(
-            serializer.data
-        )
+        serializer = StudentSerializer(student)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class HODDashboardStatsView(APIView):

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { getStudentProfile } from "../../services/studentService";
+import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -175,6 +176,18 @@ function Profile() {
       variants={stagger}
       className="min-h-screen bg-neutral-950 text-neutral-400 antialiased p-4 md:p-6 lg:p-10 max-w-[1300px] mx-auto"
     >
+      {/* ── PROFILE SUMMARY BANNER ── */}
+      <div className="mb-6">
+        <ProfileSummaryCard
+          role="STUDENT"
+          collegeName={s.college_name}
+          userName={fullName}
+          rollNumber={s.roll_number}
+          departmentName={s.department_name}
+          semester={s.semester}
+        />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
         {/* ── LEFT PANEL ── */}

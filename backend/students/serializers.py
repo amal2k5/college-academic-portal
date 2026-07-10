@@ -110,4 +110,9 @@ class StudentCreateSerializer(serializers.Serializer):
 
     academic_year = serializers.CharField(
         max_length=20
+            
     )
+    
+    year = serializers.ChoiceField(
+    choices=Student.YearChoices.choices
+)
