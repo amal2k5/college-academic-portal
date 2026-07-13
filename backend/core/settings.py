@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "notices",
     "assignments",
     "notifications",
+    "academics",
 ]
 
 
@@ -286,3 +287,8 @@ FIREBASE_SERVICE_ACCOUNT = (
     / "firebase"
     / "service-account.json"
 )
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
