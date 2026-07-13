@@ -34,7 +34,7 @@ function StudentLayout() {
   }, []);
 
   useNotificationSocket(handleSocketNotification);
-  
+
   const firstName = localStorage.getItem("first_name");
   const lastName = localStorage.getItem("last_name");
   const email = localStorage.getItem("email") || "";

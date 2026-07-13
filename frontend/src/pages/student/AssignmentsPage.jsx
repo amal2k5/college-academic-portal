@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AssignmentList from "../../components/assignments/AssignmentList";
+import AssignmentDetailModal from "../../components/assignments/AssignmentDetailModal";
 import assignmentService from "../../services/assignmentService";
 import PageHeader from "../../components/common/PageHeader";
 
@@ -12,10 +13,11 @@ const pageVariants = {
 function AssignmentsPage() {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const loadAssignments = async () => {
     setLoading(true);
-
     try {
       const data = await assignmentService.getAssignments();
       setAssignments(data);
@@ -29,6 +31,16 @@ function AssignmentsPage() {
   useEffect(() => {
     loadAssignments();
   }, []);
+
+  const handleView = (assignment) => {
+    setSelectedAssignment(assignment);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedAssignment(null);
+  };
 
   return (
     <motion.div
@@ -47,7 +59,17 @@ function AssignmentsPage() {
           <div className="animate-spin rounded-full h-6 w-6 border-2 border-neutral-800 border-t-neutral-400"></div>
         </div>
       ) : (
-        <AssignmentList assignments={assignments} />
+        <>
+          <AssignmentList
+            assignments={assignments}
+            onView={handleView}
+          />
+          <AssignmentDetailModal
+            assignment={selectedAssignment}
+            isOpen={showDetailModal}
+            onClose={handleCloseModal}
+          />
+        </>
       )}
     </motion.div>
   );

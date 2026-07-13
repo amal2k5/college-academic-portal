@@ -12,10 +12,24 @@ const notificationService = {
   },
 
   async markAllAsRead() {
-    const { data } = await axiosInstance.post("/notifications/mark-all-read/", {});
+    const { data } = await axiosInstance.post(
+      "/notifications/mark-all-read/",
+      {}
+    );
+    return data;
+  },
+
+  async registerDeviceToken(token) {
+    const { data } = await axiosInstance.post(
+      "/notifications/device-token/",
+      {
+        token,
+        device_name: navigator.userAgent,
+      }
+    );
+
     return data;
   },
 };
 
 export default notificationService;
-

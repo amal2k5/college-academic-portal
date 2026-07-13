@@ -1,10 +1,6 @@
 from django.urls import path
 
-from .views import (
-    MarkAllNotificationsReadView,
-    NotificationListView,
-    UnreadNotificationCountView,
-)
+from .views import *
 
 urlpatterns = [
     path(
@@ -22,4 +18,11 @@ urlpatterns = [
         MarkAllNotificationsReadView.as_view(),
         name="notification-mark-all-read",
     ),
+
+    path(
+    "device-token/",
+    DeviceTokenView.as_view(),
+    name="device-token",
+),
+
 ]

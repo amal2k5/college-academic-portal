@@ -6,6 +6,7 @@ import noticeService from "../../services/noticeService";
 import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from "react";
+import PageHeader from "../../components/common/PageHeader";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -73,30 +74,30 @@ function NoticesPage() {
         subtitle="Stay updated with department and college announcements."
       />
 
-        {/* Pinned Indicator */}
-        {!loading && notices.some((n) => n.is_pinned) && (
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-            Pinned Notices
-          </div>
-        )}
+      {/* Pinned Indicator */}
+      {!loading && notices.some((n) => n.is_pinned) && (
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+          Pinned Notices
+        </div>
+      )}
 
-        {/* Content Area */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => <NoticeSkeleton key={i} />)}
-          </div>
-        ) : (
-          <NoticeFeed
-  notices={notices}
-  onView={setSelectedNotice}
-/>
-        )}
-      
+      {/* Content Area */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {[...Array(6)].map((_, i) => <NoticeSkeleton key={i} />)}
+        </div>
+      ) : (
+        <NoticeFeed
+          notices={notices}
+          onView={setSelectedNotice}
+        />
+      )}
+
       <NoticeDetailModal
-  notice={selectedNotice}
-  onClose={() => setSelectedNotice(null)}
-/>
+        notice={selectedNotice}
+        onClose={() => setSelectedNotice(null)}
+      />
     </motion.div>
   );
 }

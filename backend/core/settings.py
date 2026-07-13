@@ -277,3 +277,12 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+
+
+FIREBASE_SERVICE_ACCOUNT = (
+    BASE_DIR
+    / "config"
+    / "firebase"
+    / "service-account.json"
+)

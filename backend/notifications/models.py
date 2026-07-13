@@ -44,3 +44,38 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.student.user.email} - {self.message[:30]}"
+
+
+class DeviceToken(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name="device_tokens",
+    )
+
+    token = models.TextField(
+        unique=True,
+    )
+
+    device_name = models.CharField(
+        max_length=300,
+        blank=True,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return f"{self.student.user.email} - {self.device_name or 'Unknown Device'}"
