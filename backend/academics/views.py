@@ -38,13 +38,13 @@ from .services import (
     create_exam,
     update_exam,
     delete_exam,
-<<<<<<< HEAD
-    get_exam_marks
-=======
+
+    get_exam_marks,
+
     bulk_mark_attendance,
     get_student_attendance,
     get_class_attendance,
->>>>>>> origin/dominic-feature
+
 )
 
 class SubjectListCreateView(APIView):
