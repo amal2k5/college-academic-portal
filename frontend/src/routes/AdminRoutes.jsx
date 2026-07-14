@@ -22,6 +22,9 @@ import StudentCreate from "../pages/hod/StudentCreate";
 import StudentEdit from "../pages/hod/StudentEdit";
 import HODNoticeManagementPage from "../pages/hod/NoticeManagementPage";
 import AssignmentManagementPage from "../pages/hod/AssignmentManagementPage";
+import MarksManagement from "../pages/hod/MarksManagement";
+import SubjectManagement from "../pages/hod/SubjectManagement";
+import ExamManagement from "../pages/hod/ExamManagement";
 
 import StudentDashboard from "../pages/student/StudentDashboard";
 import StudentProfile from "../pages/student/Profile";
@@ -31,6 +34,8 @@ import NoticeManagement from "../pages/collegeAdmin/NoticeManagementPage";
 import NoticesPage from "../pages/student/NoticesPage";
 import AssignmentsPage from "../pages/student/AssignmentsPage";
 import NotificationsPage from "../pages/student/NotificationsPage";
+import MarksPage from "../pages/student/MarksPage";
+import StudentExams from "../pages/student/StudentExams";
 
 function AdminRoutes() {
   return (
@@ -88,6 +93,9 @@ function AdminRoutes() {
         <Route path="/hod/students/:id/edit" element={<StudentEdit />} />
         <Route path="/hod/notices" element={<HODNoticeManagementPage />} />
         <Route path="/hod/assignments" element={<AssignmentManagementPage />} />
+        <Route path="/hod/marks" element={<MarksManagement />} />
+        <Route path="/hod/subjects" element={<SubjectManagement />} />
+        <Route path="/hod/exams" element={<ExamManagement />} />
       </Route>
 
       {/* STUDENT */}
@@ -112,6 +120,8 @@ function AdminRoutes() {
 
   <Route path="/student/notices" element={<NoticesPage />} />
   <Route path="/student/assignments" element={<AssignmentsPage />} />
+  <Route path="/student/marks" element={<MarksPage />} />
+  <Route path="/student/exams" element={<StudentExams />} />
   <Route path="/student/notifications" element={<NotificationsPage />} />
 </Route>
     </Routes>

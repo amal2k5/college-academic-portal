@@ -9,12 +9,12 @@ importScripts(
 );
 
 firebase.initializeApp({
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
+    apiKey: "AIzaSyDFXG9rqe7EtxWfTODYHmW452nbV-8S-DM",
+    authDomain: "college-academic-portal-c39f8.firebaseapp.com",
+    projectId: "college-academic-portal-c39f8",
+    storageBucket: "college-academic-portal-c39f8.firebasestorage.app",
+    messagingSenderId: "493150370387",
+    appId: "1:493150370387:web:ed7ad364269644f1af64a6",
 });
 
 const messaging = firebase.messaging();

@@ -13,36 +13,51 @@ def notify_students(
     assignment=None,
     data=None,
 ):
+    """
+    Create notification records, send WebSocket updates,
+    and queue Firebase push notifications.
+    """
+
+    if not students:
+        return []
+
     notifications = []
     student_ids = []
+
     channel_layer = get_channel_layer()
 
     for student in students:
-        # Create database notification entry for each student
         notification = Notification.objects.create(
             student=student,
             message=message,
             notice=notice,
             assignment=assignment,
         )
+
         notifications.append(notification)
         student_ids.append(student.id)
 
-        # Send real-time WebSocket update to the individual student group
-        async_to_sync(channel_layer.group_send)(
-            f"student_{student.user.id}",
-            {
-                "type": "send_notification",
-                "message": message,
-            },
-        )
+        try:
+            async_to_sync(channel_layer.group_send)(
+                f"student_{student.user.id}",
+                {
+                    "type": "send_notification",
+                    "message": message,
+                },
+            )
+        except Exception:
+            # TODO: Replace with proper logging
+            pass
 
-    # Dispatch FCM push notification task asynchronously via Celery
-    send_fcm_notification.delay(
-        student_ids=student_ids,
-        title=title,
-        body=message,
-        data=data or {},
-    )
+    try:
+        send_fcm_notification.delay(
+            student_ids=student_ids,
+            title=title,
+            body=message,
+            data=data or {},
+        )
+    except Exception:
+        # TODO: Replace with proper logging
+        pass
 
     return notifications

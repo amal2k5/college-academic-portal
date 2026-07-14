@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 
 from rest_framework.exceptions import ValidationError
-
+from notifications.services import notify_students
 from students.models import Student
 from .models import (
     Subject,
@@ -190,9 +190,7 @@ def bulk_save_marks(validated_data, user):
 
 @transaction.atomic
 def publish_marks(validated_data, user):
-
     exam = validated_data["exam"]
-
     department = user.hodprofile.department
 
     if exam.department != department:
@@ -204,13 +202,34 @@ def publish_marks(validated_data, user):
             }
         )
 
-    Marks.objects.filter(
-        exam=exam
-    ).update(
-        status=Marks.Status.PUBLISHED
-    )
+    # Update marks status
+    published_marks = Marks.objects.filter(exam=exam)
+    published_marks.update(status=Marks.Status.PUBLISHED)
+
+    # Collect students
+    students = [
+        mark.student
+        for mark in published_marks.select_related("student")
+    ]
+
+    # Notify students
+    try:
+        notify_students(
+            students=students,
+            title="Marks Published",
+            message=f"Your {exam.exam_type} marks for {exam.subject.name} have been published.",
+            data={
+                "type": "marks",
+                "exam_id": str(exam.id),
+                "subject_id": str(exam.subject.id),
+            },
+        )
+    except Exception as e:
+        # TODO: Replace with proper logging
+        print(f"Marks notification error: {e}")
 
     return exam
+
 
 
 def get_student_marks(user):
@@ -228,13 +247,51 @@ def get_student_marks(user):
         )
         .order_by("-created_at")
     )
+
+
+def get_exam_marks(*, exam_id, user):
+    """
+    Return all marks for the selected exam belonging to the
+    logged-in HOD's department.
+    Includes both DRAFT and PUBLISHED marks.
+    """
+
+    department = user.hodprofile.department
+
+    exam = Exam.objects.select_related(
+        "department",
+    ).get(
+        pk=exam_id,
+    )
+
+    if exam.department != department:
+        raise ValidationError(
+            {
+                "exam": [
+                    "You cannot access marks for another department."
+                ]
+            }
+        )
+
+    return (
+        Marks.objects.filter(
+            exam=exam,
+        )
+        .select_related(
+            "student",
+            "subject",
+            "exam",
+        )
+        .order_by(
+            "student__roll_number",
+        )
+    )    
     
 @transaction.atomic
 def create_exam(validated_data, user):
     """
     Create a new exam for the logged-in HOD's department.
     """
-
     department = user.hodprofile.department
     subject = validated_data["subject"]
 
@@ -259,10 +316,32 @@ def create_exam(validated_data, user):
             }
         )
 
-    return Exam.objects.create(
+    # Create exam
+    exam = Exam.objects.create(
         department=department,
         **validated_data,
     )
+
+    # Get all students in the department
+    students = Student.objects.filter(department=department)
+
+    # Notify students
+    try:
+        notify_students(
+            students=list(students),
+            title="Exam Scheduled",
+            message=f"{exam.subject.name} exam scheduled on {exam.date}.",
+            data={
+                "type": "exam",
+                "exam_id": str(exam.id),
+            },
+        )
+    except Exception as e:
+        # TODO: Replace with proper logging
+        print(f"Exam notification error: {e}")
+
+    return exam
+
 
 
 @transaction.atomic
@@ -308,6 +387,24 @@ def update_exam(exam, validated_data, user):
         setattr(exam, key, value)
 
     exam.save()
+
+    students = Student.objects.filter(
+        department=department,
+    )
+
+    try:
+        notify_students(
+            students=list(students),
+            title="Exam Updated",
+            message=f"{exam.subject.name} exam schedule has been updated.",
+            data={
+                "type": "exam",
+                "exam_id": str(exam.id),
+            },
+        )
+    except Exception as e:
+        # TODO: Replace with proper logging
+        print(f"Exam notification error: {e}")
 
     return exam
 

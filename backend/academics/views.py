@@ -37,6 +37,7 @@ from .services import (
     create_exam,
     update_exam,
     delete_exam,
+    get_exam_marks
 )
 
 class SubjectListCreateView(APIView):
@@ -161,12 +162,34 @@ class BulkMarksEntryView(APIView):
 
     permission_classes = [IsAuthenticated, IsHOD]
 
-    def post(self, request):
+    def get(self, request):
+        exam_id = request.query_params.get("exam")
 
+        if not exam_id:
+            return Response(
+                {"detail": "exam query parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        marks = get_exam_marks(
+            exam_id=exam_id,
+            user=request.user,
+        )
+
+        serializer = MarksSerializer(
+            marks,
+            many=True,
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
         serializer = BulkMarksEntrySerializer(
             data=request.data,
         )
-
         serializer.is_valid(raise_exception=True)
 
         marks = bulk_save_marks(
@@ -240,28 +263,46 @@ class StudentMarksView(APIView):
 class ExamListCreateView(APIView):
     """
     List all exams of the logged-in HOD's department.
+    For students, list exams relevant to their department and semester.
     Create a new exam for the logged-in HOD's department.
     """
 
-    permission_classes = [IsAuthenticated, IsHOD]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-
-        department = request.user.hodprofile.department
-
-        exams = (
-            Exam.objects.filter(
-                department=department
+        if request.user.role == "HOD":
+            department = request.user.hodprofile.department
+            exams = (
+                Exam.objects.filter(
+                    department=department
+                )
+                .select_related(
+                    "subject",
+                    "department",
+                )
+                .order_by(
+                    "date",
+                    "time",
+                )
             )
-            .select_related(
-                "subject",
-                "department",
+        elif request.user.role == "STUDENT":
+            student = request.user.student_profile
+            exams = (
+                Exam.objects.filter(
+                    department=student.department,
+                    subject__semester=student.semester
+                )
+                .select_related(
+                    "subject",
+                    "department",
+                )
+                .order_by(
+                    "date",
+                    "time",
+                )
             )
-            .order_by(
-                "date",
-                "time",
-            )
-        )
+        else:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = ExamSerializer(
             exams,
@@ -274,6 +315,8 @@ class ExamListCreateView(APIView):
         )
 
     def post(self, request):
+        if request.user.role != "HOD":
+            return Response({"detail": "Only HOD can create exams."}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = ExamSerializer(
             data=request.data,

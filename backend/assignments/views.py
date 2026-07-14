@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 import cloudinary.uploader
-
+from notifications.services import notify_students
 from accounts.models import User
 from students.models import Student
 
@@ -66,7 +66,7 @@ class AssignmentListCreateView(APIView):
         else:
             return Response(
                 {"detail": "Permission denied."},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         assignment_filter = AssignmentFilter(request.GET, queryset=assignments)
@@ -79,7 +79,7 @@ class AssignmentListCreateView(APIView):
         if user.role != User.Role.HOD:
             return Response(
                 {"detail": "Only HOD can create assignments."},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         serializer = AssignmentSerializer(data=request.data)
@@ -95,8 +95,8 @@ class AssignmentListCreateView(APIView):
                 folder="assignments",
                 resource_type=_cloudinary_resource_type(attachment),
             )
-        print(upload_result)
-        serializer.save(
+
+        assignment = serializer.save(
             department=department,
             created_by=user,
             attachment_url=upload_result["secure_url"] if upload_result else None,
@@ -106,12 +106,33 @@ class AssignmentListCreateView(APIView):
             attachment_format=upload_result.get("format") if upload_result else None,
         )
 
-        return Response(
-            AssignmentSerializer(serializer.instance).data,
-            status=status.HTTP_201_CREATED
+        # Notify students in the same department and year
+        students = Student.objects.filter(
+            department=assignment.department,
+            year=assignment.target_year,
         )
 
-        
+        try:
+            notify_students(
+                students=list(students),
+                title="New Assignment",
+                message=f"New assignment: {assignment.title}",
+                assignment=assignment,
+                data={
+                    "type": "assignment",
+                    "assignment_id": str(assignment.id),
+                },
+            )
+        except Exception as e:
+            # TODO: Replace with proper logging
+            print(f"Assignment notification error: {e}")
+
+        return Response(
+            AssignmentSerializer(assignment).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
         
 class AssignmentDetailView(APIView):
     permission_classes = [IsAuthenticated]

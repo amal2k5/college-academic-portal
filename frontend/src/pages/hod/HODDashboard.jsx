@@ -15,6 +15,9 @@ import {
 import { AuthContext } from "../../context/AuthContext";
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
 
+import subjectService from "../../services/subjectService";
+import examService from "../../services/examService";
+
 const ease = [0.22, 1, 0.36, 1];
 
 const fadeUp = {
@@ -34,6 +37,8 @@ const gridStagger = {
 
 function HODDashboard() {
   const [stats, setStats] = useState(null);
+  const [exams, setExams] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [activities, setActivities] = useState([]);
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,8 +48,14 @@ function HODDashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const data = await getHODDashboardStats();
-        setStats(data);
+        const [statsData, examsData, subjectsData] = await Promise.all([
+          getHODDashboardStats(),
+          examService.getExams().catch(() => []),
+          subjectService.getSubjects().catch(() => [])
+        ]);
+        setStats(statsData);
+        setExams(examsData);
+        setSubjects(subjectsData);
         setError("");
       } catch (err) {
         console.error(err);
@@ -84,7 +95,18 @@ function HODDashboard() {
 
   if (!stats) return null;
 
-  // Defined here — safely after all null checks
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let upcomingExams = 0;
+  let completedExams = 0;
+  
+  exams.forEach(e => {
+    const d = new Date(e.date);
+    d.setHours(0,0,0,0);
+    if (d >= today) upcomingExams++;
+    else completedExams++;
+  });
+
   const statsConfig = [
     {
       title: "Students Enrolled",
@@ -94,25 +116,25 @@ function HODDashboard() {
       strip: "from-blue-600 via-blue-400 to-blue-600",
     },
     {
-      title: "Avg. Attendance",
-      value: "—",
+      title: "Upcoming Exams",
+      value: upcomingExams,
+      icon: CalendarCheck,
+      iconClass: "text-amber-400",
+      strip: "from-amber-600 via-amber-400 to-amber-600",
+    },
+    {
+      title: "Completed Exams",
+      value: completedExams,
       icon: ClipboardCheck,
       iconClass: "text-emerald-400",
       strip: "from-emerald-600 via-emerald-400 to-emerald-600",
     },
     {
-      title: "Active Assignments",
-      value: "—",
+      title: "Active Subjects",
+      value: subjects.length || "—",
       icon: BookOpen,
       iconClass: "text-indigo-400",
       strip: "from-indigo-600 via-indigo-400 to-indigo-600",
-    },
-    {
-      title: "Pending Leaves",
-      value: "—",
-      icon: CalendarCheck,
-      iconClass: "text-amber-400",
-      strip: "from-amber-600 via-amber-400 to-amber-600",
     },
   ];
 

@@ -24,10 +24,16 @@ class MarksSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    roll_number = serializers.CharField(
+        source="student.roll_number",
+        read_only=True,
+    )
+
     subject_name = serializers.CharField(
         source="subject.name",
         read_only=True,
     )
+
 
     subject_code = serializers.CharField(
         source="subject.subject_code",
@@ -64,6 +70,7 @@ class MarksSerializer(serializers.ModelSerializer):
             "status",
             "created_at",
             "updated_at",
+            "roll_number"
         ]
 
 
@@ -101,12 +108,24 @@ class ExamSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    subject_code = serializers.CharField(
+        source="subject.subject_code",
+        read_only=True,
+    )
+
+    semester = serializers.IntegerField(
+        source="subject.semester",
+        read_only=True,
+    )
+
     class Meta:
         model = Exam
         fields = [
             "id",
             "subject",
             "subject_name",
+            "subject_code",
+            "semester",
             "department",
             "exam_type",
             "maximum_marks",
@@ -163,6 +182,11 @@ class StudentMarksSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    semester = serializers.IntegerField(
+        source="subject.semester",
+        read_only=True,
+    )
+
     exam_type = serializers.CharField(
         source="exam.exam_type",
         read_only=True,
@@ -181,6 +205,7 @@ class StudentMarksSerializer(serializers.ModelSerializer):
             "id",
             "subject_name",
             "subject_code",
+            "semester",
             "exam_type",
             "marks",
             "maximum_marks",
