@@ -188,3 +188,26 @@ class StudentMarksSerializer(serializers.ModelSerializer):
             "grade",
             "status",
         ]
+        
+class BulkAttendanceItemSerializer(serializers.Serializer):
+
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.all()
+    )
+
+    status = serializers.ChoiceField(
+        choices=Attendance.Status.choices
+    )
+
+
+class BulkAttendanceSerializer(serializers.Serializer):
+
+    subject = serializers.PrimaryKeyRelatedField(
+        queryset=Subject.objects.all()
+    )
+
+    date = serializers.DateField()
+
+    attendance = BulkAttendanceItemSerializer(
+        many=True
+    )

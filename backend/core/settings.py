@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "cloudinary",
     "cloudinary_storage",
     "channels",
+    "django_celery_beat",
 
     "accounts",
     "colleges",
@@ -262,7 +263,7 @@ SIMPLE_JWT = {
 # ==============================================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
+    
 
 # ==============================================================================
 # DJANGO CHANNELS
@@ -282,3 +283,22 @@ CHANNEL_LAYERS = {
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+CELERY_ACCEPT_CONTENT = ["json"]
+
+CELERY_TASK_SERIALIZER = "json"
+
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = "Asia/Kolkata"
+
+CELERY_BEAT_SCHEDULER = (
+    "django_celery_beat.schedulers:DatabaseScheduler"
+)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}

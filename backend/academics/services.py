@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from django.db import transaction
-
+from django.db.models import Count, Q
+from django.core.cache import cache
 from rest_framework.exceptions import ValidationError
 
 from students.models import Student
@@ -11,6 +12,156 @@ from .models import (
     Exam,
 )
 
+from django.core.cache import cache
+
+from .models import Attendance
+def get_class_attendance(subject_id, attendance_date, user):
+
+    department = user.hodprofile.department
+
+    subject = Subject.objects.get(
+        pk=subject_id,
+        department=department,
+    )
+
+    attendance = (
+        Attendance.objects.filter(
+            subject=subject,
+            date=attendance_date,
+        )
+        .select_related(
+            "student__user",
+            "subject",
+        )
+        .order_by(
+            "student__roll_number",
+        )
+    )
+
+    return attendance
+
+def get_student_attendance(user):
+
+    student = user.student_profile
+
+    attendance_summary = []
+
+    subjects = Subject.objects.filter(
+        department=student.department
+    ).order_by(
+        "semester",
+        "subject_code",
+    )
+
+    for subject in subjects:
+
+        cache_key = (
+            f"attendance_percentage:"
+            f"{student.id}:{subject.id}"
+        )
+
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            print("✅ CACHE HIT:", cache_key)
+            attendance_summary.append(cached_data)
+            continue
+        print("❌ CACHE MISS:", cache_key)
+
+        stats = Attendance.objects.filter(
+            student=student,
+            subject=subject,
+        ).aggregate(
+            total_days=Count("id"),
+            present_days=Count(
+                "id",
+                filter=Q(
+                    status=Attendance.Status.PRESENT
+                ),
+            ),
+        )
+
+        total_days = stats["total_days"]
+        present_days = stats["present_days"]
+
+        percentage = (
+            round((present_days / total_days) * 100, 2)
+            if total_days
+            else 0
+        )
+
+        data = {
+            "subject_id": subject.id,
+            "subject_name": subject.name,
+            "subject_code": subject.subject_code,
+            "present_days": present_days,
+            "total_days": total_days,
+            "attendance_percentage": percentage,
+        }
+
+        cache.set(
+            cache_key,
+            data,
+            timeout=60 * 60,
+        )
+
+        attendance_summary.append(data)
+
+    return attendance_summary
+
+@transaction.atomic
+def bulk_mark_attendance(validated_data, user):
+
+    department = user.hodprofile.department
+
+    subject = validated_data["subject"]
+    attendance_data = validated_data["attendance"]
+    attendance_date = validated_data["date"]
+
+    if subject.department != department:
+        raise ValidationError(
+            {
+                "subject": [
+                    "You cannot mark attendance for another department."
+                ]
+            }
+        )
+
+    attendance_objects = []
+
+    for item in attendance_data:
+
+        student = Student.objects.select_related(
+            "department"
+        ).get(
+            pk=item["student"].id
+        )
+
+        if student.department != department:
+            raise ValidationError(
+                {
+                    "student": [
+                        f"{student.roll_number} does not belong to your department."
+                    ]
+                }
+            )
+
+        attendance, created = Attendance.objects.update_or_create(
+            student=student,
+            subject=subject,
+            date=attendance_date,
+            defaults={
+                "status": item["status"],
+            },
+        )
+
+        cache.delete(
+            f"attendance_percentage:{student.id}:{subject.id}"
+        )
+
+        attendance_objects.append(attendance)
+
+    return attendance_objects
 
 @transaction.atomic
 def create_subject(validated_data, user):
