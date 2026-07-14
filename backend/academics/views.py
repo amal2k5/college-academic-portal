@@ -25,6 +25,7 @@ from .serializers import (
     BulkMarksEntrySerializer,
     PublishMarksSerializer,
     StudentMarksSerializer,
+    BulkAttendanceSerializer,
 )
 
 from .services import (
@@ -37,7 +38,13 @@ from .services import (
     create_exam,
     update_exam,
     delete_exam,
+<<<<<<< HEAD
     get_exam_marks
+=======
+    bulk_mark_attendance,
+    get_student_attendance,
+    get_class_attendance,
+>>>>>>> origin/dominic-feature
 )
 
 class SubjectListCreateView(APIView):
@@ -414,5 +421,97 @@ class ExamDetailView(APIView):
             {
                 "message": "Exam deleted successfully."
             },
+            status=status.HTTP_200_OK,
+        )
+class BulkAttendanceView(APIView):
+    """
+    HOD can mark attendance for an entire class in a single request.
+    """
+
+    permission_classes = [IsAuthenticated, IsHOD]
+
+    def post(self, request):
+
+        serializer = BulkAttendanceSerializer(
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        attendance = bulk_mark_attendance(
+            validated_data=serializer.validated_data,
+            user=request.user,
+        )
+
+        return Response(
+            {
+                "message": "Attendance marked successfully.",
+                "results": AttendanceSerializer(
+                    attendance,
+                    many=True,
+                ).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+class StudentAttendanceView(APIView):
+    """
+    Student can view attendance percentage
+    for all subjects.
+    """
+
+    permission_classes = [
+        IsAuthenticated,
+        IsStudent,
+    ]
+
+    def get(self, request):
+
+        attendance = get_student_attendance(
+            request.user
+        )
+
+        return Response(
+            attendance,
+            status=status.HTTP_200_OK,
+        )
+class ClassAttendanceView(APIView):
+    """
+    HOD can view attendance of the class
+    for a particular subject and date.
+    """
+
+    permission_classes = [
+        IsAuthenticated,
+        IsHOD,
+    ]
+
+    def get(self, request):
+
+        subject = request.query_params.get("subject")
+        attendance_date = request.query_params.get("date")
+
+        if not subject or not attendance_date:
+            return Response(
+                {
+                    "detail": "subject and date query parameters are required."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        attendance = get_class_attendance(
+            subject_id=subject,
+            attendance_date=attendance_date,
+            user=request.user,
+        )
+
+        serializer = AttendanceSerializer(
+            attendance,
+            many=True,
+        )
+
+        return Response(
+            serializer.data,
             status=status.HTTP_200_OK,
         )
