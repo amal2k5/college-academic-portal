@@ -73,4 +73,5 @@ urlpatterns = [
         ClassAttendanceView.as_view(),
         name="class-attendance",
     ),
+    
 ]

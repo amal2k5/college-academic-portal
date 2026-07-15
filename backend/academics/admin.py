@@ -68,7 +68,7 @@ class MarksAdmin(admin.ModelAdmin):
 
     @admin.display(description="Exam Type")
     def get_exam_type(self, obj):
-        return obj.exam.exam_type
+        return obj.exam.get_exam_type_display()
 
 
 @admin.register(Attendance)
@@ -102,27 +102,48 @@ class AttendanceAdmin(admin.ModelAdmin):
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "subject",
-        "exam_type",
         "department",
-        "maximum_marks",
-        "date",
-        "time",
+        "semester",
+        "get_exam_type",
+        "exam_date",
+        "start_time",
+        "end_time",
         "venue",
+        "get_status",
+        "created_by",
+    )
+
+    list_filter = (
+        "department",
+        "semester",
+        "exam_type",
+        "status",
+        "exam_date",
     )
 
     search_fields = (
         "subject__name",
         "subject__subject_code",
+        "venue",
     )
 
-    list_filter = (
-        "exam_type",
-        "department",
-        "date",
+    ordering = (
+        "exam_date",
+        "start_time",
     )
 
     list_select_related = (
         "subject",
         "department",
+        "created_by",
     )
+
+    @admin.display(description="Exam Type")
+    def get_exam_type(self, obj):
+        return obj.get_exam_type_display()
+
+    @admin.display(description="Status")
+    def get_status(self, obj):
+        return obj.get_status_display()

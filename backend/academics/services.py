@@ -1,20 +1,27 @@
 from decimal import Decimal
 
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Count, Q
-from django.core.cache import cache
+
 from rest_framework.exceptions import ValidationError
 from notifications.services import notify_students
 from students.models import Student
+
 from .models import (
-    Subject,
-    Marks,
+    Attendance,
     Exam,
+    Marks,
+    Subject,
 )
 
-from django.core.cache import cache
+from .tasks import (
+    notify_exam_cancelled,
+    notify_exam_rescheduled,
+    notify_exam_scheduled,
+)
 
-from .models import Attendance
+
 def get_class_attendance(subject_id, attendance_date, user):
 
     department = user.hodprofile.department
@@ -39,6 +46,7 @@ def get_class_attendance(subject_id, attendance_date, user):
     )
 
     return attendance
+
 
 def get_student_attendance(user):
 
@@ -109,6 +117,7 @@ def get_student_attendance(user):
 
     return attendance_summary
 
+
 @transaction.atomic
 def bulk_mark_attendance(validated_data, user):
 
@@ -162,6 +171,7 @@ def bulk_mark_attendance(validated_data, user):
         attendance_objects.append(attendance)
 
     return attendance_objects
+
 
 @transaction.atomic
 def create_subject(validated_data, user):
@@ -400,166 +410,158 @@ def get_student_marks(user):
     )
 
 
-def get_exam_marks(*, exam_id, user):
-    """
-    Return all marks for the selected exam belonging to the
-    logged-in HOD's department.
-    Includes both DRAFT and PUBLISHED marks.
-    """
+# =====================================================================
+# CLEANED EXAM SERVICES (PART 1 & PART 2 COMPLETED)
+# =====================================================================
 
-    department = user.hodprofile.department
-
-    exam = Exam.objects.select_related(
-        "department",
-    ).get(
-        pk=exam_id,
-    )
-
-    if exam.department != department:
-        raise ValidationError(
-            {
-                "exam": [
-                    "You cannot access marks for another department."
-                ]
-            }
-        )
-
-    return (
-        Marks.objects.filter(
-            exam=exam,
-        )
-        .select_related(
-            "student",
-            "subject",
-            "exam",
-        )
-        .order_by(
-            "student__roll_number",
-        )
-    )    
-    
 @transaction.atomic
-def create_exam(validated_data, user):
-    """
-    Create a new exam for the logged-in HOD's department.
-    """
-    department = user.hodprofile.department
+def create_exam(*, validated_data, user):
+
     subject = validated_data["subject"]
 
-    if subject.department != department:
-        raise ValidationError(
-            {
-                "subject": [
-                    "You can only create exams for your department."
-                ]
-            }
-        )
+    department = subject.department
+    semester = subject.semester
 
-    if Exam.objects.filter(
-        subject=subject,
-        exam_type=validated_data["exam_type"],
-    ).exists():
-        raise ValidationError(
-            {
-                "exam_type": [
-                    "This exam already exists for the selected subject."
-                ]
-            }
-        )
-
-    # Create exam
-    exam = Exam.objects.create(
+    conflict = Exam.objects.filter(
         department=department,
-        **validated_data,
+        semester=semester,
+        exam_date=validated_data["exam_date"],
+        status__in=[
+            Exam.Status.SCHEDULED,
+            Exam.Status.RESCHEDULED,
+        ],
+    ).filter(
+        start_time__lt=validated_data["end_time"],
+        end_time__gt=validated_data["start_time"],
     )
 
-    # Get all students in the department
-    students = Student.objects.filter(department=department)
-
-    # Notify students
-    try:
-        notify_students(
-            students=list(students),
-            title="Exam Scheduled",
-            message=f"{exam.subject.name} exam scheduled on {exam.date}.",
-            data={
-                "type": "exam",
-                "exam_id": str(exam.id),
-            },
+    if conflict.exists():
+        raise ValidationError(
+            {
+                "exam_date": [
+                    "Another exam is already scheduled during this time."
+                ]
+            }
         )
-    except Exception as e:
-        # TODO: Replace with proper logging
-        print(f"Exam notification error: {e}")
+
+    exam = Exam.objects.create(
+        **validated_data,
+        department=department,
+        semester=semester,
+        created_by=user,
+    )
+
+    # Uncomment after testing
+    # notify_exam_scheduled.delay(exam.id)
 
     return exam
 
 
-
 @transaction.atomic
-def update_exam(exam, validated_data, user):
-    """
-    Update an existing exam.
-    """
+def update_exam(*, exam, validated_data):
 
-    department = user.hodprofile.department
+    old_date = exam.exam_date
+    old_start = exam.start_time
+    old_end = exam.end_time
+    old_venue = exam.venue
 
-    if (
-        "subject" in validated_data
-        and validated_data["subject"].department != department
-    ):
-        raise ValidationError(
-            {
-                "subject": [
-                    "Invalid subject."
-                ]
-            }
-        )
+    new_date = validated_data.get(
+        "exam_date",
+        exam.exam_date,
+    )
 
-    subject = validated_data.get("subject", exam.subject)
-    exam_type = validated_data.get("exam_type", exam.exam_type)
+    new_start = validated_data.get(
+        "start_time",
+        exam.start_time,
+    )
 
-    if (
+    new_end = validated_data.get(
+        "end_time",
+        exam.end_time,
+    )
+
+    new_venue = validated_data.get(
+        "venue",
+        exam.venue,
+    )
+
+    conflict = (
         Exam.objects.filter(
-            subject=subject,
-            exam_type=exam_type,
+            department=exam.department,
+            semester=exam.semester,
+            exam_date=new_date,
+            status__in=[
+                Exam.Status.SCHEDULED,
+                Exam.Status.RESCHEDULED,
+            ],
         )
-        .exclude(pk=exam.pk)
-        .exists()
-    ):
+        .exclude(id=exam.id)
+        .filter(
+            start_time__lt=new_end,
+            end_time__gt=new_start,
+        )
+    )
+
+    if conflict.exists():
         raise ValidationError(
             {
-                "exam_type": [
-                    "This exam already exists."
+                "exam_date": [
+                    "Another exam is already scheduled during this time."
                 ]
             }
         )
+
+    rescheduled = any(
+        [
+            old_date != new_date,
+            old_start != new_start,
+            old_end != new_end,
+            old_venue != new_venue,
+        ]
+    )
+
+    if rescheduled:
+        exam.original_date = old_date
+        exam.status = Exam.Status.RESCHEDULED
 
     for key, value in validated_data.items():
         setattr(exam, key, value)
 
     exam.save()
 
-    students = Student.objects.filter(
-        department=department,
-    )
-
-    try:
-        notify_students(
-            students=list(students),
-            title="Exam Updated",
-            message=f"{exam.subject.name} exam schedule has been updated.",
-            data={
-                "type": "exam",
-                "exam_id": str(exam.id),
-            },
-        )
-    except Exception as e:
-        # TODO: Replace with proper logging
-        print(f"Exam notification error: {e}")
-
+    if rescheduled:
+        # Uncomment after testing
+        # notify_exam_rescheduled.delay(exam.id)
+         notify_exam_rescheduled.delay(exam.id)
     return exam
 
 
 @transaction.atomic
-def delete_exam(exam):
-    exam.delete()
+def cancel_exam(exam):
+
+    exam.status = Exam.Status.CANCELLED
+
+    exam.save(update_fields=["status"])
+
+    # Uncomment after testing
+    notify_exam_cancelled.delay(exam.id)
+
+    return exam
+
+
+def get_student_exams(student):
+
+    return (
+        Exam.objects.filter(
+            department=student.department,
+            semester=student.semester,
+        )
+        .select_related(
+            "subject",
+            "department",
+        )
+        .order_by(
+            "exam_date",
+            "start_time",
+        )
+    )

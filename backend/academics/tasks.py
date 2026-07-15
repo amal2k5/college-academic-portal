@@ -1,11 +1,13 @@
+from asgiref.sync import async_to_sync
 from celery import shared_task
 
+from channels.layers import get_channel_layer
 from django.db.models import Count, Q
 
 from students.models import Student
 from notifications.models import Notification
 
-from .models import Attendance, Subject
+from .models import Attendance, Subject, Exam
 
 
 @shared_task
@@ -69,3 +71,125 @@ def check_low_attendance():
     return (
         f"{notifications_created} notification(s) created."
     )
+
+
+@shared_task
+def notify_exam_scheduled(exam_id):
+    """
+    Notify students when a new exam is scheduled.
+    """
+
+    exam = Exam.objects.select_related(
+        "subject",
+        "department",
+    ).get(id=exam_id)
+
+    students = Student.objects.filter(
+        department=exam.department,
+        semester=exam.semester,
+    )
+
+    channel_layer = get_channel_layer()
+
+    for student in students:
+
+        message = (
+            f"Your {exam.get_exam_type_display()} for "
+            f"{exam.subject.name} is scheduled on "
+            f"{exam.exam_date} at {exam.start_time}."
+        )
+
+        Notification.objects.create(
+            student=student,
+            message=message,
+        )
+
+        async_to_sync(channel_layer.group_send)(
+            f"student_{student.user.id}",
+            {
+                "type": "send_notification",
+                "message": message,
+            },
+        )
+
+
+@shared_task
+def notify_exam_rescheduled(exam_id):
+    """
+    Notify students when an exam is rescheduled.
+    """
+
+    exam = Exam.objects.select_related(
+        "subject",
+        "department",
+    ).get(id=exam_id)
+
+    students = Student.objects.filter(
+        department=exam.department,
+        semester=exam.semester,
+    )
+
+    channel_layer = get_channel_layer()
+
+    for student in students:
+
+        message = (
+            f"Your {exam.get_exam_type_display()} for "
+            f"{exam.subject.name} has been moved from "
+            f"{exam.original_date} to "
+            f"{exam.exam_date} at "
+            f"{exam.start_time}."
+        )
+
+        Notification.objects.create(
+            student=student,
+            message=message,
+        )
+
+        async_to_sync(channel_layer.group_send)(
+            f"student_{student.user.id}",
+            {
+                "type": "send_notification",
+                "message": message,
+            },
+        )
+
+
+@shared_task
+def notify_exam_cancelled(exam_id):
+    """
+    Notify students when an exam is cancelled.
+    """
+
+    exam = Exam.objects.select_related(
+        "subject",
+        "department",
+    ).get(id=exam_id)
+
+    students = Student.objects.filter(
+        department=exam.department,
+        semester=exam.semester,
+    )
+
+    channel_layer = get_channel_layer()
+
+    for student in students:
+
+        message = (
+            f"Your {exam.get_exam_type_display()} for "
+            f"{exam.subject.name} on "
+            f"{exam.exam_date} has been cancelled."
+        )
+
+        Notification.objects.create(
+            student=student,
+            message=message,
+        )
+
+        async_to_sync(channel_layer.group_send)(
+            f"student_{student.user.id}",
+            {
+                "type": "send_notification",
+                "message": message,
+            },
+        )

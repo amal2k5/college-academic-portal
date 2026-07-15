@@ -37,16 +37,13 @@ from .services import (
     get_student_marks,
     create_exam,
     update_exam,
-    delete_exam,
-
-    get_exam_marks,
-
+    cancel_exam,
+    get_student_exams,
     bulk_mark_attendance,
     get_student_attendance,
     get_class_attendance,
 
 )
-
 class SubjectListCreateView(APIView):
     """
     List all subjects of the logged-in HOD's department.
@@ -267,18 +264,40 @@ class StudentMarksView(APIView):
             serializer.data,
             status=status.HTTP_200_OK,
         )
+from django.shortcuts import get_object_or_404
+
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from accounts.permissions import IsHOD, IsStudent
+
+from .models import Exam
+from .serializers import ExamSerializer
+from .services import (
+    create_exam,
+    update_exam,
+    cancel_exam,
+    get_student_exams,
+)
+
 class ExamListCreateView(APIView):
     """
-    List all exams of the logged-in HOD's department.
-    For students, list exams relevant to their department and semester.
-    Create a new exam for the logged-in HOD's department.
+    List exams.
+
+    - HOD: View exams for their own department.
+    - Student: View exams for their own department and semester.
     """
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        if request.user.role == "HOD":
+
+        if request.user.role == request.user.Role.HOD:
+
             department = request.user.hodprofile.department
+
             exams = (
                 Exam.objects.filter(
                     department=department
@@ -286,30 +305,28 @@ class ExamListCreateView(APIView):
                 .select_related(
                     "subject",
                     "department",
+                    "created_by",
                 )
                 .order_by(
-                    "date",
-                    "time",
+                    "exam_date",
+                    "start_time",
                 )
             )
-        elif request.user.role == "STUDENT":
+
+        elif request.user.role == request.user.Role.STUDENT:
+
             student = request.user.student_profile
-            exams = (
-                Exam.objects.filter(
-                    department=student.department,
-                    subject__semester=student.semester
-                )
-                .select_related(
-                    "subject",
-                    "department",
-                )
-                .order_by(
-                    "date",
-                    "time",
-                )
-            )
+
+            exams = get_student_exams(student)
+
         else:
-            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+
+            return Response(
+                {
+                    "detail": "Permission denied."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         serializer = ExamSerializer(
             exams,
@@ -324,6 +341,15 @@ class ExamListCreateView(APIView):
     def post(self, request):
         if request.user.role != "HOD":
             return Response({"detail": "Only HOD can create exams."}, status=status.HTTP_403_FORBIDDEN)
+
+        if request.user.role != request.user.Role.HOD:
+
+            return Response(
+                {
+                    "detail": "Permission denied."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         serializer = ExamSerializer(
             data=request.data,
@@ -342,16 +368,19 @@ class ExamListCreateView(APIView):
             ExamSerializer(exam).data,
             status=status.HTTP_201_CREATED,
         )
-
-
+       
 class ExamDetailView(APIView):
     """
-    Retrieve, update and delete an exam.
-    Only exams belonging to the logged-in HOD's department
-    are accessible.
+    Retrieve, update and cancel an exam.
+
+    Only exams belonging to the logged-in HOD's
+    department are accessible.
     """
 
-    permission_classes = [IsAuthenticated, IsHOD]
+    permission_classes = [
+        IsAuthenticated,
+        IsHOD,
+    ]
 
     def get_object(self, request, pk):
 
@@ -359,6 +388,7 @@ class ExamDetailView(APIView):
             Exam.objects.select_related(
                 "subject",
                 "department",
+                "created_by",
             ),
             pk=pk,
             department=request.user.hodprofile.department,
@@ -371,9 +401,7 @@ class ExamDetailView(APIView):
             pk,
         )
 
-        serializer = ExamSerializer(
-            exam,
-        )
+        serializer = ExamSerializer(exam)
 
         return Response(
             serializer.data,
@@ -381,6 +409,32 @@ class ExamDetailView(APIView):
         )
 
     def put(self, request, pk):
+
+        exam = self.get_object(
+            request,
+            pk,
+        )
+
+        serializer = ExamSerializer(
+            exam,
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        exam = update_exam(
+            exam=exam,
+            validated_data=serializer.validated_data,
+        )
+
+        return Response(
+            ExamSerializer(exam).data,
+            status=status.HTTP_200_OK,
+        )
+
+    def patch(self, request, pk):
 
         exam = self.get_object(
             request,
@@ -400,7 +454,6 @@ class ExamDetailView(APIView):
         exam = update_exam(
             exam=exam,
             validated_data=serializer.validated_data,
-            user=request.user,
         )
 
         return Response(
@@ -415,20 +468,27 @@ class ExamDetailView(APIView):
             pk,
         )
 
-        delete_exam(exam)
+        cancel_exam(exam)
 
         return Response(
             {
-                "message": "Exam deleted successfully."
+                "message": "Exam cancelled successfully."
             },
             status=status.HTTP_200_OK,
         )
+        
+
+        
+        
 class BulkAttendanceView(APIView):
     """
     HOD can mark attendance for an entire class in a single request.
     """
 
-    permission_classes = [IsAuthenticated, IsHOD]
+    permission_classes = [
+        IsAuthenticated,
+        IsHOD,
+    ]
 
     def post(self, request):
 
@@ -455,6 +515,8 @@ class BulkAttendanceView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
 class StudentAttendanceView(APIView):
     """
     Student can view attendance percentage
@@ -469,16 +531,18 @@ class StudentAttendanceView(APIView):
     def get(self, request):
 
         attendance = get_student_attendance(
-            request.user
+            request.user,
         )
 
         return Response(
             attendance,
             status=status.HTTP_200_OK,
         )
+
+
 class ClassAttendanceView(APIView):
     """
-    HOD can view attendance of the class
+    HOD can view attendance of a class
     for a particular subject and date.
     """
 
@@ -493,9 +557,12 @@ class ClassAttendanceView(APIView):
         attendance_date = request.query_params.get("date")
 
         if not subject or not attendance_date:
+
             return Response(
                 {
-                    "detail": "subject and date query parameters are required."
+                    "detail": (
+                        "subject and date query parameters are required."
+                    )
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -515,3 +582,4 @@ class ClassAttendanceView(APIView):
             serializer.data,
             status=status.HTTP_200_OK,
         )
+        
