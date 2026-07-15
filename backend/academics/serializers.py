@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from students.models import Student
+from .models import Exam
+
 
 from .models import (
     Subject,
@@ -211,3 +213,38 @@ class BulkAttendanceSerializer(serializers.Serializer):
     attendance = BulkAttendanceItemSerializer(
         many=True
     )
+    
+# from rest_framework import serializers
+
+
+
+class ExamSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Exam
+        fields = "__all__"
+        read_only_fields = (
+            "department",
+            "semester",
+            "created_by",
+            "status",
+            "original_date",
+            "created_at",
+            "updated_at",
+        )
+
+    def validate(self, attrs):
+        start_time = attrs.get("start_time")
+        end_time = attrs.get("end_time")
+
+        if start_time and end_time:
+            if start_time >= end_time:
+                raise serializers.ValidationError(
+                    {
+                        "end_time": (
+                            "End time must be later than start time."
+                        )
+                    }
+                )
+
+        return attrs
