@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { getHODDashboardStats } from "../../services/hodService";
 import {
   Users,
@@ -11,6 +12,9 @@ import {
   ArrowUpRight,
   Clock,
   Megaphone,
+  PlusCircle,
+  FileText,
+  UserCheck
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
@@ -49,23 +53,39 @@ function HODDashboard() {
       try {
         setLoading(true);
         const [statsData, examsData, subjectsData] = await Promise.all([
-          getHODDashboardStats(),
+          getHODDashboardStats().catch(() => ({})),
           examService.getExams().catch(() => []),
           subjectService.getSubjects().catch(() => [])
         ]);
-        setStats(statsData);
-        setExams(examsData);
-        setSubjects(subjectsData);
+        setStats(statsData || {});
+        setExams(Array.isArray(examsData) ? examsData : []);
+        setSubjects(Array.isArray(subjectsData) ? subjectsData : []);
         setError("");
       } catch (err) {
         console.error(err);
-        setError("Could not load dashboard data.");
+        setError("Could not load dashboard data. Please refresh.");
       } finally {
         setLoading(false);
       }
     };
     fetchDashboardData();
   }, []);
+
+  const { upcomingExams, completedExams } = useMemo(() => {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    let upcoming = 0;
+    let completed = 0;
+    
+    exams.forEach(e => {
+      if(!e.date) { upcoming++; return; }
+      const d = new Date(e.date);
+      d.setHours(0,0,0,0);
+      if (d >= today) upcoming++;
+      else completed++;
+    });
+    return { upcomingExams: upcoming, completedExams: completed };
+  }, [exams]);
 
   if (loading) {
     return (
@@ -88,32 +108,26 @@ function HODDashboard() {
         <div className="w-full max-w-sm p-5 bg-neutral-900 border border-rose-900/40 rounded-2xl flex items-center gap-3">
           <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
           <span className="text-sm text-rose-400 tracking-wide">{error}</span>
+          <button onClick={() => window.location.reload()} className="ml-auto text-xs text-rose-300 hover:text-white underline">Retry</button>
         </div>
       </div>
     );
   }
 
-  if (!stats) return null;
-
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  let upcomingExams = 0;
-  let completedExams = 0;
-  
-  exams.forEach(e => {
-    const d = new Date(e.date);
-    d.setHours(0,0,0,0);
-    if (d >= today) upcomingExams++;
-    else completedExams++;
-  });
-
   const statsConfig = [
     {
-      title: "Students Enrolled",
-      value: stats.total_students ?? "—",
-      icon: Users,
-      iconClass: "text-blue-400",
-      strip: "from-blue-600 via-blue-400 to-blue-600",
+      title: "Total Subjects",
+      value: subjects.length || 0,
+      icon: BookOpen,
+      iconClass: "text-indigo-400",
+      strip: "from-indigo-600 via-indigo-400 to-indigo-600",
+    },
+    {
+      title: "Total Exams",
+      value: exams.length || 0,
+      icon: ClipboardCheck,
+      iconClass: "text-violet-400",
+      strip: "from-violet-600 via-violet-400 to-violet-600",
     },
     {
       title: "Upcoming Exams",
@@ -123,22 +137,36 @@ function HODDashboard() {
       strip: "from-amber-600 via-amber-400 to-amber-600",
     },
     {
-      title: "Completed Exams",
-      value: completedExams,
-      icon: ClipboardCheck,
+      title: "Draft Marks Pending",
+      value: stats?.draft_marks_pending ?? 0,
+      icon: FileText,
+      iconClass: "text-rose-400",
+      strip: "from-rose-600 via-rose-400 to-rose-600",
+    },
+    {
+      title: "Today's Attendance",
+      value: stats?.todays_attendance ?? "—",
+      icon: UserCheck,
       iconClass: "text-emerald-400",
       strip: "from-emerald-600 via-emerald-400 to-emerald-600",
     },
     {
-      title: "Active Subjects",
-      value: subjects.length || "—",
-      icon: BookOpen,
-      iconClass: "text-indigo-400",
-      strip: "from-indigo-600 via-indigo-400 to-indigo-600",
-    },
+      title: "Total Students",
+      value: stats?.total_students ?? "—",
+      icon: Users,
+      iconClass: "text-cyan-400",
+      strip: "from-cyan-600 via-cyan-400 to-cyan-600",
+    }
   ];
 
-  const { user } = useContext(AuthContext);
+  const quickActions = [
+    { label: "Create Subject", icon: BookOpen, path: "/hod/subjects", color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/20" },
+    { label: "Create Exam", icon: CalendarCheck, path: "/hod/exams", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
+    { label: "Manage Marks", icon: FileText, path: "/hod/marks", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
+    { label: "Take Attendance", icon: UserCheck, path: "/hod/attendance", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+  ];
+
+  const { user } = useContext(AuthContext) || {};
   const hodEmail = user?.email || "";
 
   return (
@@ -149,38 +177,52 @@ function HODDashboard() {
       className="min-h-screen bg-neutral-950 antialiased font-sans p-4 md:p-6 lg:p-10"
     >
       <div className="max-w-7xl mx-auto space-y-8">
-
         {/* ── PROFILE SUMMARY CARD ── */}
         <ProfileSummaryCard
           role="HOD"
-          collegeName={stats.college_name}
-          userName={stats.hod_name}
+          collegeName={stats?.college_name}
+          userName={stats?.hod_name || "Head of Department"}
           userEmail={hodEmail}
-          departmentName={stats.department_name}
+          departmentName={stats?.department_name}
         />
 
-        {/* ── HEADER ── */}
+        {/* ── HEADER & QUICK ACTIONS ── */}
         <motion.div
           variants={fadeUp}
-          className="pb-7 border-b border-neutral-800"
+          className="pb-7 border-b border-neutral-800 flex flex-col lg:flex-row lg:items-end justify-between gap-6"
         >
-          <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-[0.22em] mb-2">
-            HOD Dashboard
-          </p>
-          <h1 className="text-2xl font-semibold text-white tracking-tight mb-1">
-            Welcome back,{" "}
-            <span className="text-indigo-400">{stats.hod_name}</span> 👋
-          </h1>
-          <p className="text-[11px] text-neutral-500 tracking-wide">
-            {stats.department_name}
-            {stats.college_name ? ` · ${stats.college_name}` : ""}
-          </p>
+          <div>
+            <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-[0.22em] mb-2">
+              HOD Dashboard
+            </p>
+            <h1 className="text-2xl font-semibold text-white tracking-tight mb-1">
+              Welcome back,{" "}
+              <span className="text-indigo-400">{stats?.hod_name || "HOD"}</span> 👋
+            </h1>
+            <p className="text-[11px] text-neutral-400 tracking-wide">
+              {stats?.department_name || "Department"}
+              {stats?.college_name ? ` · ${stats.college_name}` : ""}
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap gap-3 shrink-0">
+            {quickActions.map(action => (
+              <Link 
+                key={action.label} 
+                to={action.path}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border ${action.border} ${action.bg} hover:bg-neutral-800 transition-colors duration-200 group`}
+              >
+                <action.icon size={14} className={`${action.color} group-hover:scale-110 transition-transform`} />
+                <span className="text-[11px] font-semibold text-neutral-200 hidden sm:block whitespace-nowrap">{action.label}</span>
+              </Link>
+            ))}
+          </div>
         </motion.div>
 
         {/* ── STATS GRID ── */}
         <motion.div
           variants={gridStagger}
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+          className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4"
         >
           {statsConfig.map(({ title, value, icon: Icon, iconClass, strip }) => (
             <motion.div
@@ -189,24 +231,18 @@ function HODDashboard() {
               className="bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-2xl overflow-hidden transition-all duration-200 group"
             >
               <div className={`h-[3px] w-full bg-gradient-to-r ${strip}`} />
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <p className="text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
+              <div className="p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-2 mb-4">
+                  <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest line-clamp-2">
                     {title}
                   </p>
-                  <div className={`p-2 bg-neutral-800 border border-neutral-700 rounded-xl ${iconClass} shrink-0`}>
-                    <Icon size={14} strokeWidth={1.6} />
+                  <div className={`p-1.5 sm:p-2 bg-neutral-800 border border-neutral-700 rounded-xl ${iconClass} shrink-0`}>
+                    <Icon size={14} strokeWidth={2} />
                   </div>
                 </div>
-                <p className="text-2xl font-semibold text-neutral-100 tracking-tight leading-none">
+                <p className="text-2xl font-bold text-neutral-100 tracking-tight leading-none">
                   {value}
                 </p>
-                <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <span className="text-[9px] font-semibold text-neutral-500 uppercase tracking-widest">
-                    View analytics
-                  </span>
-                  <ArrowUpRight size={12} strokeWidth={2} className="text-neutral-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
-                </div>
               </div>
             </motion.div>
           ))}
@@ -214,129 +250,109 @@ function HODDashboard() {
 
         {/* ── FEED PANELS ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
           {/* Recent Activity */}
           <motion.div
             variants={fadeUp}
-            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col"
+            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col min-h-[300px]"
           >
             <div className="h-[3px] w-full bg-gradient-to-r from-violet-600 via-violet-400 to-violet-600" />
             <div className="p-5 flex flex-col flex-1">
-
-              {/* Panel header */}
-              <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-neutral-800">
-                <div className="text-violet-400">
-                  <Activity size={14} strokeWidth={1.6} />
+              <div className="flex items-center justify-between mb-5 pb-4 border-b border-neutral-800">
+                <div className="flex items-center gap-2.5">
+                  <Activity size={16} className="text-violet-400" />
+                  <h2 className="text-[11px] font-bold text-neutral-200 uppercase tracking-[0.2em]">
+                    Recent Department Activity
+                  </h2>
                 </div>
-                <h2 className="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.22em]">
-                  Recent Department Activity
-                </h2>
               </div>
 
-              {/* Activity list */}
-              <div className="space-y-1 flex-1">
+              <div className="space-y-2 flex-1">
                 {activities.length > 0 ? (
                   activities.map((act, i) => (
                     <div
                       key={i}
-                      className="flex items-start justify-between gap-4 p-3 bg-neutral-800/50 border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-800 rounded-xl transition-all duration-200"
+                      className="flex items-start justify-between gap-4 p-3.5 bg-neutral-800/30 border border-neutral-800/80 rounded-xl transition-all duration-200"
                     >
                       <div className="min-w-0 space-y-1">
-                        <p className="text-[13px] font-medium text-neutral-100 tracking-wide truncate">
+                        <p className="text-[13px] font-medium text-neutral-200 tracking-wide truncate">
                           {act.text}
                         </p>
                         <p className="text-[10px] text-neutral-500 uppercase tracking-wider truncate">
                           {act.detail}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-500 whitespace-nowrap shrink-0 bg-neutral-900 border border-neutral-700 px-2 py-1 rounded-lg">
-                        <Clock size={10} strokeWidth={1.6} />
+                      <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400 whitespace-nowrap shrink-0 bg-neutral-800 px-2 py-1 rounded-lg">
+                        <Clock size={10} />
                         <span>{act.time}</span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex items-center justify-center py-10">
-                    <p className="text-[10px] font-semibold text-neutral-600 uppercase tracking-[0.2em]">
-                      No recent activities
+                  <div className="flex flex-col items-center justify-center py-12 h-full">
+                    <Activity size={32} className="text-neutral-700 mb-3" />
+                    <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
+                      No recent activities found
                     </p>
                   </div>
                 )}
               </div>
-
-              <button
-                type="button"
-                className="w-full text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500 hover:text-neutral-200 transition-colors duration-200 mt-5 pt-4 border-t border-neutral-800 cursor-pointer"
-              >
-                Audit Activity Log
-              </button>
             </div>
           </motion.div>
 
           {/* Notices */}
           <motion.div
             variants={fadeUp}
-            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col"
+            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col min-h-[300px]"
           >
             <div className="h-[3px] w-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-600" />
             <div className="p-5 flex flex-col flex-1">
-
-              {/* Panel header */}
-              <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-neutral-800">
-                <div className="text-amber-400">
-                  <Bell size={14} strokeWidth={1.6} />
+              <div className="flex items-center justify-between mb-5 pb-4 border-b border-neutral-800">
+                <div className="flex items-center gap-2.5">
+                  <Bell size={16} className="text-amber-400" />
+                  <h2 className="text-[11px] font-bold text-neutral-200 uppercase tracking-[0.2em]">
+                    Official Board Notices
+                  </h2>
                 </div>
-                <h2 className="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.22em]">
-                  Official Board Notices
-                </h2>
               </div>
 
-              {/* Notices list */}
-              <div className="space-y-2 flex-1">
+              <div className="space-y-3 flex-1">
                 {notices.length > 0 ? (
                   notices.map((notice, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-3.5 p-4 bg-neutral-800/50 border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-800 rounded-xl transition-all duration-200"
+                      className="flex items-start gap-3.5 p-4 bg-neutral-800/30 border border-neutral-800/80 rounded-xl transition-all duration-200"
                     >
                       <div className="mt-0.5 shrink-0">
                         {notice.urgent ? (
-                          <span className="flex h-2 w-2 relative">
+                          <span className="flex h-2.5 w-2.5 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
                           </span>
                         ) : (
-                          <Megaphone size={14} strokeWidth={1.6} className="text-neutral-500" />
+                          <Megaphone size={14} className="text-neutral-500" />
                         )}
                       </div>
                       <div className="space-y-1.5 min-w-0">
-                        <p className="text-[13px] font-medium text-neutral-100 tracking-wide leading-relaxed">
+                        <p className="text-[13px] font-medium text-neutral-200 tracking-wide leading-relaxed">
                           {notice.text}
                         </p>
-                        <span className="inline-block text-[9px] font-semibold text-neutral-500 uppercase tracking-widest bg-neutral-900 border border-neutral-700 px-2 py-0.5 rounded-lg">
+                        <span className="inline-block text-[9px] font-semibold text-neutral-400 uppercase tracking-widest bg-neutral-800 border border-neutral-700 px-2 py-0.5 rounded-lg">
                           {notice.meta}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex items-center justify-center py-10">
-                    <p className="text-[10px] font-semibold text-neutral-600 uppercase tracking-[0.2em]">
+                  <div className="flex flex-col items-center justify-center py-12 h-full">
+                    <Bell size={32} className="text-neutral-700 mb-3" />
+                    <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
                       No notices available
                     </p>
                   </div>
                 )}
               </div>
-
-              <button
-                type="button"
-                className="w-full text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500 hover:text-neutral-200 transition-colors duration-200 mt-5 pt-4 border-t border-neutral-800 cursor-pointer"
-              >
-                Broadcast New Notice
-              </button>
             </div>
           </motion.div>
-
         </div>
       </div>
     </motion.div>

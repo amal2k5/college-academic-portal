@@ -8,7 +8,8 @@ import {
   User,
   GraduationCap,
   BookOpen,
-  Calendar
+  Calendar,
+  ClipboardCheck
 } from "lucide-react";
 import { ROUTES } from "../utils/constants";
 
@@ -62,6 +63,7 @@ export const hodNavSections = [
       { path: "/hod/assignments", label: "Assignment Management", icon: ClipboardList },
       { path: "/hod/exams", label: "Exam Management", icon: Calendar },
       { path: "/hod/marks", label: "Marks Management", icon: GraduationCap },
+      { path: "/hod/attendance", label: "Attendance", icon: ClipboardCheck },
     ]
   }
 ];
@@ -74,6 +76,7 @@ export const studentNavSections = [
       { path: "/student/notices", label: "Notices", icon: Bell },
       { path: "/student/assignments", label: "Assignments", icon: ClipboardList },
       { path: "/student/marks", label: "My Marks", icon: GraduationCap },
+      { path: "/student/attendance", label: "Attendance", icon: ClipboardCheck },
     ]
   },
   {

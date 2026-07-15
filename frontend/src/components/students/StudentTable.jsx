@@ -16,55 +16,55 @@ function StudentTable({ students = [], onEdit, onDelete }) {
   }
 
   return (
-    <div className="bg-neutral-900/30 border border-neutral-800/50 rounded-[32px] overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl relative">
+    <div className="bg-neutral-900/70 border border-neutral-800/60 rounded-2xl overflow-hidden shadow-xl backdrop-blur-xl relative">
       {/* Structural Left-Side Silver Metallic Accent Rail */}
-      <div className="absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-white/20 to-transparent rounded-l-[32px] z-20" />
+      <div className="absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-white/20 to-transparent rounded-l-2xl z-20" />
 
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
         <table className="w-full text-left border-collapse whitespace-nowrap relative z-10">
           
           {/* Table Header */}
-          <thead className="bg-neutral-950 border-b border-neutral-800/60">
+          <thead className="bg-neutral-900/50 border-b border-neutral-800/60">
             <tr>
               <th
                 scope="col"
-                className="px-6 py-4 text-[9px] font-medium text-neutral-400 uppercase tracking-widest pl-7"
+                className="px-6 py-4 text-xs font-semibold text-neutral-400 uppercase tracking-widest"
               >
                 Admission Number
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-[9px] font-medium text-neutral-400 uppercase tracking-widest"
+                className="px-6 py-4 text-xs font-semibold text-neutral-400 uppercase tracking-widest"
               >
                 Roll Number
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-[9px] font-medium text-neutral-400 uppercase tracking-widest"
+                className="px-6 py-4 text-xs font-semibold text-neutral-400 uppercase tracking-widest"
               >
                 Name
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-[9px] font-medium text-neutral-400 uppercase tracking-widest"
+                className="px-6 py-4 text-xs font-semibold text-neutral-400 uppercase tracking-widest"
               >
                 Email Address
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-[9px] font-medium text-neutral-400 uppercase tracking-widest"
+                className="px-6 py-4 text-xs font-semibold text-neutral-400 uppercase tracking-widest"
               >
                 Semester
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-[9px] font-medium text-neutral-400 uppercase tracking-widest"
+                className="px-6 py-4 text-xs font-semibold text-neutral-400 uppercase tracking-widest"
               >
                 Department
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-[9px] font-medium text-neutral-400 uppercase tracking-widest text-center pr-7"
+                className="px-6 py-4 text-xs font-semibold text-neutral-400 uppercase tracking-widest text-center"
               >
                 Actions
               </th>
@@ -76,10 +76,10 @@ function StudentTable({ students = [], onEdit, onDelete }) {
             {students.map((student) => (
               <tr
                 key={student.id || student.admission_number}
-                className="hover:bg-neutral-900/30 transition-colors duration-200 group"
+                className="hover:bg-neutral-800/30 transition-colors duration-200 group"
               >
                 {/* Admission Number */}
-                <td className="px-6 py-4 text-xs font-normal text-neutral-200 pl-7">
+                <td className="px-6 py-4 text-sm font-medium text-white">
                   {student.admission_number}
                 </td>
 
@@ -111,7 +111,7 @@ function StudentTable({ students = [], onEdit, onDelete }) {
                 </td>
 
                 {/* Actions Panel */}
-                <td className="px-6 py-4 text-xs text-center pr-7">
+                <td className="px-6 py-4 text-xs text-center">
                   <div className="flex items-center justify-center gap-3">
                     
                     {/* Edit Action Button */}

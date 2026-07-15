@@ -86,11 +86,11 @@ const [isDeleting, setIsDeleting] = useState(false);
         toast.success("Assignment updated successfully.");
       } else {
         await assignmentService.createAssignment(data);
+        toast.success("Assignment created successfully.");
       }
 
       await loadAssignments();
       handleCloseForm();
-      toast.success("Assignment created successfully.");
     } catch (error) {
       console.error(error);
       toast.error(

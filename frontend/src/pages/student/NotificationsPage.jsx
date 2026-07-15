@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { Bell, FileText, RefreshCw, CheckCheck } from "lucide-react";
 import notificationService from "../../services/notificationService";
+import PageHeader from "../../components/common/PageHeader";
 import useNotificationSocket from "../../hooks/useNotificationSocket";
 
 // ── animation config (matches other student pages) ─────────────────────────
@@ -136,8 +137,6 @@ function ErrorState({ onRetry }) {
     </div>
   );
 }
-
-import PageHeader from "../../components/common/PageHeader";
 
 // ── empty state ──────────────────────────────────────────────────────────────
 function EmptyState() {

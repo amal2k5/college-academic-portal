@@ -24,28 +24,19 @@ axiosInstance.interceptors.response.use(
     const original = error.config;
 
     const is401 = error.response?.status === 401;
-
-
-const isLoginCall = original.url?.includes("/auth/login/");
-const isRefreshCall = original.url?.includes("/auth/refresh/");
+    const isLoginCall = original.url?.includes("/auth/login/");
+    const isRefreshCall = original.url?.includes("/auth/refresh/");
     const alreadyRetried = original._retry;
 
-
-    if (
-  is401 &&
-  !alreadyRetried &&
-  !isRefreshCall &&
-  !isLoginCall
-) {
+    if (is401 && !alreadyRetried && !isRefreshCall && !isLoginCall) {
       original._retry = true;
 
       const refresh = localStorage.getItem("refresh");
 
       if (refresh) {
         try {
-
           const { data } = await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/refresh/`,
+            `${import.meta.env.VITE_API_URL}/auth/refresh/`,
             { refresh },
             { headers: { "Content-Type": "application/json" } }
           );
@@ -55,10 +46,9 @@ const isRefreshCall = original.url?.includes("/auth/refresh/");
           original.headers.Authorization = `Bearer ${data.access}`;
           return axiosInstance(original);
         } catch (_refreshError) {
-
+          // Refresh failed — fall through to logout
         }
       }
-
 
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import AssignmentList from "../../components/assignments/AssignmentList";
 import AssignmentDetailModal from "../../components/assignments/AssignmentDetailModal";
 import assignmentService from "../../services/assignmentService";
@@ -23,6 +24,7 @@ function AssignmentsPage() {
       setAssignments(data);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to load assignments. Please try again later.");
     } finally {
       setLoading(false);
     }

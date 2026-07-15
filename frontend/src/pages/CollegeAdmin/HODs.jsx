@@ -362,7 +362,7 @@ function HODs() {
                 <div className="p-4 border-t border-white/5 bg-white/5">
                   <button
                     onClick={() => setSelectedHOD(null)}
-                    className="w-full py-2.5 rounded-lg bg-white text-black font-semibold text-sm hover:bg-gray-200 transition-colors"
+                    className="w-full py-2.5 rounded-lg border border-neutral-800 bg-neutral-900 text-neutral-400 font-semibold text-sm hover:text-white hover:bg-neutral-800 transition-colors"
                   >
                     Close
                   </button>

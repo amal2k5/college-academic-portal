@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import StudentTable from "../../components/students/StudentTable";
 import StudentSearch from "../../components/students/StudentSearch";
 import StudentFilters from "../../components/students/StudentFilters";
 import { getStudents, deleteStudent } from "../../services/studentService";
 import PageHeader from "../../components/common/PageHeader";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 function Students() {
   const [students, setStudents] = useState([]);
@@ -28,6 +30,7 @@ function Students() {
     } catch (err) {
       console.error("Failed to fetch students:", err);
       setError("Could not load student data. Please try again later.");
+      toast.error("Failed to load students.");
     } finally {
       setLoading(false);
     }
@@ -52,15 +55,29 @@ function Students() {
     return matchesSearch && matchesSemester && matchesGender;
   });
 
+  // Confirmation Modal State
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteStudent(deleteTarget);
+      setStudents(students.filter((student) => student.id !== deleteTarget));
+      toast.success("Student deleted successfully.");
+    } catch (error) {
+      console.error("Failed to delete student:", error);
+      toast.error("Failed to delete student. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
+
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this student?",
-    );
-
-    if (!confirmed) return;
-
-    await deleteStudent(id);
-    setStudents(students.filter((student) => student.id !== id));
+    setDeleteTarget(id);
   };
 
   return (
@@ -111,6 +128,17 @@ function Students() {
           <StudentTable students={filteredStudents} onDelete={handleDelete} />
         </div>
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

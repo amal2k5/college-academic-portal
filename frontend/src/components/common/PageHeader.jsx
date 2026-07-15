@@ -28,7 +28,7 @@ function PageHeader({ title, subtitle, buttonText, onButtonClick, actions }) {
             whileHover={{ scale: 1.01 }} 
             whileTap={{ scale: 0.99 }}
             onClick={onButtonClick} 
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-neutral-100 text-neutral-950 rounded-lg transition-colors text-xs font-semibold tracking-wide border border-neutral-200"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg transition-colors text-xs font-semibold tracking-wide border border-neutral-700 hover:border-neutral-600 shadow-sm"
           >
             <Plus size={14} strokeWidth={2.5} />
             {buttonText}
