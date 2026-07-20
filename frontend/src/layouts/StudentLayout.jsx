@@ -61,11 +61,11 @@ function StudentLayout() {
       type="button"
       onClick={() => navigate("/student/notifications")}
       aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
-      className="relative p-2 rounded-xl text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900/60 transition-all duration-150 cursor-pointer"
+      className="relative p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800/50 transition-all duration-200 cursor-pointer"
     >
-      <BellRing size={16} strokeWidth={1.5} />
+      <BellRing size={18} strokeWidth={1.6} />
       {unreadCount > 0 && (
-        <span className="absolute top-0 right-0 min-w-[16px] h-4 px-[3px] rounded-full bg-indigo-500 text-white text-[9px] font-bold flex items-center justify-center leading-none transform translate-x-1/4 -translate-y-1/4">
+        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-indigo-500 text-white text-[9px] font-bold flex items-center justify-center leading-none shadow-lg shadow-indigo-500/20 ring-2 ring-neutral-950">
           {unreadCount > 99 ? "99+" : unreadCount}
         </span>
       )}

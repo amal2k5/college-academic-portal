@@ -7,7 +7,6 @@ import {
   Pencil,
   Trash2,
   BookOpen,
-  Hash,
   Calendar,
   FlaskConical,
   RefreshCw,
@@ -195,13 +194,11 @@ function SubjectManagement() {
   const [search, setSearch] = useState("");
   const [semesterFilter, setSemesterFilter] = useState("");
 
-  // ── Load subjects ───────────────────────────────────────────────────────────
   const loadSubjects = useCallback(async () => {
-    setLoading(true);
-    setError("");
     try {
       const data = await subjectService.getSubjects();
       setSubjects(Array.isArray(data) ? data : []);
+      setError("");
     } catch (err) {
       console.error("Failed to load subjects:", err);
       setError("Failed to load subjects. Please try again.");
@@ -213,7 +210,10 @@ function SubjectManagement() {
   }, []);
 
   useEffect(() => {
-    loadSubjects();
+    const timer = setTimeout(() => {
+      loadSubjects();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loadSubjects]);
 
   // ── Filtered + searched subjects ────────────────────────────────────────────
@@ -337,7 +337,7 @@ function SubjectManagement() {
           </div>
           <p className="text-sm text-red-400 mb-4">{error}</p>
           <button
-            onClick={loadSubjects}
+            onClick={() => { setLoading(true); setError(""); loadSubjects(); }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg text-xs font-semibold transition-colors border border-neutral-700"
           >
             <RefreshCw size={12} />

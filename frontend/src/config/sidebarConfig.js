@@ -75,6 +75,7 @@ export const studentNavSections = [
       { path: "/student", label: "Dashboard", icon: LayoutDashboard },
       { path: "/student/notices", label: "Notices", icon: Bell },
       { path: "/student/assignments", label: "Assignments", icon: ClipboardList },
+      { path: "/student/exams", label: "Examinations", icon: Calendar },
       { path: "/student/marks", label: "My Marks", icon: GraduationCap },
       { path: "/student/attendance", label: "Attendance", icon: ClipboardCheck },
     ]

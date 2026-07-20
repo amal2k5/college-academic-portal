@@ -8,13 +8,15 @@ const fadeUp = {
 };
 
 function SelectField({ label, value, onChange, options, placeholder, disabled }) {
+  const selectId = useMemo(() => `select-${label.toLowerCase().replace(/\s+/g, "-")}`, [label]);
   return (
     <div className="relative flex-1 min-w-[160px]">
-      <label className="block text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em] mb-2">
+      <label htmlFor={selectId} className="block text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em] mb-2">
         {label}
       </label>
       <div className="relative">
         <select
+          id={selectId}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
@@ -38,13 +40,15 @@ function SelectField({ label, value, onChange, options, placeholder, disabled })
 }
 
 function DateField({ label, value, onChange, disabled }) {
+  const dateId = useMemo(() => `date-${label.toLowerCase().replace(/\s+/g, "-")}`, [label]);
   return (
     <div className="relative flex-1 min-w-[160px]">
-      <label className="block text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em] mb-2">
+      <label htmlFor={dateId} className="block text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em] mb-2">
         {label}
       </label>
       <div className="relative">
         <input
+          id={dateId}
           type="date"
           value={value}
           onChange={(e) => onChange(e.target.value)}

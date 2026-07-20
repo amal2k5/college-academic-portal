@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, ChevronDown } from "lucide-react";
+import { getExamTypeLabel } from "../../constants/examConstants";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -8,13 +9,15 @@ const fadeUp = {
 };
 
 function SelectField({ label, value, onChange, options, placeholder, disabled }) {
+  const selectId = useMemo(() => `select-${label.toLowerCase().replace(/\s+/g, "-")}`, [label]);
   return (
     <div className="relative flex-1 min-w-[160px]">
-      <label className="block text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em] mb-2">
+      <label htmlFor={selectId} className="block text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em] mb-2">
         {label}
       </label>
       <div className="relative">
         <select
+          id={selectId}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
@@ -73,7 +76,7 @@ export default function MarksToolbar({
       .filter((e) => String(e.subject) === String(selectedSubject))
       .map((e) => ({
         value: String(e.id),
-        label: `${e.exam_type.replace(/([A-Z])/g, " $1").trim()}${
+        label: `${getExamTypeLabel(e.exam_type)}${
           e.date ? ` · ${e.date}` : ""
         }`,
       }));

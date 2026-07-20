@@ -36,7 +36,7 @@ import NoticesPage from "../pages/student/NoticesPage";
 import AssignmentsPage from "../pages/student/AssignmentsPage";
 import NotificationsPage from "../pages/student/NotificationsPage";
 import MarksPage from "../pages/student/MarksPage";
-import StudentExams from "../pages/student/StudentExams";
+import StudentExams from "../pages/student/Exams";
 import StudentAttendance from "../pages/student/StudentAttendance";
 
 function AdminRoutes() {

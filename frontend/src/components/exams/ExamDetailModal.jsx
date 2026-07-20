@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X, Calendar, Clock, MapPin, Hash, GraduationCap, CheckCircle2, Bookmark, Activity } from "lucide-react";
+import { X, Calendar, Clock, MapPin, Hash, CheckCircle2, Bookmark, Activity } from "lucide-react";
 import { getExamTypeLabel } from "../../constants/examConstants";
 
 function formatTime(time) {
@@ -24,10 +24,9 @@ const statusConfig = {
   CANCELLED: { label: "Cancelled", className: "text-red-400 bg-red-500/10 border-red-500/25" },
 };
 
-export default function ExamDetailsModal({ exam, subjects = [], onClose }) {
+export default function ExamDetailModal({ exam, onClose }) {
   if (!exam) return null;
 
-  const subject = subjects.find(s => String(s.id) === String(exam.subject));
   const isCancelled = exam.status === "CANCELLED";
   const status = statusConfig[exam.status] || {
     label: exam.status || "Scheduled",
@@ -53,10 +52,11 @@ export default function ExamDetailsModal({ exam, subjects = [], onClose }) {
         {/* Header */}
         <div className="px-6 pt-6 pb-5 border-b border-neutral-800/50 flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-white">{exam.subject_name || subject?.name || "Unknown Subject"}</h2>
+            <h2 className="text-xl font-semibold text-white">{exam.subject_name || "Unknown Subject"}</h2>
             <div className="flex items-center gap-2 mt-2">
               <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md border flex items-center gap-1 ${status.className}`}>
-                <Activity size={10} /> {status.label}
+                <Activity size={10} />
+                {status.label}
               </span>
               <span className="text-[11px] font-medium text-neutral-400">{getExamTypeLabel(exam.exam_type)}</span>
             </div>
@@ -74,13 +74,13 @@ export default function ExamDetailsModal({ exam, subjects = [], onClose }) {
               <span className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest flex items-center gap-1.5">
                 <Hash size={12} className="text-indigo-400" /> Code
               </span>
-              <span className="text-sm font-medium text-neutral-200 font-mono mt-1 block">{exam.subject_code || subject?.subject_code || "N/A"}</span>
+              <span className="text-sm font-medium text-neutral-200 font-mono mt-1 block">{exam.subject_code || "—"}</span>
             </div>
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3.5">
               <span className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest flex items-center gap-1.5">
                 <Bookmark size={12} className="text-indigo-400" /> Semester
               </span>
-              <span className="text-sm font-medium text-neutral-200 mt-1 block">{exam.semester || subject?.semester ? `Sem ${exam.semester || subject?.semester}` : "—"}</span>
+              <span className="text-sm font-medium text-neutral-200 mt-1 block">{exam.semester ? `Sem ${exam.semester}` : "—"}</span>
             </div>
           </div>
 
@@ -100,7 +100,7 @@ export default function ExamDetailsModal({ exam, subjects = [], onClose }) {
             </div>
           </div>
 
-          {/* Max Marks & Original Date */}
+          {/* Marks & Original Date */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3.5">
               <span className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest flex items-center gap-1.5">
@@ -110,7 +110,7 @@ export default function ExamDetailsModal({ exam, subjects = [], onClose }) {
             </div>
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3.5">
               <span className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest flex items-center gap-1.5">
-                <GraduationCap size={12} className="text-violet-400" /> Original Date
+                <Calendar size={12} className="text-violet-400" /> Original Date
               </span>
               <span className="text-sm font-medium text-neutral-300 mt-1 block">{exam.original_date ? formatDate(exam.original_date, 'short') : "No Reschedule"}</span>
             </div>

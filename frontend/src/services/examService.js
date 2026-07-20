@@ -2,39 +2,62 @@ import axiosInstance from "./axiosInstance";
 
 const examService = {
   /**
-   * Get all exams for the HOD's department.
-   * GET /exams/
+   * Get all exams.
+   * GET /api/exams/
+   * @param {Object} params - Query parameters (e.g., filters)
    */
   async getExams(params = {}) {
     const { data } = await axiosInstance.get("/exams/", { params });
-    return Array.isArray(data) ? data : data.results || data.data || [];
+    return data;
+  },
+
+  /**
+   * Get a specific exam by ID.
+   * GET /api/exams/:id/
+   * @param {number|string} id - The exam ID
+   */
+  async getExam(id) {
+    const { data } = await axiosInstance.get(`/exams/${id}/`);
+    return data;
   },
 
   /**
    * Create a new exam.
-   * POST /exams/
+   * POST /api/exams/
+   * @param {Object} examData - The exam payload
    */
-  async createExam(payload) {
-    const { data } = await axiosInstance.post("/exams/", payload);
+  async createExam(examData) {
+    const { data } = await axiosInstance.post("/exams/", examData);
     return data;
   },
 
   /**
    * Update an existing exam.
-   * PUT /exams/:id/
+   * PUT /api/exams/:id/
+   * @param {number|string} id - The exam ID
+   * @param {Object} examData - The exam payload
    */
-  async updateExam(id, payload) {
-    const { data } = await axiosInstance.put(`/exams/${id}/`, payload);
+  async updateExam(id, examData) {
+    const { data } = await axiosInstance.put(`/exams/${id}/`, examData);
     return data;
   },
 
   /**
-   * Delete an exam.
-   * DELETE /exams/:id/
+   * Cancel (delete) an exam.
+   * DELETE /api/exams/:id/
+   * @param {number|string} id - The exam ID
    */
-  async deleteExam(id) {
+  async cancelExam(id) {
     const { data } = await axiosInstance.delete(`/exams/${id}/`);
     return data;
+  },
+
+  /**
+   * Delete an exam (alias to cancelExam for backward compatibility in components).
+   * @param {number|string} id - The exam ID
+   */
+  async deleteExam(id) {
+    return this.cancelExam(id);
   }
 };
 

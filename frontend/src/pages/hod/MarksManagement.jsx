@@ -73,7 +73,6 @@ export default function MarksManagement() {
     let cancelled = false;
     const load = async () => {
       try {
-        setLoadingSubjects(true);
         const data = await marksService.getSubjects();
         if (!cancelled) setSubjects(data);
       } catch (err) {
@@ -85,17 +84,22 @@ export default function MarksManagement() {
         if (!cancelled) setLoadingSubjects(false);
       }
     };
-    load();
+    const timer = setTimeout(() => {
+      load();
+    }, 0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, []);
 
   // ── Load exams when subject changes ─────────────────────────────────────────
   useEffect(() => {
     if (!selectedSubject) {
-      setExams([]);
-      return;
+      const timer = setTimeout(() => {
+        setExams([]);
+      }, 0);
+      return () => clearTimeout(timer);
     }
     let cancelled = false;
     const load = async () => {
@@ -109,25 +113,27 @@ export default function MarksManagement() {
         }
       }
     };
-    load();
+    const timer = setTimeout(() => {
+      load();
+    }, 0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [selectedSubject]);
 
   // ── Load students + existing marks when exam changes ────────────────────────
   useEffect(() => {
     if (!selectedExam) {
-      setStudents([]);
-      setMarksMap({});
-      return;
+      const timer = setTimeout(() => {
+        setStudents([]);
+        setMarksMap({});
+      }, 0);
+      return () => clearTimeout(timer);
     }
     let cancelled = false;
 
     const load = async () => {
-      setLoadingStudents(true);
-      setError("");
-
       try {
         // Fetch students and trigger draft to get existing marks
         const [studentList, savedMarks] = await Promise.all([
@@ -164,9 +170,14 @@ export default function MarksManagement() {
       }
     };
 
-    load();
+    const timer = setTimeout(() => {
+      setLoadingStudents(true);
+      setError("");
+      load();
+    }, 0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [selectedExam]);
 

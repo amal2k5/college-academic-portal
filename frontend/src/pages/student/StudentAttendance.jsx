@@ -50,10 +50,9 @@ export default function StudentAttendance() {
 
   const loadAttendance = async () => {
     try {
-      setLoading(true);
-      setError("");
       const data = await attendanceService.getStudentAttendance();
       setAttendance(data);
+      setError("");
     } catch (err) {
       console.error("Failed to load attendance:", err);
       setError("Failed to load your attendance. Please try again later.");
@@ -64,7 +63,10 @@ export default function StudentAttendance() {
   };
 
   useEffect(() => {
-    loadAttendance();
+    const timer = setTimeout(() => {
+      loadAttendance();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Compute statistics with null-safe logic
@@ -170,7 +172,7 @@ export default function StudentAttendance() {
             <AlertCircle size={22} className="text-red-400" />
           </div>
           <p className="text-sm text-red-400 mb-4">{error}</p>
-          <button onClick={loadAttendance} className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg text-xs font-semibold transition-colors border border-neutral-700">
+          <button onClick={() => { setLoading(true); setError(""); loadAttendance(); }} className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg text-xs font-semibold transition-colors border border-neutral-700">
             <RefreshCw size={12} /> Retry
           </button>
         </motion.div>

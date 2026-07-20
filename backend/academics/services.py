@@ -410,6 +410,21 @@ def get_student_marks(user):
     )
 
 
+def get_exam_marks(*, exam_id, user):
+    department = user.hodprofile.department
+    return (
+        Marks.objects.filter(
+            exam_id=exam_id,
+            exam__department=department,
+        )
+        .select_related(
+            "student__user",
+            "subject",
+        )
+        .order_by("student__roll_number")
+    )
+
+
 # =====================================================================
 # CLEANED EXAM SERVICES (PART 1 & PART 2 COMPLETED)
 # =====================================================================

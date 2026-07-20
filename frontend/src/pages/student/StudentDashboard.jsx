@@ -2,10 +2,10 @@ import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  Calendar, Clock, MapPin, Activity, ChevronRight, UserCheck, 
-  AlertTriangle, FileText, Bell, Inbox, Award, Hourglass, RefreshCw
+  Calendar, Clock, MapPin, Activity, ChevronRight, UserCheck,
+  AlertTriangle, FileText, Bell, Inbox, Award, Hourglass, RefreshCw,
+  TrendingUp, BookOpen
 } from "lucide-react";
-
 import { getStudentProfile } from "../../services/studentService";
 import examService from "../../services/examService";
 import attendanceService from "../../services/attendanceService";
@@ -13,43 +13,42 @@ import marksService from "../../services/marksService";
 import assignmentService from "../../services/assignmentService";
 import noticeService from "../../services/noticeService";
 import notificationService from "../../services/notificationService";
-
+import { getExamTypeLabel } from "../../constants/examConstants";
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
 
-// ── Animation variants ──────────────────────────────────────────────────────────
 const ease = [0.22, 1, 0.36, 1];
-
 const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease } },
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease } },
 };
-
 const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+  visible: { transition: { staggerChildren: 0.05 } },
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────
+const formatTime = (time) => {
+  if (!time) return "N/A";
+  const [hours, minutes] = time.split(':').map(Number);
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const hour12 = hours % 12 || 12;
+  return `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+};
+
 const getCountdown = (dateStr, timeStr) => {
   if (!dateStr || !timeStr) return null;
   const dateTimeStr = `${dateStr}T${timeStr.length === 5 ? timeStr + ':00' : timeStr}`;
   const examDateTime = new Date(dateTimeStr);
   if (isNaN(examDateTime.getTime())) return null;
-
   const diff = examDateTime - new Date();
   if (diff < 0) return null;
-
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((diff / 1000 / 60) % 60);
-  
-  if (days > 0) return `in ${days}d ${hours}h`;
-  if (hours > 0) return `in ${hours}h ${minutes}m`;
-  return `in ${minutes}m`;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h`;
+  return "Soon";
 };
 
 const getSubjectName = (item) => {
-  if(!item) return "Unknown Subject";
+  if (!item) return "Unknown Subject";
   return item.subject_name || item.subject?.name || item.subject || "Unknown Subject";
 };
 
@@ -68,16 +67,7 @@ function StudentDashboard() {
     try {
       setLoading(true);
       setError("");
-      
-      const [
-        profileData,
-        examsData,
-        attendanceData,
-        marksData,
-        assignmentsData,
-        noticesData,
-        unreadNotifications
-      ] = await Promise.all([
+      const [profileData, examsData, attendanceData, marksData, assignmentsData, noticesData, unreadNotifications] = await Promise.all([
         getStudentProfile().catch(() => null),
         examService.getExams().catch(() => []),
         attendanceService.getStudentAttendance().catch(() => []),
@@ -87,124 +77,81 @@ function StudentDashboard() {
         notificationService.getUnreadCount().catch(() => 0),
       ]);
 
-      if (profileData && Object.keys(profileData).length > 0) {
-        setStudent(profileData);
-      } else {
-        setError("No profile data found.");
-      }
-      
+      if (profileData && Object.keys(profileData).length > 0) setStudent(profileData);
+      else setError("No profile data found.");
       setExams(Array.isArray(examsData) ? examsData : []);
       setAttendance(Array.isArray(attendanceData) ? attendanceData : []);
       setMarks(Array.isArray(marksData) ? marksData : []);
-      
-      const asgmts = Array.isArray(assignmentsData) ? assignmentsData : (assignmentsData?.results || []);
-      setAssignments(asgmts);
-      
-      const nts = Array.isArray(noticesData) ? noticesData : (noticesData?.results || []);
-      setNotices(nts);
-      
+      setAssignments(Array.isArray(assignmentsData) ? assignmentsData : (assignmentsData?.results || []));
+      setNotices(Array.isArray(noticesData) ? noticesData : (noticesData?.results || []));
       setUnreadCount(unreadNotifications || 0);
-
     } catch (err) {
-      setError(err.message || "Failed to load dashboard data. Please try again.");
+      setError(err.message || "Failed to load dashboard data.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  // ── Derived State ────────────────────────────────────────────────────────────
   const attendancePercentage = useMemo(() => {
-    if (!attendance || attendance.length === 0) return null;
-    let present = 0;
-    let total = 0;
-    
+    if (!attendance?.length) return null;
+    let present = 0, total = 0;
     attendance.forEach(record => {
-      if (typeof record.present_classes === 'number' && typeof record.total_classes === 'number') {
+      if (record.present_classes != null && record.total_classes != null) {
         present += record.present_classes;
         total += record.total_classes;
       } else if (record.status) {
-        if (record.status.toLowerCase() === 'present' || record.status.toLowerCase() === 'p') present++;
+        if (['present', 'p'].includes(record.status.toLowerCase())) present++;
         total++;
       }
     });
-    
-    if (total === 0) return 0;
-    return Math.round((present / total) * 100);
+    return total === 0 ? 0 : Math.round((present / total) * 100);
   }, [attendance]);
 
   const activeAssignments = useMemo(() => {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    return assignments.filter(a => {
-      if(!a.deadline) return true;
-      return new Date(a.deadline) >= today;
-    });
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return assignments.filter(a => !a.deadline || new Date(a.deadline) >= today);
   }, [assignments]);
 
   const nextExam = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
     const upcoming = exams.filter(e => {
-      if(!e.date) return true;
-      const d = new Date(e.date);
-      d.setHours(0,0,0,0);
+      if (!e.exam_date) return true;
+      const d = new Date(e.exam_date); d.setHours(0, 0, 0, 0);
       return d >= today;
-    });
-    upcoming.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
-    return upcoming.length > 0 ? upcoming[0] : null;
+    }).sort((a, b) => new Date(a.exam_date || 0) - new Date(b.exam_date || 0));
+    return upcoming[0] || null;
   }, [exams]);
 
-  const latestMark = useMemo(() => {
-    if (!marks || marks.length === 0) return null;
-    return marks[0];
-  }, [marks]);
+  const latestMark = useMemo(() => marks?.[0] || null, [marks]);
 
-  // ── Render Helpers ──────────────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 gap-5">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-6 h-6 rounded-full border-2 border-neutral-800 border-t-indigo-400"
-        />
-        <p className="text-[11px] text-neutral-500 tracking-[0.2em] uppercase">
-          Loading dashboard
-        </p>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 gap-4">
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-8 h-8 border-2 border-neutral-800 border-t-indigo-500" />
+      <p className="text-xs text-neutral-500 tracking-widest uppercase">Loading Dashboard</p>
+    </div>
+  );
 
-  if (error || !student) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-6">
-        <div className="w-full max-w-sm p-6 bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col items-center text-center gap-4">
-          <p className="text-sm text-rose-400 tracking-wide">
-            {error || "No dashboard data available."}
-          </p>
-          <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-xl text-xs font-semibold transition-colors">
-            <RefreshCw size={14} /> Try Again
-          </button>
-        </div>
+  if (error || !student) return (
+    <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-6">
+      <div className="w-full max-w-sm p-8 bg-neutral-900 border border-neutral-800 flex flex-col items-center text-center gap-4">
+        <AlertTriangle className="text-rose-500 w-10 h-10 mb-2" />
+        <p className="text-sm text-neutral-300">{error || "No data available."}</p>
+        <button onClick={fetchData} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold uppercase tracking-wider transition-colors">
+          Retry
+        </button>
       </div>
-    );
-  }
+    </div>
+  );
 
   const s = student;
   const fullName = `${s.first_name || ""} ${s.last_name || ""}`.trim() || "Student";
-  const countdown = nextExam ? getCountdown(nextExam.date, nextExam.time) : null;
+  const countdown = nextExam ? getCountdown(nextExam.exam_date, nextExam.start_time) : null;
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={stagger}
-      className="min-h-screen bg-neutral-950 antialiased p-4 md:p-6 lg:p-10 max-w-[1400px] mx-auto space-y-8"
-    >
+    <motion.div initial="hidden" animate="visible" variants={stagger} className="min-h-screen bg-neutral-950 text-neutral-200 p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+
       <ProfileSummaryCard
         role="STUDENT"
         collegeName={s.college_name}
@@ -214,237 +161,195 @@ function StudentDashboard() {
         semester={s.semester}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* ── LEFT COLUMN ── */}
-        <div className="lg:col-span-8 space-y-6">
-          
-          {/* Welcome Banner */}
-          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 sm:p-8 overflow-hidden relative shadow-lg shadow-black/20">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-wide">
-              Welcome back, <span className="text-indigo-400">{s.first_name || "Student"}</span>!
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* ── LEFT COLUMN (2/3) ── */}
+        <div className="lg:col-span-2 space-y-6">
+
+          <motion.div variants={fadeUp} className="relative overflow-hidden bg-neutral-900 border border-neutral-800 p-6">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <h1 className="text-2xl font-bold text-white">
+              Welcome back, <span className="text-indigo-400">{s.first_name}</span>
             </h1>
-            <p className="text-sm text-neutral-400 mt-2">
-              Here's your academic overview for today.
+            <p className="text-neutral-400 mt-1 text-sm">
+              {activeAssignments.length} pending · {exams.length} exams scheduled
             </p>
           </motion.div>
 
-          {/* Mini Stats Grid */}
-          <motion.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="p-2.5 bg-blue-500/10 rounded-xl mb-3">
-                <FileText size={18} className="text-blue-400" />
-              </div>
-              <p className="text-2xl font-bold text-neutral-100">{activeAssignments.length}</p>
-              <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest mt-1">Active Assignments</p>
-            </motion.div>
-            <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="p-2.5 bg-amber-500/10 rounded-xl mb-3">
-                <Bell size={18} className="text-amber-400" />
-              </div>
-              <p className="text-2xl font-bold text-neutral-100">{notices.length}</p>
-              <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest mt-1">Total Notices</p>
-            </motion.div>
-            <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="p-2.5 bg-purple-500/10 rounded-xl mb-3">
-                <Inbox size={18} className="text-purple-400" />
-              </div>
-              <p className="text-2xl font-bold text-neutral-100">{unreadCount}</p>
-              <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest mt-1">Unread Alerts</p>
-            </motion.div>
-            <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="p-2.5 bg-indigo-500/10 rounded-xl mb-3">
-                <Calendar size={18} className="text-indigo-400" />
-              </div>
-              <p className="text-2xl font-bold text-neutral-100">{exams.length}</p>
-              <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest mt-1">Total Exams</p>
-            </motion.div>
+          <motion.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Assignments", value: activeAssignments.length, icon: FileText, color: "blue" },
+              { label: "Notices", value: notices.length, icon: Bell, color: "amber" },
+              { label: "Alerts", value: unreadCount, icon: Inbox, color: "purple" },
+              { label: "Exams", value: exams.length, icon: Calendar, color: "indigo" },
+            ].map((stat, idx) => (
+              <motion.div key={idx} variants={fadeUp} className="bg-neutral-900 border border-neutral-800 p-4 text-center group hover:border-neutral-700 transition-colors">
+                <div className={`p-2 bg-${stat.color}-500/10 text-${stat.color}-400 inline-block mb-2`}>
+                  <stat.icon size={18} />
+                </div>
+                <p className="text-xl font-bold text-white">{stat.value}</p>
+                <p className="text-[9px] font-semibold text-neutral-500 uppercase tracking-wider">{stat.label}</p>
+              </motion.div>
+            ))}
           </motion.div>
 
-          {/* Latest Published Marks */}
-          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col overflow-hidden">
-            <div className="h-[3px] w-full bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600" />
-            <div className="p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-5 pb-4 border-b border-neutral-800">
+          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 overflow-hidden">
+            <div className="h-0.5 w-full bg-gradient-to-r from-emerald-500 to-emerald-600" />
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Award size={18} className="text-emerald-400" />
-                  <h2 className="text-xs font-bold text-neutral-200 uppercase tracking-widest">Latest Published Marks</h2>
+                  <Award size={16} className="text-emerald-400" />
+                  <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Latest Result</h2>
                 </div>
-                <Link to="/student/marks" className="text-[10px] font-semibold uppercase text-neutral-500 hover:text-emerald-400 transition-colors flex items-center gap-1">
+                <Link to="/student/marks" className="text-[9px] font-medium text-neutral-500 hover:text-emerald-400 transition-colors flex items-center gap-0.5">
                   View All <ChevronRight size={12} />
                 </Link>
               </div>
-              
+
               {latestMark ? (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-neutral-800/30 rounded-xl border border-neutral-800/50 gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-neutral-800/30 border border-neutral-800">
                   <div>
-                    <p className="text-base font-semibold text-neutral-100">{getSubjectName(latestMark)}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                        {latestMark.exam_type?.replace(/([A-Z])/g, " $1").trim() || "Exam"}
+                    <p className="text-sm font-semibold text-white">{getSubjectName(latestMark)}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                        {latestMark.subject_code || "N/A"}
                       </span>
-                      {latestMark.semester && (
-                        <span className="text-[10px] font-semibold text-neutral-400 bg-neutral-800 border border-neutral-700 px-2 py-0.5 rounded">
-                          Sem {latestMark.semester}
-                        </span>
-                      )}
+                      <span className="text-[9px] font-medium text-neutral-400 bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700">
+                        {getExamTypeLabel(latestMark.exam_type)}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center sm:text-right gap-6 sm:gap-4">
+                  <div className="flex items-center gap-6">
                     <div>
-                      <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest mb-0.5">Score</p>
-                      <p className="text-2xl font-bold text-emerald-400">
+                      <p className="text-[8px] text-neutral-500 uppercase tracking-wider">Score</p>
+                      <p className="text-xl font-bold text-emerald-400">
                         {latestMark.obtained_marks ?? latestMark.marks ?? "—"}
-                        <span className="text-sm text-neutral-500 font-medium"> / {latestMark.maximum_marks || 100}</span>
+                        <span className="text-sm text-neutral-500 font-medium ml-1">/ {latestMark.maximum_marks || 100}</span>
                       </p>
                     </div>
                     {latestMark.grade && (
-                      <div className="pl-6 border-l border-neutral-700">
-                        <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-widest mb-0.5">Grade</p>
-                        <p className="text-2xl font-bold text-white">{latestMark.grade}</p>
+                      <div className="pl-4 border-l border-neutral-700">
+                        <p className="text-[8px] text-neutral-500 uppercase tracking-wider">Grade</p>
+                        <p className="text-xl font-bold text-white">{latestMark.grade}</p>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
-                <div className="py-8 flex flex-col items-center justify-center text-center border border-dashed border-neutral-800 rounded-xl bg-neutral-900/30">
-                  <Award size={24} className="text-neutral-700 mb-3" />
-                  <p className="text-sm font-medium text-neutral-400">No marks published yet</p>
+                <div className="py-6 text-center border border-dashed border-neutral-800">
+                  <BookOpen size={20} className="text-neutral-700 mx-auto mb-2" />
+                  <p className="text-sm text-neutral-400">No results published</p>
                 </div>
               )}
             </div>
           </motion.div>
-
         </div>
 
-        {/* ── RIGHT COLUMN ── */}
-        <div className="lg:col-span-4 space-y-6">
-          
-          {/* Attendance Widget */}
-          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col overflow-hidden relative shadow-lg shadow-black/20">
-            <div className="h-[3px] w-full bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-600 relative z-10" />
-            <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-            
-            <div className="p-6 flex flex-col items-center justify-center relative z-10">
-              <div className="w-full flex items-center justify-between mb-6 pb-4 border-b border-neutral-800">
+        {/* ── RIGHT COLUMN (1/3) ── */}
+        <div className="space-y-6">
+
+          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 overflow-hidden">
+            <div className="h-0.5 w-full bg-gradient-to-r from-cyan-500 to-cyan-600" />
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <UserCheck size={16} className="text-cyan-400" />
-                  <h2 className="text-xs font-bold text-neutral-200 uppercase tracking-widest">Attendance</h2>
+                  <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Attendance</h2>
                 </div>
-                <Link to="/student/attendance" className="text-[10px] text-neutral-500 hover:text-cyan-400 uppercase font-semibold tracking-widest transition-colors">Details</Link>
+                <Link to="/student/attendance" className="text-[9px] text-neutral-500 hover:text-cyan-400 transition-colors">Details</Link>
               </div>
 
               {attendancePercentage !== null ? (
-                <>
-                  <div className="relative w-36 h-36 flex items-center justify-center mb-6">
-                    <svg className="w-full h-full transform -rotate-90 filter drop-shadow-lg">
-                      <circle cx="72" cy="72" r="62" className="text-neutral-800 stroke-current" strokeWidth="12" fill="transparent" />
-                      <circle 
-                        cx="72" cy="72" r="62" 
-                        className={`${attendancePercentage >= 75 ? 'text-cyan-400' : 'text-rose-500'} stroke-current transition-all duration-1000 ease-out`} 
-                        strokeWidth="12" fill="transparent" 
-                        strokeDasharray={389.5} 
-                        strokeDashoffset={389.5 - (389.5 * attendancePercentage) / 100} 
-                        strokeLinecap="round" 
+                <div className="flex flex-col items-center">
+                  <div className="relative w-32 h-32 mb-4">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="64" cy="64" r="56" className="text-neutral-800 stroke-current" strokeWidth="8" fill="transparent" />
+                      <circle
+                        cx="64" cy="64" r="56"
+                        className={`${attendancePercentage >= 75 ? 'text-cyan-400' : 'text-rose-500'} stroke-current transition-all duration-1000`}
+                        strokeWidth="8" fill="transparent"
+                        strokeDasharray={351.8}
+                        strokeDashoffset={351.8 - (351.8 * attendancePercentage) / 100}
+                        strokeLinecap="round"
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-3xl font-bold text-white">{attendancePercentage}%</span>
-                      <span className="text-[9px] font-semibold text-neutral-500 uppercase tracking-widest mt-1">Overall</span>
+                      <span className="text-2xl font-bold text-white">{attendancePercentage}%</span>
+                      <span className="text-[8px] text-neutral-500 uppercase tracking-wider mt-0.5">Present</span>
                     </div>
                   </div>
-                  
-                  {attendancePercentage < 75 && (
-                    <div className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-                      <AlertTriangle size={14} className="text-rose-400" />
-                      <span className="text-xs font-semibold text-rose-300">Below 75% Requirement</span>
-                    </div>
-                  )}
-                  {attendancePercentage >= 75 && (
-                    <div className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-cyan-500/5 border border-cyan-500/10 rounded-xl">
-                      <span className="text-xs font-semibold text-cyan-400/80">On track with requirements</span>
-                    </div>
-                  )}
-                </>
+
+                  <div className={`w-full p-2 border text-center text-xs font-medium ${attendancePercentage < 75 ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-cyan-500/5 border-cyan-500/20 text-cyan-400'}`}>
+                    {attendancePercentage < 75 ? "⚠ Below 75%" : "✓ Good Standing"}
+                  </div>
+                </div>
               ) : (
-                <div className="py-12 flex flex-col items-center justify-center text-center w-full">
-                  <UserCheck size={32} className="text-neutral-700 mb-3" />
-                  <p className="text-sm font-medium text-neutral-400">No attendance data</p>
+                <div className="py-8 text-center">
+                  <UserCheck size={28} className="text-neutral-700 mx-auto mb-2" />
+                  <p className="text-sm text-neutral-400">No records</p>
                 </div>
               )}
             </div>
           </motion.div>
 
-          {/* Upcoming Exam Widget */}
-          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col overflow-hidden shadow-lg shadow-black/20">
-            <div className="h-[3px] w-full bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600" />
-            <div className="p-6 flex flex-col flex-1">
-              <div className="flex items-center justify-between mb-5 pb-4 border-b border-neutral-800">
-                <div className="flex items-center gap-2">
-                  <Activity size={16} className="text-indigo-400" />
-                  <h2 className="text-xs font-bold text-neutral-200 uppercase tracking-widest">Next Examination</h2>
-                </div>
+          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 overflow-hidden">
+            <div className="h-0.5 w-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+            <div className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Activity size={16} className="text-indigo-400" />
+                <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Next Exam</h2>
               </div>
-              
-              <div className="flex-1">
-                {nextExam ? (
-                  <div className="space-y-5">
-                    <div>
-                      <p className="text-base font-semibold text-white leading-snug mb-2">
-                        {nextExam.subject_name || "Unknown Subject"}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {nextExam.subject_code && (
-                          <span className="text-[10px] font-mono font-medium text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
-                            {nextExam.subject_code}
-                          </span>
-                        )}
-                        <span className="text-[10px] font-semibold text-neutral-300 bg-neutral-800 border border-neutral-700 px-2 py-0.5 rounded">
-                          {nextExam.exam_type?.replace(/([A-Z])/g, " $1").trim() || "Exam"}
+
+              {nextExam ? (
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{nextExam.subject_name || "Unknown"}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      {nextExam.subject_code && (
+                        <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                          {nextExam.subject_code}
                         </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 bg-neutral-800/40 rounded-xl p-4 border border-neutral-800/60">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-[13px] text-neutral-300">
-                          <Calendar size={14} className="text-neutral-500" />
-                          <span className="font-medium">
-                            {new Date(nextExam.date).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' })}
-                          </span>
-                        </div>
-                        {countdown && (
-                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md border border-indigo-500/20">
-                            <Hourglass size={10} />
-                            {countdown}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-[13px] text-neutral-300">
-                        <Clock size={14} className="text-neutral-500" />
-                        <span>{nextExam.time?.substring(0, 5)} <span className="text-neutral-500 px-1">•</span> {nextExam.duration}m</span>
-                      </div>
-                      <div className="flex items-start gap-2 text-[13px] text-neutral-300">
-                        <MapPin size={14} className="text-neutral-500 mt-0.5 shrink-0" />
-                        <span className="truncate">{nextExam.venue || "TBA"}</span>
-                      </div>
+                      )}
+                      <span className="text-[9px] text-neutral-300 bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700">
+                        {getExamTypeLabel(nextExam.exam_type)}
+                      </span>
                     </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-10 text-center space-y-3 border border-dashed border-neutral-800 rounded-xl bg-neutral-900/30">
-                    <Calendar size={24} className="text-neutral-700" />
-                    <p className="text-sm font-medium text-neutral-400">No upcoming exams</p>
-                    <p className="text-[10px] text-neutral-600 px-6">Enjoy your break! We'll notify you when new exams are scheduled.</p>
-                  </div>
-                )}
-              </div>
 
-              <Link to="/student/exams" className="mt-5 pt-4 border-t border-neutral-800 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-indigo-400 hover:text-indigo-300 transition-colors group">
-                View all exams
-                <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
+                  <div className="space-y-2 bg-neutral-800/30 p-3 border border-neutral-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-neutral-300">
+                        <Calendar size={13} className="text-neutral-500" />
+                        <span>{new Date(nextExam.exam_date).toLocaleDateString("en-US", { month: 'short', day: 'numeric', weekday: 'short' })}</span>
+                      </div>
+                      {countdown && (
+                        <span className="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                          ⏱ {countdown}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-neutral-300">
+                      <Clock size={13} className="text-neutral-500" />
+                      <span>{formatTime(nextExam.start_time)} – {formatTime(nextExam.end_time)}</span>
+                    </div>
+
+                    <div className="flex items-start gap-2 text-xs text-neutral-300">
+                      <MapPin size={13} className="text-neutral-500 mt-0.5 shrink-0" />
+                      <span className="truncate">{nextExam.venue || "TBA"}</span>
+                    </div>
+                  </div>
+
+                  <Link to="/student/exams" className="block text-center text-[9px] font-medium text-indigo-400 hover:text-indigo-300 transition-colors pt-2 border-t border-neutral-800">
+                    View Schedule →
+                  </Link>
+                </div>
+              ) : (
+                <div className="py-6 text-center border border-dashed border-neutral-800">
+                  <Calendar size={20} className="text-neutral-700 mx-auto mb-2" />
+                  <p className="text-sm text-neutral-400">No upcoming exams</p>
+                </div>
+              )}
             </div>
           </motion.div>
 

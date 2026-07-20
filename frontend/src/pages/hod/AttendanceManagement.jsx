@@ -9,7 +9,7 @@ import PageHeader from "../../components/common/PageHeader";
 
 import AttendanceForm from "../../components/attendance/AttendanceForm";
 import AttendanceTable from "../../components/attendance/AttendanceTable";
-import { GraduationCap, BookOpen, Users, Calendar, Info } from "lucide-react";
+import { GraduationCap, BookOpen, Users, Info } from "lucide-react";
 
 const stagger = {
   hidden: {},
@@ -65,7 +65,6 @@ export default function AttendanceManagement() {
     let cancelled = false;
     const load = async () => {
       try {
-        setLoadingSubjects(true);
         const data = await attendanceService.getSubjects();
         if (!cancelled) setSubjects(data);
       } catch (err) {
@@ -77,24 +76,26 @@ export default function AttendanceManagement() {
         if (!cancelled) setLoadingSubjects(false);
       }
     };
-    load();
+    const timer = setTimeout(() => {
+      load();
+    }, 0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, []);
 
   // Load students when semester/subject changes
   useEffect(() => {
     if (!selectedSemester || !selectedSubject) {
-      setStudents([]);
-      return;
+      const timer = setTimeout(() => {
+        setStudents([]);
+      }, 0);
+      return () => clearTimeout(timer);
     }
     let cancelled = false;
 
     const load = async () => {
-      setLoadingStudents(true);
-      setError("");
-
       try {
         const studentList = await getStudents();
         const list = studentList?.results ?? (Array.isArray(studentList) ? studentList : []);
@@ -112,22 +113,28 @@ export default function AttendanceManagement() {
       }
     };
 
-    load();
+    const timer = setTimeout(() => {
+      setLoadingStudents(true);
+      setError("");
+      load();
+    }, 0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [selectedSemester, selectedSubject]);
 
   // Load attendance when subject/date changes
   useEffect(() => {
     if (!selectedSubject || !selectedDate) {
-      setAttendanceRecords([]);
-      return;
+      const timer = setTimeout(() => {
+        setAttendanceRecords([]);
+      }, 0);
+      return () => clearTimeout(timer);
     }
     let cancelled = false;
 
     const load = async () => {
-      setLoadingAttendance(true);
       try {
         const savedAttendance = await attendanceService.getClassAttendance(Number(selectedSubject), selectedDate);
         if (!cancelled) setAttendanceRecords(savedAttendance);
@@ -141,9 +148,13 @@ export default function AttendanceManagement() {
       }
     };
 
-    load();
+    const timer = setTimeout(() => {
+      setLoadingAttendance(true);
+      load();
+    }, 0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [selectedSubject, selectedDate]);
 
@@ -156,7 +167,10 @@ export default function AttendanceManagement() {
     attendanceRecords.forEach((a) => {
       newMap[String(a.student)] = { status: a.status };
     });
-    setAttendanceMap(newMap);
+    const timer = setTimeout(() => {
+      setAttendanceMap(newMap);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [students, attendanceRecords]);
 
   // Counts

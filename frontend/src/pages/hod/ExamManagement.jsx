@@ -1,18 +1,21 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { Search, ChevronDown, RefreshCw, AlertCircle, Calendar, GraduationCap, X, Clock } from "lucide-react";
+import { Search, ChevronDown, RefreshCw, AlertCircle, Calendar, GraduationCap, X, Clock, BookOpen, CheckCircle2 } from "lucide-react";
 
 import examService from "../../services/examService";
 import subjectService from "../../services/subjectService";
 import PageHeader from "../../components/common/PageHeader";
-import ConfirmModal from "../../components/common/ConfirmModal";
 import ExamTable from "../../components/exams/ExamTable";
-import ExamForm, { EXAM_TYPES } from "../../components/exams/ExamForm";
+import ExamForm from "../../components/exams/ExamForm";
 import ExamDetailsModal from "../../components/exams/ExamDetailsModal";
-import { BookOpen, CheckCircle2 } from "lucide-react";
+import DeleteExamDialog from "../../components/exams/DeleteExamDialog";
+import StudentExamCalendar from "../../components/exams/StudentExamCalendar";
+import StudentExamHistory from "../../components/exams/StudentExamHistory";
 
-// ── Animation variants ──────────────────────────────────────────────────────────
+import { EXAM_TYPES } from "../../constants/examConstants";
+
+// Animation variants
 const ease = [0.22, 1, 0.36, 1];
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -23,11 +26,10 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
 };
 
-// ── Loading Skeleton ────────────────────────────────────────────────────────────
+// Loading Skeleton
 function ExamSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-800/40 pb-6">
         <div>
           <div className="w-48 h-8 bg-neutral-800/50 rounded-xl mb-2" />
@@ -35,12 +37,10 @@ function ExamSkeleton() {
         </div>
         <div className="w-36 h-10 bg-neutral-800/50 rounded-xl" />
       </div>
-      {/* Toolbar */}
       <div className="flex gap-3">
         <div className="flex-1 h-10 bg-neutral-800/50 rounded-xl" />
         <div className="w-40 h-10 bg-neutral-800/50 rounded-xl" />
       </div>
-      {/* Table rows */}
       <div className="bg-neutral-900/50 rounded-xl border border-neutral-800/50 overflow-hidden">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="flex items-center gap-6 px-5 py-4 border-b border-neutral-800/30 last:border-0">
@@ -56,57 +56,77 @@ function ExamSkeleton() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN PAGE COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
 export default function ExamManagement() {
-  // ── Data state ──────────────────────────────────────────────────────────────
+  const isMounted = useRef(true);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Data state
   const [exams, setExams] = useState([]);
   const [subjects, setSubjects] = useState([]);
 
-  // ── UI state ────────────────────────────────────────────────────────────────
+  // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ── Modals state ────────────────────────────────────────────────────────────
+  // Modals state
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [viewTarget, setViewTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
-  // ── Filter state ────────────────────────────────────────────────────────────
+  // Filter state
   const [search, setSearch] = useState("");
   const [filterSubject, setFilterSubject] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterDate, setFilterDate] = useState("");
 
-  // ── Load data ───────────────────────────────────────────────────────────────
+  // Load data
   const loadData = useCallback(async () => {
-    setLoading(true);
-    setError("");
     try {
       const [examsData, subjectsData] = await Promise.all([
         examService.getExams(),
         subjectService.getSubjects(),
       ]);
-      setExams(Array.isArray(examsData) ? examsData : []);
-      setSubjects(Array.isArray(subjectsData) ? subjectsData : []);
+      if (isMounted.current) {
+        setExams(Array.isArray(examsData) ? examsData : []);
+        setSubjects(Array.isArray(subjectsData) ? subjectsData : []);
+        setError("");
+      }
     } catch (err) {
-      console.error("Failed to load data:", err);
-      setError("Failed to load exams. Please try again.");
-      toast.error("Failed to load exams.");
+      if (isMounted.current) {
+        console.error("Failed to load data:", err);
+        setError("Failed to load exams. Please try again.");
+        toast.error("Failed to load exams.");
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    loadData();
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loadData]);
 
-  // ── Filtered exams ──────────────────────────────────────────────────────────
+  const handleRetry = () => {
+    setLoading(true);
+    setError("");
+    loadData();
+  };
+
+  // Filtered exams
   const filteredExams = useMemo(() => {
     let list = exams;
 
@@ -117,62 +137,72 @@ export default function ExamManagement() {
       list = list.filter((e) => e.exam_type === filterType);
     }
     if (filterDate) {
-      list = list.filter((e) => e.date === filterDate);
+      list = list.filter((e) => e.exam_date === filterDate);
     }
     if (search.trim()) {
       const q = search.trim().toLowerCase();
-      list = list.filter(
-        (e) =>
-          (e.subject_name || "").toLowerCase().includes(q) ||
-          e.venue.toLowerCase().includes(q)
-      );
+      list = list.filter((e) => {
+        const sub = subjects.find((s) => String(s.id) === String(e.subject));
+        const subName = (e.subject_name || (sub ? sub.name : "")).toLowerCase();
+        const subCode = (e.subject_code || (sub ? sub.subject_code : "")).toLowerCase();
+        const venue = (e.venue || "").toLowerCase();
+        return subName.includes(q) || subCode.includes(q) || venue.includes(q);
+      });
     }
 
     return list;
-  }, [exams, search, filterSubject, filterType, filterDate]);
+  }, [exams, subjects, search, filterSubject, filterType, filterDate]);
 
-  // ── Stats Calculation ───────────────────────────────────────────────────────
+  // Stats Calculation
   const stats = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const total = exams.length;
+
+    const activeExams = exams.filter(e => e.status !== "CANCELLED");
+    const total = activeExams.length;
     let upcoming = 0;
     const uniqueSubjects = new Set();
 
-    exams.forEach(e => {
+    activeExams.forEach((e) => {
       uniqueSubjects.add(e.subject);
-      const d = new Date(e.date);
-      d.setHours(0, 0, 0, 0);
-      if (d >= today) upcoming++;
+      if (e.exam_date) {
+        const d = new Date(e.exam_date);
+        d.setHours(0, 0, 0, 0);
+        if (d >= today) upcoming++;
+      }
     });
 
     return {
       total,
       upcoming,
       completed: total - upcoming,
-      subjects: uniqueSubjects.size
+      subjects: uniqueSubjects.size,
     };
   }, [exams]);
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // Handlers
   const handleOpenCreate = () => {
     setEditTarget(null);
+    setFormErrors({});
     setShowForm(true);
   };
 
   const handleOpenEdit = (exam) => {
     setEditTarget(exam);
+    setFormErrors({});
     setShowForm(true);
   };
 
   const handleCloseForm = () => {
     if (submitting) return;
     setEditTarget(null);
+    setFormErrors({});
     setShowForm(false);
   };
 
   const handleFormSubmit = async (data) => {
     setSubmitting(true);
+    setFormErrors({});
     try {
       if (editTarget) {
         await examService.updateExam(editTarget.id, data);
@@ -182,43 +212,54 @@ export default function ExamManagement() {
         toast.success("Exam created successfully.");
       }
       await loadData();
-      handleCloseForm();
+      if (isMounted.current) {
+        handleCloseForm();
+      }
     } catch (err) {
       console.error("Exam save error:", err);
-      const detail =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        (typeof err.response?.data === "object"
-          ? Object.values(err.response.data).flat().join(" ")
-          : null) ||
-        "Failed to save exam. Please check the form.";
-      toast.error(detail);
+      if (isMounted.current) {
+        if (err.response && err.response.data && typeof err.response.data === "object") {
+          setFormErrors(err.response.data);
+        } else {
+          const detail =
+            err.response?.data?.detail ||
+            err.response?.data?.message ||
+            "Failed to save exam. Please check the form.";
+          toast.error(detail);
+        }
+      }
     } finally {
-      setSubmitting(false);
+      if (isMounted.current) {
+        setSubmitting(false);
+      }
     }
   };
 
-  const confirmDelete = async () => {
+  const confirmCancel = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      await examService.deleteExam(deleteTarget.id);
-      toast.success("Exam deleted successfully.");
+      await examService.cancelExam(deleteTarget.id);
+      toast.success("Exam marked as cancelled successfully.");
       await loadData();
-      setDeleteTarget(null);
+      if (isMounted.current) {
+        setDeleteTarget(null);
+      }
     } catch (err) {
-      console.error("Delete error:", err);
+      console.error("Cancel error:", err);
       toast.error(
         err.response?.data?.detail ||
         err.response?.data?.message ||
-        "Failed to delete exam."
+        "Failed to cancel exam."
       );
     } finally {
-      setIsDeleting(false);
+      if (isMounted.current) {
+        setIsDeleting(false);
+      }
     }
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // Render Loading
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto py-8 px-4 md:px-8">
@@ -227,6 +268,7 @@ export default function ExamManagement() {
     );
   }
 
+  // Render Error
   if (error && exams.length === 0) {
     return (
       <div className="max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-8">
@@ -240,7 +282,7 @@ export default function ExamManagement() {
           </div>
           <p className="text-sm text-red-400 mb-4">{error}</p>
           <button
-            onClick={loadData}
+            onClick={handleRetry}
             className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg text-xs font-semibold transition-colors border border-neutral-700"
           >
             <RefreshCw size={12} />
@@ -258,7 +300,7 @@ export default function ExamManagement() {
       variants={stagger}
       className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-8"
     >
-      {/* ── Page Header ────────────────────────────────────────────────────── */}
+      {/* Page Header */}
       <PageHeader
         title="Exam Management"
         subtitle="Manage upcoming assessments and examination schedules."
@@ -266,7 +308,7 @@ export default function ExamManagement() {
         onButtonClick={handleOpenCreate}
       />
 
-      {/* ── Statistics Grid ────────────────────────────────────────────────── */}
+      {/* Statistics Grid */}
       {exams.length > 0 && (
         <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 flex items-start gap-4">
@@ -308,11 +350,51 @@ export default function ExamManagement() {
         </motion.div>
       )}
 
-      {/* ── Toolbar ────────────────────────────────────────────────────────── */}
+      {/* Calendar Section */}
+      {exams.length > 0 && (
+        <motion.div variants={fadeUp} className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Exam Calendar</h3>
+              <p className="text-[10px] text-neutral-500">Visual overview of all scheduled examinations</p>
+            </div>
+            <span className="text-[9px] text-neutral-500 bg-neutral-900 px-2 py-1 rounded-md border border-neutral-800">
+              {exams.filter(e => e.status !== "CANCELLED").length} Active
+            </span>
+          </div>
+          <StudentExamCalendar exams={exams} onExamClick={setViewTarget} />
+        </motion.div>
+      )}
+
+      {/* Exam History Section */}
+      {exams.length > 0 && (
+        <motion.div variants={fadeUp} className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Exam History</h3>
+              <p className="text-[10px] text-neutral-500">Past examinations and their status</p>
+            </div>
+            <span className="text-[9px] text-neutral-500 bg-neutral-900 px-2 py-1 rounded-md border border-neutral-800">
+              {exams.filter(e => e.status === "CANCELLED" || new Date(e.exam_date) < new Date()).length} Past
+            </span>
+          </div>
+          <StudentExamHistory exams={exams} onExamClick={setViewTarget} />
+        </motion.div>
+      )}
+
+      {/* Toolbar (Search & Filters) */}
       {exams.length > 0 && (
         <motion.div variants={fadeUp} className="bg-neutral-900/70 border border-neutral-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-semibold text-white">Examination List</h4>
+              <p className="text-[10px] text-neutral-500">Manage all exams with advanced filtering</p>
+            </div>
+            <span className="text-[10px] text-neutral-400">{filteredExams.length} exams</span>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Search */}
+            {/* Search Input */}
             <div className="relative flex-1">
               <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500" />
               <input
@@ -332,7 +414,7 @@ export default function ExamManagement() {
               )}
             </div>
 
-            {/* Filters */}
+            {/* Subject Selector */}
             <div className="relative min-w-[160px]">
               <select
                 value={filterSubject}
@@ -349,6 +431,7 @@ export default function ExamManagement() {
               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none" />
             </div>
 
+            {/* Exam Type Selector */}
             <div className="relative min-w-[160px]">
               <select
                 value={filterType}
@@ -365,6 +448,7 @@ export default function ExamManagement() {
               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none" />
             </div>
 
+            {/* Date Input */}
             <div className="relative min-w-[160px]">
               <input
                 type="date"
@@ -377,7 +461,7 @@ export default function ExamManagement() {
         </motion.div>
       )}
 
-      {/* ── Empty State (No exams total) ───────────────────────────────────── */}
+      {/* Empty State (No exams scheduled at all) */}
       {exams.length === 0 && (
         <motion.div variants={fadeUp} className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center mb-5">
@@ -398,7 +482,7 @@ export default function ExamManagement() {
         </motion.div>
       )}
 
-      {/* ── Empty State (Filters applied) ──────────────────────────────────── */}
+      {/* Empty State (No exams match filters) */}
       {exams.length > 0 && filteredExams.length === 0 && (
         <motion.div variants={fadeUp} className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-14 h-14 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center mb-4">
@@ -411,17 +495,18 @@ export default function ExamManagement() {
         </motion.div>
       )}
 
-      {/* ── Exams List ─────────────────────────────────────────────────────── */}
+      {/* Exams Table / List */}
       {filteredExams.length > 0 && (
         <ExamTable
           exams={filteredExams}
+          subjects={subjects}
           onEdit={handleOpenEdit}
-          onDelete={setDeleteTarget}
+          onCancel={setDeleteTarget}
           onView={setViewTarget}
         />
       )}
 
-      {/* ── Form Modal ─────────────────────────────────────────────────────── */}
+      {/* Form Modal (Create / Edit) */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -452,11 +537,13 @@ export default function ExamManagement() {
               </div>
               <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-5">
                 <ExamForm
+                  key={editTarget ? editTarget.id : "create"}
                   initialData={editTarget}
                   subjects={subjects}
                   onSubmit={handleFormSubmit}
                   onCancel={handleCloseForm}
                   loading={submitting}
+                  backendErrors={formErrors}
                 />
               </div>
             </motion.div>
@@ -464,23 +551,20 @@ export default function ExamManagement() {
         )}
       </AnimatePresence>
 
-      {/* ── Delete Confirmation Modal ────────────────────────────────────── */}
-      <ConfirmModal
+      {/* Delete/Cancel Confirmation Modal */}
+      <DeleteExamDialog
         open={!!deleteTarget}
-        title="Delete Exam?"
-        message={`Are you sure you want to delete the exam schedule for "${deleteTarget?.subject_name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
         loading={isDeleting}
-        onConfirm={confirmDelete}
+        onConfirm={confirmCancel}
         onCancel={() => setDeleteTarget(null)}
       />
 
-      {/* ── View Details Modal ────────────────────────────────────────────── */}
+      {/* View Details Modal */}
       <AnimatePresence>
         {viewTarget && (
           <ExamDetailsModal
             exam={viewTarget}
+            subjects={subjects}
             onClose={() => setViewTarget(null)}
           />
         )}
