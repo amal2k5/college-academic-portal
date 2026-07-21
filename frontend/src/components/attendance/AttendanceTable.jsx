@@ -85,7 +85,7 @@ export default function AttendanceTable({
                           <X size={14} />
                           Absent
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => onAttendanceChange(student.id, "LEAVE")}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentStatus === "LEAVE"
                             ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
@@ -94,7 +94,7 @@ export default function AttendanceTable({
                         >
                           <Clock size={14} />
                           Leave
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </td>

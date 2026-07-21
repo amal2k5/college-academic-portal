@@ -264,11 +264,22 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # DJANGO CHANNELS
 # ==============================================================================
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [(config("REDIS_CACHE_URL", default="redis://127.0.0.1:6379/0").rsplit("/", 1)[0].replace("redis://", ""), 6379)],
+#         },
+#     },
+# }
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(config("REDIS_CACHE_URL", default="redis://127.0.0.1:6379/0").rsplit("/", 1)[0].replace("redis://", ""), 6379)],
+            "hosts": [
+                (config("REDIS_HOST"), config("REDIS_PORT", cast=int)),
+            ],
         },
     },
 }
