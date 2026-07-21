@@ -18,8 +18,12 @@ function HODLayout() {
     .slice(0, 2);
 
   const handleLogout = async () => {
-    await logoutUser();
-    navigate("/login", { replace: true });
+    try {
+      await logoutUser();
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (

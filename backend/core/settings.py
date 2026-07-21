@@ -2,7 +2,7 @@ from pathlib import Path
 from datetime import timedelta
 
 import cloudinary
-from decouple import config
+from decouple import config, Csv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -12,18 +12,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # ==============================================================================
 
-SECRET_KEY = 'django-insecure-*yk1b_t$sy93me6mh$16yspu9l6b!9_!d(ts!+1&tuskw3_g(q'
+SECRET_KEY = config("SECRET_KEY")
 
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS"
-).split(",")
-
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 # ==============================================================================
 # APPLICATIONS
 # ==============================================================================
+
 INSTALLED_APPS = [
     "daphne",
 
@@ -107,11 +105,11 @@ ASGI_APPLICATION = "core.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "college_portal",
-        "USER": "postgres",
-        "PASSWORD": "postgres123",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT"),
     }
 }
 
@@ -138,8 +136,8 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "dominicproject96@gmail.com"
-EMAIL_HOST_PASSWORD = "qnet dqxr akus exjw"
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -234,12 +232,9 @@ REST_FRAMEWORK = {
 # CORS
 # ==============================================================================
 
-CORS_ALLOWED_ORIGINS = config(
-    "CORS_ALLOWED_ORIGINS"
-).split(",")
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv())
 
 CORS_ALLOW_CREDENTIALS = True
-
 
 # ==============================================================================
 # SIMPLE JWT
@@ -273,32 +268,33 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [
-                ("127.0.0.1", 6379),
-            ],
+            "hosts": [(config("REDIS_CACHE_URL", default="redis://127.0.0.1:6379/0").rsplit("/", 1)[0].replace("redis://", ""), 6379)],
         },
     },
 }
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 
+
+FIREBASE_SERVICE_ACCOUNT = (
+    BASE_DIR
+    / "config"
+    / "firebase"
+    / "service-account.json"
+)
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 
 CELERY_ACCEPT_CONTENT = ["json"]
-
 CELERY_TASK_SERIALIZER = "json"
-
 CELERY_RESULT_SERIALIZER = "json"
-
 CELERY_TIMEZONE = "Asia/Kolkata"
-
-CELERY_BEAT_SCHEDULER = (
-    "django_celery_beat.schedulers:DatabaseScheduler"
-)
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": config("REDIS_CACHE_URL"),
     }
 }
+

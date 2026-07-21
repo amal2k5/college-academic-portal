@@ -5,7 +5,11 @@ import {
   Users,
   Bell,
   BellRing,
-  User 
+  User,
+  GraduationCap,
+  BookOpen,
+  Calendar,
+  ClipboardCheck
 } from "lucide-react";
 import { ROUTES } from "../utils/constants";
 
@@ -54,8 +58,12 @@ export const hodNavSections = [
   {
     title: "Academic",
     items: [
+      { path: "/hod/subjects", label: "Subjects", icon: BookOpen },
       { path: "/hod/notices", label: "Notice Management", icon: Bell },
       { path: "/hod/assignments", label: "Assignment Management", icon: ClipboardList },
+      { path: "/hod/exams", label: "Exam Management", icon: Calendar },
+      { path: "/hod/marks", label: "Marks Management", icon: GraduationCap },
+      { path: "/hod/attendance", label: "Attendance", icon: ClipboardCheck },
     ]
   }
 ];
@@ -67,6 +75,9 @@ export const studentNavSections = [
       { path: "/student", label: "Dashboard", icon: LayoutDashboard },
       { path: "/student/notices", label: "Notices", icon: Bell },
       { path: "/student/assignments", label: "Assignments", icon: ClipboardList },
+      { path: "/student/exams", label: "Examinations", icon: Calendar },
+      { path: "/student/marks", label: "My Marks", icon: GraduationCap },
+      { path: "/student/attendance", label: "Attendance", icon: ClipboardCheck },
     ]
   },
   {

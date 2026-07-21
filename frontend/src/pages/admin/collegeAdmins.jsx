@@ -260,10 +260,10 @@ function CollegeAdmins() {
                 </button>
                 <button
                   onClick={confirmStatusToggle}
-                  className={`flex-1 px-4 py-2.5 rounded-2xl text-black text-xs font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                  className={`flex-1 px-4 py-2.5 rounded-2xl text-white text-xs font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer ${
                     statusActionAdmin.is_active 
-                      ? "bg-white hover:bg-neutral-200" 
-                      : "bg-emerald-400 hover:bg-emerald-300"
+                      ? "bg-red-600 hover:bg-red-700" 
+                      : "bg-emerald-600 hover:bg-emerald-700"
                   }`}
                 >
                   {statusActionAdmin.is_active ? "Deactivate" : "Activate"}

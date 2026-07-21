@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-
+from notifications.services import notify_students
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -24,30 +24,39 @@ class NoticeListCreateView(APIView):
 
         if user.role == User.Role.COLLEGE_ADMIN:
             college = user.collegeadminprofile.college
-            notices = Notice.objects.filter(college=college).select_related(
-                "college", "department", "posted_by"
-            ).order_by("-is_pinned", "-created_at")
+            notices = (
+                Notice.objects.filter(college=college)
+                .select_related("college", "department", "posted_by")
+                .order_by("-is_pinned", "-created_at")
+            )
 
         elif user.role == User.Role.HOD:
             department = user.hodprofile.department
-            notices = Notice.objects.filter(
-                Q(scope=Notice.Scope.COLLEGE, college=department.college)
-                | Q(scope=Notice.Scope.DEPARTMENT, department=department)
-            ).select_related("college", "department", "posted_by").order_by(
-                "-is_pinned", "-created_at"
+            notices = (
+                Notice.objects.filter(
+                    Q(scope=Notice.Scope.COLLEGE, college=department.college)
+                    | Q(scope=Notice.Scope.DEPARTMENT, department=department)
+                )
+                .select_related("college", "department", "posted_by")
+                .order_by("-is_pinned", "-created_at")
             )
 
         elif user.role == User.Role.STUDENT:
             student = get_object_or_404(Student, user=user)
-            notices = Notice.objects.filter(
-                Q(scope=Notice.Scope.COLLEGE, college=student.department.college)
-                | Q(scope=Notice.Scope.DEPARTMENT, department=student.department)
-            ).select_related("college", "department", "posted_by").order_by(
-                "-is_pinned", "-created_at"
+            notices = (
+                Notice.objects.filter(
+                    Q(scope=Notice.Scope.COLLEGE, college=student.department.college)
+                    | Q(scope=Notice.Scope.DEPARTMENT, department=student.department)
+                )
+                .select_related("college", "department", "posted_by")
+                .order_by("-is_pinned", "-created_at")
             )
 
         else:
-            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "Permission denied."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         notice_filter = NoticeFilter(request.GET, queryset=notices)
         serializer = NoticeSerializer(notice_filter.qs, many=True)
@@ -66,7 +75,7 @@ class NoticeListCreateView(APIView):
                     {"detail": "College Admin can create only college-wide notices."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            serializer.save(
+            notice = serializer.save(
                 posted_by=user,
                 college=user.collegeadminprofile.college,
                 department=None,
@@ -79,7 +88,7 @@ class NoticeListCreateView(APIView):
                     status=status.HTTP_403_FORBIDDEN,
                 )
             department = user.hodprofile.department
-            serializer.save(
+            notice = serializer.save(
                 posted_by=user,
                 college=department.college,
                 department=department,
@@ -91,7 +100,30 @@ class NoticeListCreateView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        return Response(NoticeSerializer(serializer.instance).data, status=status.HTTP_201_CREATED)
+        # Notify students based on scope
+        if notice.scope == Notice.Scope.COLLEGE:
+            students = Student.objects.filter(department__college=notice.college)
+        elif notice.scope == Notice.Scope.DEPARTMENT:
+            students = Student.objects.filter(department=notice.department)
+        else:
+            students = Student.objects.none()
+
+
+        notify_students(
+    students=list(students),
+    title="New Notice",
+    message=f"New notice: {notice.title}",
+    notice=notice,
+    data={
+        "type": "notice",
+        "notice_id": str(notice.id),
+    },
+)    
+
+        return Response(
+            NoticeSerializer(serializer.instance).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class NoticeDetailView(APIView):

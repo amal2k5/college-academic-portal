@@ -26,10 +26,16 @@ class MarksSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    roll_number = serializers.CharField(
+        source="student.roll_number",
+        read_only=True,
+    )
+
     subject_name = serializers.CharField(
         source="subject.name",
         read_only=True,
     )
+
 
     subject_code = serializers.CharField(
         source="subject.subject_code",
@@ -66,6 +72,7 @@ class MarksSerializer(serializers.ModelSerializer):
             "status",
             "created_at",
             "updated_at",
+            "roll_number"
         ]
 
 
@@ -96,11 +103,23 @@ class AttendanceSerializer(serializers.ModelSerializer):
         ]
 
 
-class ExamSerializer(serializers.ModelSerializer):
 
+class ExamSerializer(serializers.ModelSerializer):
     subject_name = serializers.CharField(
         source="subject.name",
         read_only=True,
+    )
+    subject_code = serializers.CharField(
+        source="subject.subject_code",
+        read_only=True,
+    )
+    subject_semester = serializers.IntegerField(
+        source="subject.semester",
+        read_only=True,
+    )
+    created_by = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        default=serializers.CurrentUserDefault()
     )
 
     class Meta:
@@ -109,19 +128,30 @@ class ExamSerializer(serializers.ModelSerializer):
             "id",
             "subject",
             "subject_name",
+            "subject_code",
+            "subject_semester",
             "department",
             "exam_type",
             "maximum_marks",
-            "date",
-            "time",
-            "duration",
+            "exam_date",
+            "start_time",
+            "end_time",
             "venue",
+            "created_by",
+            "status",
+            "original_date",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ("department",)
+        read_only_fields = [
+            "department", 
+            "created_by",
+            "created_at", 
+            "updated_at"
+        ]
 
 
+        
 class BulkMarkSerializer(serializers.Serializer):
 
     student = serializers.PrimaryKeyRelatedField(
@@ -165,6 +195,11 @@ class StudentMarksSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    semester = serializers.IntegerField(
+        source="subject.semester",
+        read_only=True,
+    )
+
     exam_type = serializers.CharField(
         source="exam.exam_type",
         read_only=True,
@@ -183,6 +218,7 @@ class StudentMarksSerializer(serializers.ModelSerializer):
             "id",
             "subject_name",
             "subject_code",
+            "semester",
             "exam_type",
             "marks",
             "maximum_marks",
@@ -219,6 +255,14 @@ class BulkAttendanceSerializer(serializers.Serializer):
 
 
 class ExamSerializer(serializers.ModelSerializer):
+    subject_name = serializers.CharField(
+        source="subject.name",
+        read_only=True,
+    )
+    subject_code = serializers.CharField(
+        source="subject.subject_code",
+        read_only=True,
+    )
 
     class Meta:
         model = Exam

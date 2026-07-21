@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import Count, Q
 
 from rest_framework.exceptions import ValidationError
-
+from notifications.services import notify_students
 from students.models import Student
 
 from .models import (
@@ -351,9 +351,7 @@ def bulk_save_marks(validated_data, user):
 
 @transaction.atomic
 def publish_marks(validated_data, user):
-
     exam = validated_data["exam"]
-
     department = user.hodprofile.department
 
     if exam.department != department:
@@ -365,13 +363,34 @@ def publish_marks(validated_data, user):
             }
         )
 
-    Marks.objects.filter(
-        exam=exam
-    ).update(
-        status=Marks.Status.PUBLISHED
-    )
+    # Update marks status
+    published_marks = Marks.objects.filter(exam=exam)
+    published_marks.update(status=Marks.Status.PUBLISHED)
+
+    # Collect students
+    students = [
+        mark.student
+        for mark in published_marks.select_related("student")
+    ]
+
+    # Notify students
+    try:
+        notify_students(
+            students=students,
+            title="Marks Published",
+            message=f"Your {exam.exam_type} marks for {exam.subject.name} have been published.",
+            data={
+                "type": "marks",
+                "exam_id": str(exam.id),
+                "subject_id": str(exam.subject.id),
+            },
+        )
+    except Exception as e:
+        # TODO: Replace with proper logging
+        print(f"Marks notification error: {e}")
 
     return exam
+
 
 
 def get_student_marks(user):
@@ -388,6 +407,21 @@ def get_student_marks(user):
             "exam",
         )
         .order_by("-created_at")
+    )
+
+
+def get_exam_marks(*, exam_id, user):
+    department = user.hodprofile.department
+    return (
+        Marks.objects.filter(
+            exam_id=exam_id,
+            exam__department=department,
+        )
+        .select_related(
+            "student__user",
+            "subject",
+        )
+        .order_by("student__roll_number")
     )
 
 

@@ -25,24 +25,28 @@ const CollegeRequestsPage = () => {
   const [next, setNext] = useState(null);
   const [previous, setPrevious] = useState(null);
 
-  const fetchRequests = async () => {
+  const fetchRequests = async (signal) => {
     try {
       setLoading(true);
       const data = await getCollegeRequests();
+      if (signal?.aborted) return;
       setRequests(data.results || []);
       setCount(data.count);
       setNext(data.next);
       setPrevious(data.previous);
     } catch (error) {
+      if (signal?.aborted) return;
       console.error(error);
       toast.error("Failed to load registration requests.");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRequests();
+    const controller = new AbortController();
+    fetchRequests(controller.signal);
+    return () => controller.abort();
   }, []);
 
   // Memoized filtering for performance

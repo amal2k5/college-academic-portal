@@ -13,7 +13,7 @@ function DepartmentTable({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="border border-neutral-800/50 rounded-xl bg-neutral-900/20 backdrop-blur-sm overflow-hidden"
+      className="border border-neutral-800/60 rounded-2xl bg-neutral-900/70 backdrop-blur-xl overflow-hidden shadow-xl"
     >
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -55,7 +55,7 @@ function DepartmentTable({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.2, delay: index * 0.03 }}
-                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}
+                  whileHover={{ backgroundColor: "rgba(38, 38, 38, 0.3)" }} // neutral-800/30
                   className="group transition-colors duration-150"
                 >
                   <td className="px-5 py-3.5">

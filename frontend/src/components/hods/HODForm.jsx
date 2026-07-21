@@ -69,22 +69,22 @@ const fetchDepartments = async () => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-gray-100 animate-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-neutral-900 rounded-2xl w-full max-w-md shadow-2xl border border-neutral-800 animate-in slide-in-from-bottom-4 duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-neutral-800">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-white">
               Create HOD
             </h2>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-sm text-neutral-400 mt-0.5">
               Add a new Head of Department
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            className="p-2 hover:bg-neutral-800 rounded-lg transition-colors duration-200"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-neutral-400" />
           </button>
         </div>
 
@@ -96,7 +96,7 @@ const fetchDepartments = async () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="w-4 h-4 text-gray-400" />
+                <User className="w-4 h-4 text-neutral-400" />
               </div>
               <input
                 type="text"
@@ -104,13 +104,13 @@ const fetchDepartments = async () => {
                 placeholder="First Name"
                 value={formData.first_name}
                 onChange={handleChange}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200 text-sm placeholder:text-neutral-500"
                 required
               />
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="w-4 h-4 text-gray-400" />
+                <User className="w-4 h-4 text-neutral-400" />
               </div>
               <input
                 type="text"
@@ -118,7 +118,7 @@ const fetchDepartments = async () => {
                 placeholder="Last Name"
                 value={formData.last_name}
                 onChange={handleChange}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200 text-sm placeholder:text-neutral-500"
                 required
               />
             </div>
@@ -127,7 +127,7 @@ const fetchDepartments = async () => {
           {/* Email */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="w-4 h-4 text-gray-400" />
+              <Mail className="w-4 h-4 text-neutral-400" />
             </div>
             <input
               type="email"
@@ -135,7 +135,7 @@ const fetchDepartments = async () => {
               placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
-              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+              className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200 text-sm placeholder:text-neutral-500"
               required
             />
           </div>
@@ -143,7 +143,7 @@ const fetchDepartments = async () => {
           {/* Phone */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Phone className="w-4 h-4 text-gray-400" />
+              <Phone className="w-4 h-4 text-neutral-400" />
             </div>
             <input
               type="text"
@@ -151,7 +151,7 @@ const fetchDepartments = async () => {
               placeholder="Phone Number"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+              className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200 text-sm placeholder:text-neutral-500"
               required
             />
           </div>
@@ -159,13 +159,13 @@ const fetchDepartments = async () => {
           {/* Department */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Building2 className="w-4 h-4 text-gray-400" />
+              <Building2 className="w-4 h-4 text-neutral-400" />
             </div>
             <select
               name="department_id"
               value={formData.department_id}
               onChange={handleChange}
-              className="w-full pl-9 pr-8 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none transition-all duration-200 text-sm bg-white"
+              className="w-full pl-9 pr-8 py-2.5 bg-neutral-950 border border-neutral-800 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none appearance-none transition-all duration-200 text-sm"
               required
             >
               <option value="">
@@ -182,7 +182,7 @@ const fetchDepartments = async () => {
               ))}
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -193,7 +193,7 @@ const fetchDepartments = async () => {
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              className="px-5 py-2.5 text-sm font-medium text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors duration-200"
             >
               Cancel
             </button>
@@ -201,7 +201,7 @@ const fetchDepartments = async () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
             >
               {loading ? (
                 <>

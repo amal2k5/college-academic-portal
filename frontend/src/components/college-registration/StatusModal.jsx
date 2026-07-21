@@ -43,13 +43,13 @@ const StatusModal = ({
           transition={{
             duration: 0.25,
           }}
-          className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl"
+          className="relative w-full max-w-md rounded-2xl bg-neutral-900 border border-neutral-800 shadow-2xl"
         >
           {/* Close Button */}
 
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 text-gray-400 transition hover:text-gray-700"
+            className="absolute right-4 top-4 text-neutral-500 transition hover:text-neutral-300"
           >
             <X size={20} />
           </button>
@@ -60,28 +60,28 @@ const StatusModal = ({
             <div
               className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${
                 isSuccess
-                  ? "bg-green-100"
-                  : "bg-red-100"
+                  ? "bg-emerald-500/10"
+                  : "bg-red-500/10"
               }`}
             >
               {isSuccess ? (
                 <CheckCircle
                   size={42}
-                  className="text-green-600"
+                  className="text-emerald-500"
                 />
               ) : (
                 <AlertCircle
                   size={42}
-                  className="text-red-600"
+                  className="text-red-500"
                 />
               )}
             </div>
 
-            <h2 className="mt-6 text-2xl font-bold text-gray-900">
+            <h2 className="mt-6 text-2xl font-bold text-white">
               {title}
             </h2>
 
-            <p className="mt-3 text-sm leading-6 text-gray-600">
+            <p className="mt-3 text-sm leading-6 text-neutral-400">
               {message}
             </p>
 
@@ -89,7 +89,7 @@ const StatusModal = ({
               onClick={onClose}
               className={`mt-8 w-full rounded-xl px-5 py-3 font-semibold text-white transition ${
                 isSuccess
-                  ? "bg-green-600 hover:bg-green-700"
+                  ? "bg-emerald-600 hover:bg-emerald-700"
                   : "bg-red-600 hover:bg-red-700"
               }`}
             >

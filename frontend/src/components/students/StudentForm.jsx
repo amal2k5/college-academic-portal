@@ -1,4 +1,4 @@
-﻿// StudentForm.jsx
+// StudentForm.jsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -428,7 +428,7 @@ function StudentForm({
           transition={{ duration: 0.15 }}
           type="submit"
           disabled={loading}
-          className="w-full sm:w-auto h-[44px] px-8 bg-white text-neutral-900 text-sm font-semibold rounded-lg hover:bg-neutral-100 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
+          className="w-full sm:w-auto h-[44px] px-8 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
         >
           {loading ? (
             <>

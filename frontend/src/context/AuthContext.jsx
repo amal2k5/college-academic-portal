@@ -1,5 +1,11 @@
 import { createContext, useState } from "react";
 import { logout } from "../services/authService";
+import {
+  requestNotificationPermission,
+  generateFCMToken,
+} from "../firebase/messaging";
+
+import notificationService from "../services/notificationService";
 
 export const AuthContext = createContext();
 
@@ -9,12 +15,34 @@ function AuthProvider({ children }) {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const loginUser = (data) => {
+  const initializeNotifications = async () => {
+    try {
+      const permission = await requestNotificationPermission();
+
+      if (permission !== "granted") {
+        return;
+      }
+
+      const token = await generateFCMToken();
+
+      if (!token) {
+        return;
+      }
+
+      await notificationService.registerDeviceToken(token);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loginUser = async (data) => {
     localStorage.setItem("access", data.access);
     localStorage.setItem("refresh", data.refresh);
     localStorage.setItem("user", JSON.stringify(data.user));
 
     setUser(data.user);
+
+    void initializeNotifications();
   };
 
   const logoutUser = async () => {

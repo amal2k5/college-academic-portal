@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-
+from .services import get_exam_marks
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -42,6 +42,7 @@ from .services import (
     bulk_mark_attendance,
     get_student_attendance,
     get_class_attendance,
+
 )
 class SubjectListCreateView(APIView):
     """
@@ -165,12 +166,34 @@ class BulkMarksEntryView(APIView):
 
     permission_classes = [IsAuthenticated, IsHOD]
 
-    def post(self, request):
+    def get(self, request):
+        exam_id = request.query_params.get("exam")
 
+        if not exam_id:
+            return Response(
+                {"detail": "exam query parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        marks = get_exam_marks(
+            exam_id=exam_id,
+            user=request.user,
+        )
+
+        serializer = MarksSerializer(
+            marks,
+            many=True,
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
         serializer = BulkMarksEntrySerializer(
             data=request.data,
         )
-
         serializer.is_valid(raise_exception=True)
 
         marks = bulk_save_marks(
@@ -316,6 +339,8 @@ class ExamListCreateView(APIView):
         )
 
     def post(self, request):
+        if request.user.role != "HOD":
+            return Response({"detail": "Only HOD can create exams."}, status=status.HTTP_403_FORBIDDEN)
 
         if request.user.role != request.user.Role.HOD:
 

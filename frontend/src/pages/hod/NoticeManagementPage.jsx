@@ -2,10 +2,12 @@ import { Plus } from "lucide-react";
 import NoticeFeed from "../../components/notices/NoticeFeed";
 import noticeService from "../../services/noticeService";
 import { useContext, useEffect, useState, useCallback } from "react";
+import { toast } from "react-toastify";
 import NoticeForm from "../../components/notices/NoticeForm";
 import { AuthContext } from "../../context/AuthContext";
 import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
 import PageHeader from "../../components/common/PageHeader";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 function NoticeManagement() {
   const [showForm, setShowForm] = useState(false);
@@ -15,6 +17,10 @@ function NoticeManagement() {
   const [loading, setLoading] = useState(true);
   const [selectedViewNotice, setSelectedViewNotice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Confirmation Modal State
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadNotices = useCallback(async () => {
     setLoading(true);
@@ -58,25 +64,35 @@ function NoticeManagement() {
     };
   }, [user]);
 
-  const handleDelete = useCallback(async (id) => {
-    if (!window.confirm("Are you sure you want to delete this notice?")) return;
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
 
+    setIsDeleting(true);
     try {
-      await noticeService.deleteNotice(id);
+      await noticeService.deleteNotice(deleteTarget);
       await loadNotices();
+      toast.success("Notice deleted successfully.");
+      setDeleteTarget(null);
     } catch (error) {
       console.error("Failed to delete notice:", error);
-      alert("Failed to delete notice. Please try again.");
+      toast.error("Failed to delete notice. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
-  }, [loadNotices]);
+  }, [deleteTarget, loadNotices]);
+
+  const handleDelete = useCallback((id) => {
+    setDeleteTarget(id);
+  }, []);
 
   const handleTogglePin = useCallback(async (id) => {
     try {
       await noticeService.togglePin(id);
       await loadNotices();
+      toast.success("Notice pin status updated.");
     } catch (error) {
       console.error("Failed to toggle pin:", error);
-      alert("Failed to update pin status. Please try again.");
+      toast.error("Failed to update pin status. Please try again.");
     }
   }, [loadNotices]);
 
@@ -86,15 +102,21 @@ function NoticeManagement() {
       const payload = { ...data, scope: "DEPARTMENT" };
       if (selectedNotice) {
         await noticeService.updateNotice(selectedNotice.id, payload);
+        toast.success("Notice updated successfully.");
       } else {
         await noticeService.createNotice(payload);
+        toast.success("Notice created successfully.");
       }
       await loadNotices();
       setSelectedNotice(null);
       setShowForm(false);
     } catch (error) {
       console.error("Failed to save notice:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error(
+        error.response?.data?.detail || 
+        error.response?.data?.message || 
+        "Something went wrong. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -159,6 +181,17 @@ function NoticeManagement() {
       <NoticeDetailModal
         notice={selectedViewNotice}
         onClose={() => setSelectedViewNotice(null)}
+      />
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete Notice"
+        message="Are you sure you want to delete this notice? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   );

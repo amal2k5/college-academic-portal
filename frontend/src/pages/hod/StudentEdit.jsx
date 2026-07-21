@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "react-toastify";
 import StudentForm from "../../components/students/StudentForm";
 import { getStudentById, updateStudent } from "../../services/studentService";
 
@@ -74,6 +75,7 @@ function StudentEdit() {
       };
       
       await updateStudent(id, payload);
+      toast.success("Student updated successfully.");
       navigate("/hod/students");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update student");

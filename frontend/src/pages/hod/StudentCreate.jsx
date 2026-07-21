@@ -1,8 +1,9 @@
-﻿// StudentCreate.jsx
+// StudentCreate.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, AlertCircle, User, Mail, Phone, Calendar, Hash, BookOpen, Users, Shield } from "lucide-react";
+import { toast } from "react-toastify";
 import StudentForm from "../../components/students/StudentForm";
 import { createStudent } from "../../services/studentService";
 
@@ -46,6 +47,7 @@ function StudentCreate() {
         semester: formData.semester ? parseInt(formData.semester) : "",
       };
       await createStudent(payload);
+      toast.success("Student created successfully.");
       navigate("/hod/students");
     } catch (err) {
       console.error("Error:", err.response?.data || err);
