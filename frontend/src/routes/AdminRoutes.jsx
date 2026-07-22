@@ -39,6 +39,11 @@ import MarksPage from "../pages/student/MarksPage";
 import StudentExams from "../pages/student/Exams";
 import StudentAttendance from "../pages/student/StudentAttendance";
 
+import StudentComplaintSubmission from "../pages/student/ComplaintSubmissionPage";
+import StudentComplaintTracking from "../pages/student/ComplaintTrackingPage";
+import HODComplaintManagement from "../pages/hod/ComplaintManagementPage";
+import CollegeAdminComplaintManagement from "../pages/CollegeAdmin/ComplaintManagementPage";
+
 function AdminRoutes() {
   return (
     <Routes>
@@ -78,6 +83,7 @@ function AdminRoutes() {
   element={<NoticeManagement />}
 />
 
+        <Route path="/college-admin/complaints" element={<CollegeAdminComplaintManagement />} />
 
       </Route>
 
@@ -99,6 +105,7 @@ function AdminRoutes() {
         <Route path="/hod/subjects" element={<SubjectManagement />} />
         <Route path="/hod/exams" element={<ExamManagement />} />
         <Route path="/hod/attendance" element={<AttendanceManagement />} />
+        <Route path="/hod/complaints" element={<HODComplaintManagement />} />
       </Route>
 
       {/* STUDENT */}
@@ -127,6 +134,8 @@ function AdminRoutes() {
   <Route path="/student/exams" element={<StudentExams />} />
   <Route path="/student/attendance" element={<StudentAttendance />} />
   <Route path="/student/notifications" element={<NotificationsPage />} />
+  <Route path="/student/complaints/submit" element={<StudentComplaintSubmission />} />
+  <Route path="/student/complaints/track" element={<StudentComplaintTracking />} />
 </Route>
     </Routes>
   );

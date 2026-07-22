@@ -8,6 +8,7 @@ import PublicLayout from "../layouts/PublicLayout";
 import LandingPage from "../pages/LandingPage";
 import CollegeRegistrationPage from "../pages/CollegeRegistrationPage";
 import AdminRoutes from "./AdminRoutes";
+import RazorpayTestPage from "../pages/testing/RazorpayTestPage";
 
 
 
@@ -28,6 +29,9 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Testing Route */}
+      <Route path="/testing/razorpay" element={<RazorpayTestPage />} />
 
       {/* Protected Routes */}
       <Route path="/*" element={<AdminRoutes />} />

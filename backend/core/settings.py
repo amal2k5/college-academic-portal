@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     "assignments",
     "notifications",
     "academics",
+    "razorpay",
+    "fees"
+
 ]
 
 
@@ -308,4 +311,10 @@ CACHES = {
         "LOCATION": config("REDIS_CACHE_URL"),
     }
 }
+
+
+#- Razor Pay
+
+RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET")
 

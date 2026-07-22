@@ -19,4 +19,6 @@ db.sqlite3
 Thumbs.db
 
 
+.env.cloudflare
 config/firebase/service-account.json
+venv/
