@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "assignments",
     "notifications",
     "academics",
+    "complaints",
 ]
 
 
@@ -225,6 +226,15 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_THROTTLE_RATES": {
+    "complaint_submission": "5/hour",
+},
+}
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
 }
 
 
