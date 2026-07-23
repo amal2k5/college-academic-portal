@@ -62,4 +62,10 @@ urlpatterns = [
 ),
 
  path("api/fees/", include("fees.urls")),
+
+    path(
+    "api/complaints/",
+    include("complaints.urls"),
+),
+
 ]

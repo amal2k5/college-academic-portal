@@ -507,7 +507,7 @@ def update_exam(*, exam, validated_data):
             exam_date=new_date,
             status__in=[
                 Exam.Status.SCHEDULED,
-                Exam.Status.RESCHEDULED,
+                Exam.Status.RESCHEDULED,    
             ],
         )
         .exclude(id=exam.id)
