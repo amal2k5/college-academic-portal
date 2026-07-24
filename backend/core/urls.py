@@ -67,5 +67,6 @@ urlpatterns = [
     "api/complaints/",
     include("complaints.urls"),
 ),
+    path("api/lost-found/", include("lost_found.urls")),
 
 ]

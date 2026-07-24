@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from .models import Fee, Payment
 
-
 class FeeSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(
         source="department.name",
@@ -25,6 +24,12 @@ class FeeSerializer(serializers.ModelSerializer):
             "late_fee_amount",
             "eligibility",
             "is_active",
+            "created_at",
+        )
+
+        read_only_fields = (
+            "department",
+            "department_name",
             "created_at",
         )
 

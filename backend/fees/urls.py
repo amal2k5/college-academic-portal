@@ -5,7 +5,12 @@ from .views import (
     FeeDetailAPIView,
     CreateOrderAPIView,
     VerifyPaymentAPIView,
+    FeeManageDetailAPIView,
     PaymentHistoryAPIView,
+    FeeManageListCreateAPIView,
+    PendingFeesAPIView,
+    FeeSummaryAPIView,
+    
 )
 
 urlpatterns = [
@@ -34,4 +39,24 @@ urlpatterns = [
         PaymentHistoryAPIView.as_view(),
         name="payment-history",
     ),
+    path(
+    "manage/",
+    FeeManageListCreateAPIView.as_view(),
+    name="manage-fees",
+),
+
+path(
+    "manage/<int:pk>/",
+    FeeManageDetailAPIView.as_view(),
+    name="manage-fee-detail",
+),path(
+    "pending/",
+    PendingFeesAPIView.as_view(),
+    name="pending-fees",
+),
+path(
+    "summary/",
+    FeeSummaryAPIView.as_view(),
+    name="fee-summary",
+),
 ]
