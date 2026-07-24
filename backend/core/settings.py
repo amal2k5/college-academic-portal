@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "academics",
 
     "razorpay",
-    "fees"
+    "fees",
     "complaints",
 
 ]
@@ -231,8 +231,10 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_THROTTLE_RATES": {
-    "complaint_submission": "5/hour",
-},
+        "user": "1000/day",
+        "anon": "100/day",
+        "complaint_submission": "100/hour",
+    },
 }
 CACHES = {
     "default": {

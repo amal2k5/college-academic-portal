@@ -207,7 +207,6 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()  # ← BUG FIX #4: Ensure clean() runs on save
 
-        # ← BUG FIX #2 & #3: Generate receipt number AFTER first save (when id exists)
         if self.status == self.Status.PAID and not self.receipt_number:
             # Must save first to get an ID if it's a new record
             if self._state.adding:
@@ -216,7 +215,9 @@ class Payment(models.Model):
             year = self.paid_at.year if self.paid_at else timezone.now().year
             prefix = "CAP"
             self.receipt_number = f"{prefix}-{year}-{str(self.id).zfill(6)}"
-            # Second save to update receipt_number
+            
+            if "update_fields" in kwargs and "receipt_number" not in kwargs["update_fields"]:
+                kwargs["update_fields"] = list(kwargs["update_fields"]) + ["receipt_number"]
             
         super().save(*args, **kwargs)
 

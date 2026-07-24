@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from .views import (
     FeeListAPIView,
@@ -6,7 +6,12 @@ from .views import (
     CreateOrderAPIView,
     VerifyPaymentAPIView,
     PaymentHistoryAPIView,
+    HODFeeViewSet,
 )
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'hod', HODFeeViewSet, basename='hod-fee')
 
 urlpatterns = [
     path(
@@ -34,4 +39,5 @@ urlpatterns = [
         PaymentHistoryAPIView.as_view(),
         name="payment-history",
     ),
+    path("", include(router.urls)),
 ]

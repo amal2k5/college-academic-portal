@@ -41,8 +41,18 @@ import StudentAttendance from "../pages/student/StudentAttendance";
 
 import StudentComplaintSubmission from "../pages/student/ComplaintSubmissionPage";
 import StudentComplaintTracking from "../pages/student/ComplaintTrackingPage";
+import ComplaintsPage from "../pages/student/ComplaintsPage";
 import HODComplaintManagement from "../pages/hod/ComplaintManagementPage";
 import CollegeAdminComplaintManagement from "../pages/CollegeAdmin/ComplaintManagementPage";
+
+import HODFeeManagement from "../pages/hod/FeeManagement";
+import StudentFeesPage from "../pages/student/StudentFeesPage";
+import StudentPaymentHistoryPage from "../pages/student/StudentPaymentHistoryPage";
+import PaymentSuccessPage from "../pages/student/PaymentSuccessPage";
+
+import LostFoundList from "../pages/student/lost-found/LostFoundList";
+import LostFoundForm from "../pages/student/lost-found/LostFoundForm";
+import LostFoundDetail from "../pages/student/lost-found/LostFoundDetail";
 
 function AdminRoutes() {
   return (
@@ -106,6 +116,7 @@ function AdminRoutes() {
         <Route path="/hod/exams" element={<ExamManagement />} />
         <Route path="/hod/attendance" element={<AttendanceManagement />} />
         <Route path="/hod/complaints" element={<HODComplaintManagement />} />
+        <Route path="/hod/fees" element={<HODFeeManagement />} />
       </Route>
 
       {/* STUDENT */}
@@ -134,8 +145,18 @@ function AdminRoutes() {
   <Route path="/student/exams" element={<StudentExams />} />
   <Route path="/student/attendance" element={<StudentAttendance />} />
   <Route path="/student/notifications" element={<NotificationsPage />} />
+  <Route path="/student/complaints" element={<ComplaintsPage />} />
   <Route path="/student/complaints/submit" element={<StudentComplaintSubmission />} />
   <Route path="/student/complaints/track" element={<StudentComplaintTracking />} />
+  <Route path="/student/fees" element={<StudentFeesPage />} />
+  <Route path="/student/fees/history" element={<StudentPaymentHistoryPage />} />
+  <Route path="/student/fees/success" element={<PaymentSuccessPage />} />
+  
+  {/* Lost & Found Routes */}
+  <Route path="/student/lost-found" element={<LostFoundList />} />
+  <Route path="/student/lost-found/create" element={<LostFoundForm />} />
+  <Route path="/student/lost-found/:id" element={<LostFoundDetail />} />
+  <Route path="/student/lost-found/:id/edit" element={<LostFoundForm />} />
 </Route>
     </Routes>
   );

@@ -1,31 +1,35 @@
 import axiosInstance from "./axiosInstance";
 
-// Student: Submit a new complaint
-export const submitComplaint = async (complaintData) => {
-  const response = await axiosInstance.post("/complaints/submit/", complaintData);
+export const createComplaint = async (formData) => {
+  const response = await axiosInstance.post("/complaints/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
-// Student: Track a complaint by tracking code
 export const trackComplaint = async (trackingCode) => {
-  const response = await axiosInstance.get(`/complaints/track/${trackingCode}/`);
+  const response = await axiosInstance.get(`/complaints/track/?tracking_code=${trackingCode}`);
   return response.data;
 };
 
-// HOD & Admin: Get all complaints (with optional filters)
-export const getComplaints = async (params = {}) => {
-  const response = await axiosInstance.get("/complaints/", { params });
+export const getDepartmentComplaints = async (params = {}) => {
+  const response = await axiosInstance.get("/complaints/department/", { params });
   return response.data;
 };
 
-// HOD & Admin: Update complaint status
-export const updateComplaintStatus = async (id, statusData) => {
-  const response = await axiosInstance.put(`/complaints/${id}/status/`, statusData);
+export const getCollegeComplaints = async (params = {}) => {
+  const response = await axiosInstance.get("/complaints/college/", { params });
   return response.data;
 };
 
-// Admin: Get overall complaint statistics
-export const getComplaintStats = async () => {
-  const response = await axiosInstance.get("/complaints/stats/");
+export const getComplaintDashboard = async () => {
+  const response = await axiosInstance.get("/complaints/dashboard/");
+  return response.data;
+};
+
+export const updateComplaintStatus = async (id, data) => {
+  const response = await axiosInstance.patch(`/complaints/${id}/status/`, data);
   return response.data;
 };

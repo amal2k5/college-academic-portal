@@ -3,6 +3,15 @@ from rest_framework import serializers
 from .models import Complaint, ComplaintStatusHistory
 
 
+class AttachmentUrlMixin(serializers.Serializer):
+    attachment = serializers.SerializerMethodField()
+
+    def get_attachment(self, obj):
+        if obj.attachment:
+            return obj.attachment.url
+        return None
+
+
 class ComplaintCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaint
@@ -51,12 +60,18 @@ class ComplaintCreateSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class ComplaintTrackingSerializer(serializers.ModelSerializer):
+class ComplaintTrackingSerializer(AttachmentUrlMixin, serializers.ModelSerializer):
     class Meta:
         model = Complaint
         fields = (
             "tracking_code",
+            "text",
+            "attachment",
+            "category",
+            "scope",
             "status",
+            "resolution_note",
+            "created_at",
             "updated_at",
         )
 
@@ -81,7 +96,7 @@ class ComplaintStatusHistorySerializer(serializers.ModelSerializer):
         return None
 
 
-class ComplaintListSerializer(serializers.ModelSerializer):
+class ComplaintListSerializer(AttachmentUrlMixin, serializers.ModelSerializer):
     college = serializers.StringRelatedField()
     department = serializers.StringRelatedField()
 
@@ -90,17 +105,20 @@ class ComplaintListSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "tracking_code",
+            "text",
             "attachment",
             "category",
             "scope",
             "college",
             "department",
             "status",
+            "resolution_note",
             "created_at",
+            "updated_at",
         )
 
 
-class ComplaintDetailSerializer(serializers.ModelSerializer):
+class ComplaintDetailSerializer(AttachmentUrlMixin, serializers.ModelSerializer):
     college = serializers.StringRelatedField()
     department = serializers.StringRelatedField()
 

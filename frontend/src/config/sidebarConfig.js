@@ -9,7 +9,10 @@ import {
   GraduationCap,
   BookOpen,
   Calendar,
-  ClipboardCheck
+  ClipboardCheck,
+  MessageSquareWarning,
+  DollarSign,
+  Search
 } from "lucide-react";
 import { ROUTES } from "../utils/constants";
 
@@ -43,6 +46,7 @@ export const collegeAdminNavSections = [
     title: "Communication",
     items: [
       { path: "/college-admin/notices", label: "Notice Management", icon: Bell },
+      { path: "/college-admin/complaints", label: "Complaint Management", icon: MessageSquareWarning },
     ]
   }
 ];
@@ -64,6 +68,8 @@ export const hodNavSections = [
       { path: "/hod/exams", label: "Exam Management", icon: Calendar },
       { path: "/hod/marks", label: "Marks Management", icon: GraduationCap },
       { path: "/hod/attendance", label: "Attendance", icon: ClipboardCheck },
+      { path: "/hod/fees", label: "Fee Management", icon: DollarSign },
+      { path: "/hod/complaints", label: "Complaint Management", icon: MessageSquareWarning },
     ]
   }
 ];
@@ -78,6 +84,9 @@ export const studentNavSections = [
       { path: "/student/exams", label: "Examinations", icon: Calendar },
       { path: "/student/marks", label: "My Marks", icon: GraduationCap },
       { path: "/student/attendance", label: "Attendance", icon: ClipboardCheck },
+      { path: "/student/fees", label: "Fees", icon: DollarSign },
+      { path: "/student/complaints", label: "Complaints", icon: MessageSquareWarning },
+      { path: "/student/lost-found", label: "Lost & Found", icon: Search },
     ]
   },
   {

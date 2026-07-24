@@ -179,6 +179,13 @@ class AuthUserSerializer(serializers.ModelSerializer):
             except HODProfile.DoesNotExist:
                 return None
 
+        if obj.role == User.Role.STUDENT:
+            try:
+                # Student model has a ForeignKey to Department, which has a ForeignKey to College
+                return obj.student_profile.department.college.id
+            except (AttributeError, Exception):
+                return None
+
         return None
 
     def get_department(self, obj):
@@ -186,6 +193,12 @@ class AuthUserSerializer(serializers.ModelSerializer):
             try:
                 return obj.hodprofile.department.id
             except HODProfile.DoesNotExist:
+                return None
+
+        if obj.role == User.Role.STUDENT:
+            try:
+                return obj.student_profile.department.id
+            except (AttributeError, Exception):
                 return None
 
         return None

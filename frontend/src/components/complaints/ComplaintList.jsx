@@ -3,16 +3,33 @@ import { Search, Filter, AlertCircle, Inbox, Loader2 } from "lucide-react";
 import ComplaintCard from "./ComplaintCard";
 
 const COMPLAINT_CATEGORIES = [
-  "All",
-  "Academic",
-  "Infrastructure",
-  "Hostel",
-  "Administration",
-  "Extracurricular",
-  "Other"
+  {
+    label: "Academic",
+    value: "ACADEMIC",
+  },
+  {
+    label: "Faculty",
+    value: "FACULTY",
+  },
+  {
+    label: "Facilities",
+    value: "FACILITIES",
+  },
+  {
+    label: "Discipline",
+    value: "DISCIPLINE",
+  },
+  {
+    label: "Examination",
+    value: "EXAMINATION",
+  },
+  {
+    label: "Other",
+    value: "OTHER",
+  },
 ];
 
-const COMPLAINT_STATUSES = ["All", "Pending", "Seen", "Resolved"];
+const COMPLAINT_STATUSES = ["All", "Submitted", "Seen", "Resolved"];
 
 const ComplaintList = ({ complaints = [], role, onUpdateStatus, loading, error }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,11 +38,11 @@ const ComplaintList = ({ complaints = [], role, onUpdateStatus, loading, error }
 
   const filteredComplaints = useMemo(() => {
     return complaints.filter((c) => {
-      const matchesSearch = c.trackingCode?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            c.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = c.trackingCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = categoryFilter === "All" || c.category === categoryFilter;
-      const matchesStatus = statusFilter === "All" || (c.status || "Pending") === statusFilter;
-      
+      const matchesStatus = statusFilter === "All" || (c.status?.toUpperCase() || "SUBMITTED") === statusFilter.toUpperCase();
+
       return matchesSearch && matchesCategory && matchesStatus;
     });
   }, [complaints, searchTerm, categoryFilter, statusFilter]);
@@ -44,7 +61,7 @@ const ComplaintList = ({ complaints = [], role, onUpdateStatus, loading, error }
             className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
           />
         </div>
-        
+
         <div className="flex gap-4">
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
@@ -58,7 +75,7 @@ const ComplaintList = ({ complaints = [], role, onUpdateStatus, loading, error }
               ))}
             </select>
           </div>
-          
+
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
             <select
@@ -104,17 +121,17 @@ const ComplaintList = ({ complaints = [], role, onUpdateStatus, loading, error }
             </div>
             <h3 className="text-lg font-medium text-white mb-1">No complaints found</h3>
             <p className="text-neutral-500 text-sm">
-              {searchTerm || categoryFilter !== "All" || statusFilter !== "All" 
-                ? "Try adjusting your search or filters." 
+              {searchTerm || categoryFilter !== "All" || statusFilter !== "All"
+                ? "Try adjusting your search or filters."
                 : "There are no complaints to display."}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredComplaints.map((complaint) => (
-              <ComplaintCard 
-                key={complaint.id || complaint.trackingCode} 
-                complaint={complaint} 
+              <ComplaintCard
+                key={complaint.id || complaint.trackingCode}
+                complaint={complaint}
                 role={role}
                 onUpdateStatus={onUpdateStatus}
               />

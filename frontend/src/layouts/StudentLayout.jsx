@@ -10,7 +10,7 @@ import { studentNavSections } from "../config/sidebarConfig";
 
 function StudentLayout() {
   const navigate = useNavigate();
-  const { logoutUser } = useContext(AuthContext);
+  const { user, logoutUser } = useContext(AuthContext);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -35,16 +35,13 @@ function StudentLayout() {
 
   useNotificationSocket(handleSocketNotification);
 
-  const firstName = localStorage.getItem("first_name");
-  const lastName = localStorage.getItem("last_name");
-  const email = localStorage.getItem("email") || "";
-
-  const studentName = `${firstName || ""} ${lastName || ""}`.trim() || "Student";
+  const studentName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "Student";
   const initials = studentName
     .split(" ")
     .map((word) => word[0])
     .join("")
     .toUpperCase();
+  const email = user?.email || "";
 
   const handleLogout = async () => {
     try {
