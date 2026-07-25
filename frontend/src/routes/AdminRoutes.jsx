@@ -15,7 +15,6 @@ import CollegeAdmins from "../pages/admin/collegeAdmins";
 
 import CollegeDashboard from "../pages/CollegeAdmin/Dashboard";
 import HODs from "../pages/CollegeAdmin/HODs";
-// import NoticeManagementPage from "../pages/CollegeAdmin/NoticeManagementPage";
 
 import HODDashboard from "../pages/hod/HODDashboard";
 import Students from "../pages/hod/Students";
@@ -31,7 +30,7 @@ import AttendanceManagement from "../pages/hod/AttendanceManagement";
 import StudentDashboard from "../pages/student/StudentDashboard";
 import StudentProfile from "../pages/student/Profile";
 import CollegeRequestsPage from "../pages/admin/CollegeRequestsPage";
-
+import NoticeManagement from "../pages/CollegeAdmin/NoticeManagementPage";
 import NoticesPage from "../pages/student/NoticesPage";
 import AssignmentsPage from "../pages/student/AssignmentsPage";
 import NotificationsPage from "../pages/student/NotificationsPage";
@@ -44,7 +43,6 @@ import StudentComplaintTracking from "../pages/student/ComplaintTrackingPage";
 import ComplaintsPage from "../pages/student/ComplaintsPage";
 import HODComplaintManagement from "../pages/hod/ComplaintManagementPage";
 import CollegeAdminComplaintManagement from "../pages/CollegeAdmin/ComplaintManagementPage";
-// import NoticeManagement from "../pages/collegeAdmin/NoticeManagementPage";
 import HODFeeManagement from "../pages/hod/FeeManagement";
 import StudentFeesPage from "../pages/student/StudentFeesPage";
 import StudentPaymentHistoryPage from "../pages/student/StudentPaymentHistoryPage";
@@ -53,7 +51,6 @@ import PaymentSuccessPage from "../pages/student/PaymentSuccessPage";
 import LostFoundList from "../pages/student/lost-found/LostFoundList";
 import LostFoundForm from "../pages/student/lost-found/LostFoundForm";
 import LostFoundDetail from "../pages/student/lost-found/LostFoundDetail";
-import NoticeManagement from "../pages/CollegeAdmin/NoticeManagementPage";
 
 function AdminRoutes() {
   return (
@@ -153,8 +150,6 @@ function AdminRoutes() {
           path="/student/fees/success"
           element={<PaymentSuccessPage />}
         />
-
-        {/* Lost & Found Routes */}
         <Route path="/student/lost-found" element={<LostFoundList />} />
         <Route
           path="/student/lost-found/create"
