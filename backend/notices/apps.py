@@ -6,4 +6,4 @@ class NoticesConfig(AppConfig):
     name = "notices"
 
     def ready(self):
-        import notices.signals 
+        import notices.signals

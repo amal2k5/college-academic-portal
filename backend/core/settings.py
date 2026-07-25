@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "assignments",
     "notifications",
     "academics",
+    "lost_found",
 
     "razorpay",
     "fees",

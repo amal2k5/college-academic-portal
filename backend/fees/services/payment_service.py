@@ -1,6 +1,6 @@
-from decimal import Decimal
 import uuid
 
+from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
@@ -126,7 +126,7 @@ class PaymentService:
         try:
             payment = (
                 Payment.objects
-                .select_related("student")
+                .select_related("student", "fee")
                 .select_for_update()
                 .get(
                     razorpay_order_id=razorpay_order_id,
@@ -167,6 +167,11 @@ class PaymentService:
                 "paid_at",
                 "updated_at",
             ]
+        )
+
+        # Clear cached fee summary for this department
+        cache.delete(
+            f"fee_summary_{payment.fee.department_id}"
         )
 
         return payment
