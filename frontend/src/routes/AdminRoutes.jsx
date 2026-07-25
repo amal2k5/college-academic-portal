@@ -31,7 +31,7 @@ import StudentDashboard from "../pages/student/StudentDashboard";
 import StudentProfile from "../pages/student/Profile";
 import StudentLayout from "../layouts/StudentLayout";
 import CollegeRequestsPage from "../pages/admin/CollegeRequestsPage";
-import NoticeManagement from "../pages/collegeAdmin/NoticeManagementPage";
+import NoticeManagement from "../pages/CollegeAdmin/NoticeManagementPage";
 import NoticesPage from "../pages/student/NoticesPage";
 import AssignmentsPage from "../pages/student/AssignmentsPage";
 import NotificationsPage from "../pages/student/NotificationsPage";
@@ -89,9 +89,9 @@ function AdminRoutes() {
         <Route path="/college-admin/notices" element={<NoticeManagementPage />} />
 
         <Route
-  path="/college-admin/notices"
-  element={<NoticeManagement />}
-/>
+          path="/college-admin/notices"
+          element={<NoticeManagement />}
+        />
 
         <Route path="/college-admin/complaints" element={<CollegeAdminComplaintManagement />} />
 
@@ -132,32 +132,32 @@ function AdminRoutes() {
       </Route>
 
       <Route
-  element={
-    <ProtectedRoute allowedRoles={["STUDENT"]}>
-      <StudentLayout />
-    </ProtectedRoute>
-  }
->
+        element={
+          <ProtectedRoute allowedRoles={["STUDENT"]}>
+            <StudentLayout />
+          </ProtectedRoute>
+        }
+      >
 
-  <Route path="/student/notices" element={<NoticesPage />} />
-  <Route path="/student/assignments" element={<AssignmentsPage />} />
-  <Route path="/student/marks" element={<MarksPage />} />
-  <Route path="/student/exams" element={<StudentExams />} />
-  <Route path="/student/attendance" element={<StudentAttendance />} />
-  <Route path="/student/notifications" element={<NotificationsPage />} />
-  <Route path="/student/complaints" element={<ComplaintsPage />} />
-  <Route path="/student/complaints/submit" element={<StudentComplaintSubmission />} />
-  <Route path="/student/complaints/track" element={<StudentComplaintTracking />} />
-  <Route path="/student/fees" element={<StudentFeesPage />} />
-  <Route path="/student/fees/history" element={<StudentPaymentHistoryPage />} />
-  <Route path="/student/fees/success" element={<PaymentSuccessPage />} />
-  
-  {/* Lost & Found Routes */}
-  <Route path="/student/lost-found" element={<LostFoundList />} />
-  <Route path="/student/lost-found/create" element={<LostFoundForm />} />
-  <Route path="/student/lost-found/:id" element={<LostFoundDetail />} />
-  <Route path="/student/lost-found/:id/edit" element={<LostFoundForm />} />
-</Route>
+        <Route path="/student/notices" element={<NoticesPage />} />
+        <Route path="/student/assignments" element={<AssignmentsPage />} />
+        <Route path="/student/marks" element={<MarksPage />} />
+        <Route path="/student/exams" element={<StudentExams />} />
+        <Route path="/student/attendance" element={<StudentAttendance />} />
+        <Route path="/student/notifications" element={<NotificationsPage />} />
+        <Route path="/student/complaints" element={<ComplaintsPage />} />
+        <Route path="/student/complaints/submit" element={<StudentComplaintSubmission />} />
+        <Route path="/student/complaints/track" element={<StudentComplaintTracking />} />
+        <Route path="/student/fees" element={<StudentFeesPage />} />
+        <Route path="/student/fees/history" element={<StudentPaymentHistoryPage />} />
+        <Route path="/student/fees/success" element={<PaymentSuccessPage />} />
+
+        {/* Lost & Found Routes */}
+        <Route path="/student/lost-found" element={<LostFoundList />} />
+        <Route path="/student/lost-found/create" element={<LostFoundForm />} />
+        <Route path="/student/lost-found/:id" element={<LostFoundDetail />} />
+        <Route path="/student/lost-found/:id/edit" element={<LostFoundForm />} />
+      </Route>
     </Routes>
   );
 }
