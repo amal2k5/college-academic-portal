@@ -18,6 +18,11 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    cast=Csv(),
+    default="",
+)
 # ==============================================================================
 # APPLICATIONS
 # ==============================================================================
@@ -114,13 +119,11 @@ ASGI_APPLICATION = "core.asgi.application"
 # DATABASE
 # ==============================================================================
 
-# import dj_database_url
-
 DATABASES = {
     "default": dj_database_url.config(
         default=config("DATABASE_URL"),
         conn_max_age=600,
-        ssl_require=False,   # Local PostgreSQL
+        ssl_require=True,
     )
 }
 
@@ -192,7 +195,8 @@ USE_TZ = True
 # STATIC & MEDIA
 # ==============================================================================
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
@@ -206,7 +210,7 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
@@ -242,12 +246,6 @@ REST_FRAMEWORK = {
         "complaint_submission": "100/hour",
     },
 }
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-    }
-}
 
 
 # ==============================================================================
@@ -280,32 +278,20 @@ SIMPLE_JWT = {
 # ==============================================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-    
+
 
 # ==============================================================================
 # DJANGO CHANNELS
 # ==============================================================================
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [(config("REDIS_CACHE_URL", default="redis://127.0.0.1:6379/0").rsplit("/", 1)[0].replace("redis://", ""), 6379)],
-#         },
-#     },
-# }
-
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [
-                (config("REDIS_HOST"), config("REDIS_PORT", cast=int)),
-            ],
+            "hosts": [config("REDIS_URL")],
         },
     },
 }
-
 
 
 FIREBASE_SERVICE_ACCOUNT = (
@@ -316,7 +302,7 @@ FIREBASE_SERVICE_ACCOUNT = (
 )
 
 CELERY_BROKER_URL = config("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND")
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -332,8 +318,9 @@ CACHES = {
 }
 
 
-#- Razor Pay
+# ==============================================================================
+# RAZORPAY
+# ==============================================================================
 
 RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET")
-
