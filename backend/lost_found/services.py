@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 
-from .models import LostFoundPost, Comment
+from .models import LostFoundPost
 
 
 class LostFoundService:
@@ -35,9 +35,12 @@ class LostFoundService:
         category = query_params.get("category")
         location = query_params.get("location")
         title = query_params.get("title")
+        include_returned = query_params.get("include_returned", "false").lower() == "true"
 
         if status:
             queryset = queryset.filter(status=status)
+        elif not include_returned:
+            queryset = queryset.exclude(status=LostFoundPost.Status.RETURNED)
 
         if category:
             queryset = queryset.filter(category=category)
@@ -90,25 +93,18 @@ class LostFoundService:
         if status not in LostFoundPost.Status.values:
             raise ValueError("Invalid status.")
 
+        if post.status == LostFoundPost.Status.RETURNED:
+            raise ValueError("Cannot change status of a returned item.")
+
+        if post.status == LostFoundPost.Status.FOUND and status == LostFoundPost.Status.LOST:
+            raise ValueError("Cannot revert a found item back to lost.")
+
         post.status = status
         post.save(update_fields=["status"])
 
         cache.delete(LostFoundService.CACHE_KEY)
 
         return post
-
-    @staticmethod
-    def add_comment(post, student, comment_text):
-        """
-        Add a comment to a Lost & Found post.
-        """
-        comment = Comment.objects.create(
-            post=post,
-            student=student,
-            comment=comment_text,
-        )
-
-        return comment
 
     @staticmethod
     def reveal_contact(post):

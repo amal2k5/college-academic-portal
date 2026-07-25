@@ -5,7 +5,6 @@ from django.contrib import admin
 
 from .models import (
     LostFoundPost,
-    Comment,
 )
 
 
@@ -46,29 +45,4 @@ class LostFoundPostAdmin(admin.ModelAdmin):
         "updated_at",
     )
 
-
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-
-    list_display = (
-        "id",
-        "post",
-        "student",
-        "created_at",
-    )
-
-    search_fields = (
-        "post__title",
-        "student__user__first_name",
-        "student__user__last_name",
-        "student__user__email",
-        "comment",
-    )
-
-    ordering = (
-        "-created_at",
-    )
-
-    readonly_fields = (
-        "created_at",
-    )
+

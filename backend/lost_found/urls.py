@@ -4,7 +4,6 @@ from .views import (
     LostFoundListCreateAPIView,
     LostFoundDetailAPIView,
     ChangeStatusAPIView,
-    CommentListCreateAPIView,
     ContactRevealAPIView,
     ModeratePostAPIView,
 )
@@ -27,12 +26,7 @@ urlpatterns = [
         name="lost-found-change-status",
     ),
 
-    # Comments
-    path(
-        "<int:post_id>/comments/",
-        CommentListCreateAPIView.as_view(),
-        name="lost-found-comments",
-    ),
+
     path(
     "<int:pk>/claim/",
     ContactRevealAPIView.as_view(),

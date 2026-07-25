@@ -3,10 +3,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import LostFoundPost, Comment
+from .models import LostFoundPost
 from .serializers import (
     LostFoundPostSerializer,
-    CommentSerializer,
 )
 from .permissions import (
     IsOwnerOrReadOnly,
@@ -161,10 +160,18 @@ class ChangeStatusAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        post = LostFoundService.change_status(
-            post,
-            status_value,
-        )
+        try:
+            post = LostFoundService.change_status(
+                post,
+                status_value,
+            )
+        except ValueError as e:
+            return Response(
+                {
+                    "error": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         return Response(
             {
@@ -172,55 +179,6 @@ class ChangeStatusAPIView(APIView):
                 "status": post.status,
             }
         )
-
-
-class CommentListCreateAPIView(APIView):
-
-    def get_permissions(self):
-        if self.request.method == "POST":
-            return [
-                IsAuthenticated(),
-                IsStudent(),
-            ]
-        return [AllowAny()]
-
-    def get(self, request, post_id):
-
-        comments = Comment.objects.filter(
-            post_id=post_id
-        ).select_related(
-            "student",
-            "student__user",
-        )
-
-        serializer = CommentSerializer(
-            comments,
-            many=True
-        )
-
-        return Response(serializer.data)
-
-    def post(self, request, post_id):
-
-        serializer = CommentSerializer(
-            data=request.data
-        )
-
-        serializer.is_valid(raise_exception=True)
-
-        post = LostFoundService.get_post(post_id)
-
-        comment = LostFoundService.add_comment(
-            post=post,
-            student=request.user.student_profile,
-            comment_text=serializer.validated_data["comment"],
-        )
-
-        return Response(
-            CommentSerializer(comment).data,
-            status=status.HTTP_201_CREATED,
-        )
-
 
 class ContactRevealAPIView(APIView):
 

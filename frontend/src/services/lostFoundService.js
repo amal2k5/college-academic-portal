@@ -53,19 +53,10 @@ const lostFoundService = {
     return data;
   },
 
-  async getComments(postId) {
-    const { data } = await axiosInstance.get(`/lost-found/${postId}/comments/`);
-    return data;
-  },
-
-  async addComment(postId, content) {
-    const { data } = await axiosInstance.post(`/lost-found/${postId}/comments/`, { content });
-    return data;
-  },
 
   async revealContact(id) {
-    const { data } = await axiosInstance.get(`/lost-found/${id}/reveal-contact/`);
-    return data;
+    const { data } = await axiosInstance.post(`/lost-found/${id}/claim/`);
+    return data.data || data;
   }
 };
 

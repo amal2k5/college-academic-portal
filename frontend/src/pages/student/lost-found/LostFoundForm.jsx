@@ -42,8 +42,8 @@ export default function LostFoundForm() {
             location: data.location || "",
             contact_number: data.contact_number || "",
           });
-          if (data.image) {
-            setImagePreview(data.image);
+          if (data.image_url) {
+            setImagePreview(data.image_url);
           }
         })
         .catch(() => {

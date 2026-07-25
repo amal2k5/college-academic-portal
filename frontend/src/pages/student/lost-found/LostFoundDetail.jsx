@@ -4,10 +4,11 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import lostFoundService from "../../../services/lostFoundService";
 import { AuthContext } from "../../../context/AuthContext";
+import { getStudentProfile } from "../../../services/studentService";
 import PageHeader from "../../../components/common/PageHeader";
 import ContactModal from "../../../components/lost-found/ContactModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
-import { ArrowLeft, MapPin, Calendar, User, Edit2, Trash2, Eye, MessageSquare, Send } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, User, Edit2, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
 
 const pageVariants = {
@@ -23,24 +24,18 @@ export default function LostFoundDetail() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  const [comments, setComments] = useState([]);
-  const [commentText, setCommentText] = useState("");
-  const [postingComment, setPostingComment] = useState(false);
-  
   const [contactInfo, setContactInfo] = useState(null);
   const [showContactModal, setShowContactModal] = useState(false);
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const loadPostAndComments = async () => {
+  const [studentProfile, setStudentProfile] = useState(null);
+
+  const loadPost = async () => {
     try {
-      const [postData, commentsData] = await Promise.all([
-        lostFoundService.getPost(id),
-        lostFoundService.getComments(id).catch(() => [])
-      ]);
+      const postData = await lostFoundService.getPost(id);
       setPost(postData);
-      setComments(Array.isArray(commentsData) ? commentsData : commentsData.results || []);
     } catch (error) {
       console.error(error);
       toast.error("Failed to load post details.");
@@ -51,24 +46,32 @@ export default function LostFoundDetail() {
   };
 
   useEffect(() => {
-    loadPostAndComments();
-  }, [id, navigate]);
+    loadPost();
+    if (user?.role === "STUDENT") {
+      getStudentProfile().then(profile => {
+        setStudentProfile(profile);
+      }).catch(err => console.error("Failed to fetch student profile", err));
+    }
+  }, [id, navigate, user]);
 
-  const handleStatusChange = async (e) => {
-    const newStatus = e.target.value;
+  const handleStatusChange = async (newStatus) => {
     try {
       const updated = await lostFoundService.updateStatus(id, newStatus);
       setPost(prev => ({ ...prev, status: updated.status || newStatus }));
       toast.success("Status updated successfully.");
     } catch (error) {
-      toast.error("Failed to update status.");
+      toast.error(error.response?.data?.error || "Failed to update status.");
     }
   };
 
   const handleRevealContact = async () => {
     try {
       const data = await lostFoundService.revealContact(id);
-      setContactInfo(data);
+      setContactInfo({
+        name: data.owner_name || data.name,
+        email: data.email,
+        contact_number: data.contact_number
+      });
       setShowContactModal(true);
     } catch (error) {
       toast.error("Could not fetch contact details.");
@@ -89,41 +92,19 @@ export default function LostFoundDetail() {
     }
   };
 
-  const handlePostComment = async (e) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-    setPostingComment(true);
-    try {
-      await lostFoundService.addComment(id, commentText);
-      setCommentText("");
-      const commentsData = await lostFoundService.getComments(id);
-      setComments(Array.isArray(commentsData) ? commentsData : commentsData.results || []);
-      toast.success("Comment added.");
-    } catch (error) {
-      toast.error("Failed to post comment.");
-    } finally {
-      setPostingComment(false);
-    }
-  };
-
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-neutral-700 border-t-emerald-500 rounded-full animate-spin"></div></div>;
   }
 
   if (!post) return null;
 
-  // Assume user is owner if user ID matches post.user (could be user object or ID)
-  // or if post.is_owner is true
-  const isOwner = post.is_owner || 
-                  post.user?.id === user?.id || 
-                  post.user === user?.id || 
-                  post.posted_by?.id === user?.id;
+  const isOwner = post.student === studentProfile?.id;
 
   const getStatusBadge = (status) => {
     switch (status) {
       case "LOST": return "bg-red-500/10 text-red-500 border-red-500/20";
       case "FOUND": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-      case "RETURNED": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "RETURNED": return "bg-green-500/10 text-green-500 border-green-500/20";
       default: return "bg-neutral-500/10 text-neutral-400 border-neutral-500/20";
     }
   };
@@ -167,9 +148,9 @@ export default function LostFoundDetail() {
         <div className="lg:col-span-2 space-y-6">
           {/* Main Content Card */}
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
-            {post.image ? (
+            {post.image_url ? (
               <div className="w-full h-80 bg-neutral-950 relative border-b border-neutral-800">
-                <img src={post.image} alt={post.title} className="w-full h-full object-contain" />
+                <img src={post.image_url} alt={post.title} className="w-full h-full object-contain" />
               </div>
             ) : (
               <div className="w-full h-40 bg-neutral-950 border-b border-neutral-800 flex items-center justify-center text-neutral-600">
@@ -218,6 +199,11 @@ export default function LostFoundDetail() {
         <div className="space-y-6">
           {/* Action Card */}
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-6">
+            {post.status === "RETURNED" && (
+              <div className="flex items-center gap-2 p-3 bg-green-500/10 text-green-500 border border-green-500/20 rounded-xl text-sm font-medium">
+                <span>✓ Item Returned</span>
+              </div>
+            )}
             <div>
               <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-4">Post Details</h3>
               <div className="flex items-center gap-3 mb-4">
@@ -231,18 +217,25 @@ export default function LostFoundDetail() {
               </div>
             </div>
 
-            {isOwner && (
-              <div className="pt-4 border-t border-neutral-800">
-                <label className="text-xs font-medium text-neutral-400 block mb-2">Update Status</label>
-                <select
-                  value={post.status}
-                  onChange={handleStatusChange}
-                  className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-sm text-white"
-                >
-                  <option value="LOST">Lost</option>
-                  <option value="FOUND">Found</option>
-                  <option value="RETURNED">Returned</option>
-                </select>
+            {isOwner && post.status !== "RETURNED" && (
+              <div className="pt-4 border-t border-neutral-800 space-y-3">
+                <label className="text-xs font-medium text-neutral-400 block">Actions</label>
+                {post.status === "LOST" && (
+                  <button
+                    onClick={() => handleStatusChange("FOUND")}
+                    className="w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Mark as Found
+                  </button>
+                )}
+                {post.status === "FOUND" && (
+                  <button
+                    onClick={() => handleStatusChange("RETURNED")}
+                    className="w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Mark as Returned
+                  </button>
+                )}
               </div>
             )}
 
@@ -257,46 +250,6 @@ export default function LostFoundDetail() {
             )}
           </div>
 
-          {/* Comments Section */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col max-h-[500px]">
-            <div className="p-4 border-b border-neutral-800 flex items-center gap-2">
-              <MessageSquare size={16} className="text-neutral-400" />
-              <h3 className="text-sm font-medium text-white">Comments ({comments.length})</h3>
-            </div>
-            
-            <div className="p-4 flex-1 overflow-y-auto space-y-4 min-h-[200px]">
-              {comments.length === 0 ? (
-                <div className="text-center text-sm text-neutral-500 py-8">No comments yet.</div>
-              ) : (
-                comments.map((comment) => (
-                  <div key={comment.id} className="bg-neutral-950 border border-neutral-800 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-medium text-emerald-400">{comment.author_name || comment.user?.first_name || "User"}</span>
-                      <span className="text-[10px] text-neutral-500">{format(new Date(comment.created_at), "MMM dd, HH:mm")}</span>
-                    </div>
-                    <p className="text-sm text-neutral-300 whitespace-pre-wrap">{comment.content}</p>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <form onSubmit={handlePostComment} className="p-3 border-t border-neutral-800 bg-neutral-950/50 flex gap-2">
-              <input
-                type="text"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Write a comment..."
-                className="flex-1 px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-sm text-white"
-              />
-              <button
-                type="submit"
-                disabled={postingComment || !commentText.trim()}
-                className="p-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-neutral-800 disabled:text-neutral-500 text-white rounded-lg transition-colors flex items-center justify-center"
-              >
-                <Send size={16} />
-              </button>
-            </form>
-          </div>
         </div>
       </div>
 

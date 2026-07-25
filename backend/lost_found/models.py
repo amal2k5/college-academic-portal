@@ -63,31 +63,4 @@ class LostFoundPost(models.Model):
         verbose_name_plural = "Lost & Found Posts"
 
     def __str__(self):
-        return self.title
-
-
-class Comment(models.Model):
-
-    post = models.ForeignKey(
-        LostFoundPost,
-        on_delete=models.CASCADE,
-        related_name="comments",
-    )
-
-    student = models.ForeignKey(
-        Student,
-        on_delete=models.CASCADE,
-        related_name="lost_found_comments",
-    )
-
-    comment = models.TextField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["created_at"]
-        verbose_name = "Comment"
-        verbose_name_plural = "Comments"
-
-    def __str__(self):
-        return f"{self.student.user.email} - {self.post.title}"
+        return self.title

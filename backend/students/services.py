@@ -50,7 +50,7 @@ def create_student(
         user=user,
         department=department,
         phone=phone,
-        yaer=year,
+        year=year,
         date_of_birth=date_of_birth,
         gender=gender,
         parent_name=parent_name,

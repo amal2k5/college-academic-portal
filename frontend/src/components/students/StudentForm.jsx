@@ -22,7 +22,13 @@ const FIELD_SECTIONS = {
   academic: {
     title: 'Academic Information',
     icon: GraduationCap,
-    fields: ['roll_number', 'admission_number', 'semester', 'academic_year']
+    fields: [
+      'roll_number',
+      'admission_number',
+      'year',
+      'semester',
+      'academic_year'
+    ]
   }
 };
 
@@ -74,6 +80,20 @@ const FIELD_CONFIGS = {
     type: 'text',
     placeholder: '',
     icon: Award
+  },
+  year: {
+    label: 'Year',
+    required: true,
+    protected: false,
+    type: 'select',
+    placeholder: 'Select year',
+    options: [
+      { label: 'First Year', value: 1 },
+      { label: 'Second Year', value: 2 },
+      { label: 'Third Year', value: 3 },
+      { label: 'Fourth Year', value: 4 },
+    ],
+    icon: GraduationCap,
   },
   semester: {
     label: 'Semester',
@@ -187,24 +207,19 @@ const FormField = ({ field, value, onChange, disabled, isEditMode, index }) => {
           <option value="" className="bg-neutral-900 text-neutral-500">
             {config.placeholder}
           </option>
-          {config.options.map(opt => (
-            <option key={opt} value={opt.toUpperCase()} className="bg-neutral-900 text-white">
-              {opt}
-            </option>
-          ))}
+          {config.options.map((opt) => {
+            const isObject = typeof opt === "object";
+            return (
+              <option
+                key={isObject ? opt.value : opt}
+                value={isObject ? opt.value : opt.toUpperCase()}
+                className="bg-neutral-900 text-white"
+              >
+                {isObject ? opt.label : opt}
+              </option>
+            );
+          })}
         </select>
-      );
-    }
-
-    if (config.type === 'number') {
-      return (
-        <input
-          type="number"
-          {...commonProps}
-          min={config.min}
-          max={config.max}
-          onWheel={(e) => e.target.blur()}
-        />
       );
     }
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import LostFoundPost, Comment
+from .models import LostFoundPost
 
 
 class LostFoundPostSerializer(serializers.ModelSerializer):
@@ -52,40 +52,4 @@ class LostFoundPostSerializer(serializers.ModelSerializer):
                 return obj.image.url
             except Exception:
                 return None
-        return None
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(
-        source="student.user.get_full_name",
-        read_only=True,
-    )
-
-    class Meta:
-        model = Comment
-        fields = [
-            "id",
-            "post",
-            "student",
-            "student_name",
-            "comment",
-            "created_at",
-        ]
-
-        read_only_fields = [
-            "id",
-            "student",
-            "student_name",
-            "created_at",
-        ]
-
-    def create(self, validated_data):
-        return Comment.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.comment = validated_data.get(
-            "comment",
-            instance.comment,
-        )
-        instance.save()
-        return instance
+        return None

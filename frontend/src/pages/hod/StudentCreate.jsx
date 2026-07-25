@@ -23,6 +23,7 @@ function StudentCreate() {
     gender: "",
     parent_name: "",
     parent_phone: "",
+    year: "",
     semester: "",
     academic_year: "",
   });
@@ -44,7 +45,8 @@ function StudentCreate() {
     try {
       const payload = {
         ...formData,
-        semester: formData.semester ? parseInt(formData.semester) : "",
+        year: formData.year ? parseInt(formData.year, 10) : null,
+        semester: formData.semester ? parseInt(formData.semester, 10) : null,
       };
       await createStudent(payload);
       toast.success("Student created successfully.");

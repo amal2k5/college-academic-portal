@@ -67,7 +67,7 @@ export default function LostFoundList() {
     switch (status) {
       case "LOST": return "bg-red-500/10 text-red-500 border-red-500/20";
       case "FOUND": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-      case "RETURNED": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "RETURNED": return "bg-green-500/10 text-green-500 border-green-500/20";
       default: return "bg-neutral-500/10 text-neutral-400 border-neutral-500/20";
     }
   };
@@ -111,7 +111,7 @@ export default function LostFoundList() {
           onChange={handleFilterChange}
           className="px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-sm text-white min-w-[120px]"
         >
-          <option value="">All Statuses</option>
+          <option value="">All Active</option>
           <option value="LOST">Lost</option>
           <option value="FOUND">Found</option>
           <option value="RETURNED">Returned</option>
@@ -160,8 +160,8 @@ export default function LostFoundList() {
           {posts.map((post) => (
             <Link key={post.id} to={`/student/lost-found/${post.id}`} className="group flex flex-col bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden hover:border-neutral-600 transition-colors">
               <div className="h-48 bg-neutral-950 relative overflow-hidden flex-shrink-0">
-                {post.image ? (
-                  <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                {post.image_url ? (
+                  <img src={post.image_url} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-neutral-700">No Image</div>
                 )}
