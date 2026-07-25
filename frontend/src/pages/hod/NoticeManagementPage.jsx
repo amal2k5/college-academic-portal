@@ -9,7 +9,7 @@ import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
 import PageHeader from "../../components/common/PageHeader";
 import ConfirmModal from "../../components/common/ConfirmModal";
 
-function NoticeManagement() {
+function HODNoticeManagement() {
   const [showForm, setShowForm] = useState(false);
   const [notices, setNotices] = useState([]);
   const [selectedNotice, setSelectedNotice] = useState(null);
@@ -17,7 +17,7 @@ function NoticeManagement() {
   const [loading, setLoading] = useState(true);
   const [selectedViewNotice, setSelectedViewNotice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Confirmation Modal State
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -113,8 +113,8 @@ function NoticeManagement() {
     } catch (error) {
       console.error("Failed to save notice:", error);
       toast.error(
-        error.response?.data?.detail || 
-        error.response?.data?.message || 
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
         "Something went wrong. Please try again."
       );
     } finally {
@@ -197,4 +197,4 @@ function NoticeManagement() {
   );
 }
 
-export default NoticeManagement;
+export default HODNoticeManagement;
