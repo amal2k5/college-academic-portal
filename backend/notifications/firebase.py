@@ -1,13 +1,29 @@
+import json
+
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import messaging
+from decouple import config
 from django.conf import settings
+from firebase_admin import credentials, messaging
 
 
+# Initialize Firebase only once
 if not firebase_admin._apps:
-    cred = credentials.Certificate(
-        settings.FIREBASE_SERVICE_ACCOUNT
+
+    firebase_credentials = config(
+        "FIREBASE_CREDENTIALS",
+        default=None,
     )
+
+    if firebase_credentials:
+        # Production (Render): Load credentials from environment variable
+        cred = credentials.Certificate(
+            json.loads(firebase_credentials)
+        )
+    else:
+        # Local development: Load credentials from JSON file
+        cred = credentials.Certificate(
+            settings.FIREBASE_SERVICE_ACCOUNT
+        )
 
     firebase_admin.initialize_app(cred)
 
@@ -46,7 +62,6 @@ def send_to_device(
         }
 
 
-
 def send_to_devices(
     tokens,
     title,
@@ -69,4 +84,4 @@ def send_to_devices(
             )
         )
 
-    return results            
+    return results

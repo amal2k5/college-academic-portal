@@ -4,7 +4,7 @@ from datetime import timedelta
 import cloudinary
 from decouple import config, Csv
 
-
+import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -114,15 +114,14 @@ ASGI_APPLICATION = "core.asgi.application"
 # DATABASE
 # ==============================================================================
 
+# import dj_database_url
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
-    }
+    "default": dj_database_url.config(
+        default=config("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=False,   # Local PostgreSQL
+    )
 }
 
 
@@ -194,6 +193,7 @@ USE_TZ = True
 # ==============================================================================
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
@@ -243,12 +243,6 @@ REST_FRAMEWORK = {
         "anon": "100/day",
         "complaint_submission": "100/hour",
     },
-}
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-    }
 }
 
 
@@ -301,9 +295,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [
-                (config("REDIS_HOST"), config("REDIS_PORT", cast=int)),
-            ],
+            "hosts": [config("REDIS_URL")],
         },
     },
 }
