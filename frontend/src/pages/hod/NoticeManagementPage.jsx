@@ -1,6 +1,4 @@
-import { Plus } from "lucide-react";
 import NoticeFeed from "../../components/notices/NoticeFeed";
-import noticeService from "../../services/noticeService";
 import { useContext, useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import NoticeForm from "../../components/notices/NoticeForm";
@@ -8,6 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
 import PageHeader from "../../components/common/PageHeader";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import noticeService from "../../services/noticeService";
 
 function HODNoticeManagement() {
   const [showForm, setShowForm] = useState(false);
