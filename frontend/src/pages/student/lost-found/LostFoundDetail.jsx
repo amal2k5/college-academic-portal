@@ -1,14 +1,15 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import lostFoundService from "../../../services/lostFoundService";
 import { AuthContext } from "../../../context/AuthContext";
 import { getStudentProfile } from "../../../services/studentService";
+
 import ContactModal from "../../../components/lost-found/ContactModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
 import { ArrowLeft, MapPin, Calendar, User, Edit2, Trash2, Eye } from "lucide-react";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -31,32 +32,45 @@ export default function LostFoundDetail() {
 
   const [studentProfile, setStudentProfile] = useState(null);
 
-  const loadPost = async () => {
-    try {
-      const postData = await lostFoundService.getPost(id);
-      setPost(postData);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load post details.");
-      navigate("/student/lost-found");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const loadPost = async () => {
+      try {
+        const postData = await lostFoundService.getPost(id);
+        if (isMountedRef.current) setPost(postData);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load post details.");
+        navigate("/student/lost-found");
+      } finally {
+        if (isMountedRef.current) setLoading(false);
+      }
+    };
+
     loadPost();
+
     if (user?.role === "STUDENT") {
-      getStudentProfile().then(profile => {
-        setStudentProfile(profile);
-      }).catch(err => console.error("Failed to fetch student profile", err));
+      getStudentProfile()
+        .then((profile) => {
+          if (isMountedRef.current) setStudentProfile(profile);
+        })
+        .catch((err) => console.error("Failed to fetch student profile", err));
     }
-  }, [id, navigate, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, user?.role, user?.id]);
 
   const handleStatusChange = async (newStatus) => {
     try {
       const updated = await lostFoundService.updateStatus(id, newStatus);
-      setPost(prev => ({ ...prev, status: updated.status || newStatus }));
+      setPost((prev) => ({ ...prev, status: updated.status || newStatus }));
       toast.success("Status updated successfully.");
     } catch (error) {
       toast.error(error.response?.data?.error || "Failed to update status.");
@@ -69,7 +83,7 @@ export default function LostFoundDetail() {
       setContactInfo({
         name: data.owner_name || data.name,
         email: data.email,
-        contact_number: data.contact_number
+        contact_number: data.contact_number,
       });
       setShowContactModal(true);
     } catch (error) {
@@ -92,19 +106,34 @@ export default function LostFoundDetail() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-neutral-700 border-t-emerald-500 rounded-full animate-spin"></div></div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neutral-700 border-t-emerald-500 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   if (!post) return null;
 
-  const isOwner = post.student === studentProfile?.id;
+  // Fixed: was comparing post.student to studentProfile.id, but the poster
+  // data elsewhere on this page (posted_by_name, user.first_name) comes
+  // from post.user, so isOwner was always false. Confirm this matches your
+  // actual API field for the post owner.
+  const isOwner = post.user?.id === studentProfile?.id;
+
+  const postedDate = new Date(post.created_at);
+  const formattedDate = isValid(postedDate) ? format(postedDate, "MMM dd, yyyy") : "Unknown date";
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case "LOST": return "bg-red-500/10 text-red-500 border-red-500/20";
-      case "FOUND": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-      case "RETURNED": return "bg-green-500/10 text-green-500 border-green-500/20";
-      default: return "bg-neutral-500/10 text-neutral-400 border-neutral-500/20";
+      case "LOST":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
+      case "FOUND":
+        return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+      case "RETURNED":
+        return "bg-green-500/10 text-green-500 border-green-500/20";
+      default:
+        return "bg-neutral-500/10 text-neutral-400 border-neutral-500/20";
     }
   };
 
@@ -185,9 +214,7 @@ export default function LostFoundDetail() {
                   </div>
                   <div>
                     <div className="text-xs text-neutral-500">Date Posted</div>
-                    <div className="text-sm font-medium text-white">
-                      {format(new Date(post.created_at), "MMM dd, yyyy")}
-                    </div>
+                    <div className="text-sm font-medium text-white">{formattedDate}</div>
                   </div>
                 </div>
               </div>
@@ -211,7 +238,9 @@ export default function LostFoundDetail() {
                 </div>
                 <div>
                   <div className="text-xs text-neutral-500">Posted by</div>
-                  <div className="text-sm font-medium text-white">{post.posted_by_name || post.user?.first_name || "Unknown"}</div>
+                  <div className="text-sm font-medium text-white">
+                    {post.posted_by_name || post.user?.first_name || "Unknown"}
+                  </div>
                 </div>
               </div>
             </div>

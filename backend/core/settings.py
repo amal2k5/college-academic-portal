@@ -62,10 +62,17 @@ INSTALLED_APPS = [
 # ==============================================================================
 # MIDDLEWARE
 # ==============================================================================
-
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    # Security
     "django.middleware.security.SecurityMiddleware",
+
+    # WhiteNoise (must come immediately after SecurityMiddleware)
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
+    # CORS
+    "corsheaders.middleware.CorsMiddleware",
+
+    # Django Middlewares
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -73,7 +80,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 
 ROOT_URLCONF = "core.urls"
 
