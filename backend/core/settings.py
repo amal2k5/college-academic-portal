@@ -193,6 +193,7 @@ USE_TZ = True
 # ==============================================================================
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
@@ -241,12 +242,6 @@ REST_FRAMEWORK = {
         "anon": "100/day",
         "complaint_submission": "100/hour",
     },
-}
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-    }
 }
 
 
