@@ -228,6 +228,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
+ASGI_APPLICATION = "core.asgi.application"
 
 # ==============================================================================
 # DJANGO REST FRAMEWORK
