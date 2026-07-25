@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
+import ssl
 
 import cloudinary
 from decouple import config, Csv
@@ -113,8 +114,6 @@ ASGI_APPLICATION = "core.asgi.application"
 # ==============================================================================
 # DATABASE
 # ==============================================================================
-
-# import dj_database_url
 
 DATABASES = {
     "default": dj_database_url.config(
@@ -276,31 +275,70 @@ SIMPLE_JWT = {
 # ==============================================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-    
+
+
+# ==============================================================================
+# REDIS (single source of truth for cache, channels, and celery)
+# ==============================================================================
+
+REDIS_URL = config("REDIS_URL")
+
 
 # ==============================================================================
 # DJANGO CHANNELS
 # ==============================================================================
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [(config("REDIS_CACHE_URL", default="redis://127.0.0.1:6379/0").rsplit("/", 1)[0].replace("redis://", ""), 6379)],
-#         },
-#     },
-# }
-
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [config("REDIS_URL")],
+            "hosts": [REDIS_URL],
         },
     },
 }
 
 
+# ==============================================================================
+# CACHE
+# ==============================================================================
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+
+# ==============================================================================
+# CELERY
+# ==============================================================================
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Kolkata"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+# SSL settings for Upstash Redis (REDIS_URL uses rediss://)
+CELERY_BROKER_USE_SSL = {
+    "ssl_cert_reqs": ssl.CERT_NONE,
+}
+
+CELERY_REDIS_BACKEND_USE_SSL = {
+    "ssl_cert_reqs": ssl.CERT_NONE,
+}
+
+
+# ==============================================================================
+# FIREBASE
+# ==============================================================================
 
 FIREBASE_SERVICE_ACCOUNT = (
     BASE_DIR
@@ -309,25 +347,10 @@ FIREBASE_SERVICE_ACCOUNT = (
     / "service-account.json"
 )
 
-CELERY_BROKER_URL = config("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TIMEZONE = "Asia/Kolkata"
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": config("REDIS_CACHE_URL"),
-    }
-}
-
-
-#- Razor Pay
+# ==============================================================================
+# RAZORPAY
+# ==============================================================================
 
 RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET")
-
