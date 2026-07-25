@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import NoticeFeed from "../../components/notices/NoticeFeed";
-import noticeService from "../../services/noticeService";
 import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from "react";
 import PageHeader from "../../components/common/PageHeader";
+import noticeService from "../../services/noticeService";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
