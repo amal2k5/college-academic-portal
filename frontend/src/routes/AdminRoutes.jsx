@@ -15,7 +15,7 @@ import CollegeAdmins from "../pages/admin/collegeAdmins";
 
 import CollegeDashboard from "../pages/CollegeAdmin/Dashboard";
 import HODs from "../pages/CollegeAdmin/HODs";
-import NoticeManagementPage from "../pages/CollegeAdmin/NoticeManagementPage";
+// import NoticeManagementPage from "../pages/CollegeAdmin/NoticeManagementPage";
 
 import HODDashboard from "../pages/hod/HODDashboard";
 import Students from "../pages/hod/Students";
@@ -44,7 +44,7 @@ import StudentComplaintTracking from "../pages/student/ComplaintTrackingPage";
 import ComplaintsPage from "../pages/student/ComplaintsPage";
 import HODComplaintManagement from "../pages/hod/ComplaintManagementPage";
 import CollegeAdminComplaintManagement from "../pages/CollegeAdmin/ComplaintManagementPage";
-
+// import NoticeManagement from "../pages/collegeAdmin/NoticeManagementPage";
 import HODFeeManagement from "../pages/hod/FeeManagement";
 import StudentFeesPage from "../pages/student/StudentFeesPage";
 import StudentPaymentHistoryPage from "../pages/student/StudentPaymentHistoryPage";
@@ -53,6 +53,7 @@ import PaymentSuccessPage from "../pages/student/PaymentSuccessPage";
 import LostFoundList from "../pages/student/lost-found/LostFoundList";
 import LostFoundForm from "../pages/student/lost-found/LostFoundForm";
 import LostFoundDetail from "../pages/student/lost-found/LostFoundDetail";
+import NoticeManagement from "../pages/CollegeAdmin/NoticeManagementPage";
 
 function AdminRoutes() {
   return (
@@ -88,7 +89,7 @@ function AdminRoutes() {
         <Route path="/college-admin/hods" element={<HODs />} />
         <Route
           path="/college-admin/notices"
-          element={<NoticeManagementPage />}
+          element={<NoticeManagement />}
         />
         <Route
           path="/college-admin/complaints"
