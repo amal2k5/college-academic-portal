@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import lostFoundService from "../../../services/lostFoundService";
 import { AuthContext } from "../../../context/AuthContext";
 import { getStudentProfile } from "../../../services/studentService";
-import PageHeader from "../../../components/common/PageHeader";
 import ContactModal from "../../../components/lost-found/ContactModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
 import { ArrowLeft, MapPin, Calendar, User, Edit2, Trash2, Eye } from "lucide-react";
@@ -23,10 +22,10 @@ export default function LostFoundDetail() {
 
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const [contactInfo, setContactInfo] = useState(null);
   const [showContactModal, setShowContactModal] = useState(false);
-  
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -117,7 +116,7 @@ export default function LostFoundDetail() {
       className="max-w-5xl mx-auto py-8 px-4 md:px-8 min-h-screen text-neutral-300 space-y-6"
     >
       <div className="flex items-center justify-between mb-2">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors"
         >
@@ -126,14 +125,14 @@ export default function LostFoundDetail() {
         </button>
         {isOwner && (
           <div className="flex items-center gap-2">
-            <Link 
+            <Link
               to={`/student/lost-found/${id}/edit`}
               className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             >
               <Edit2 size={14} />
               Edit
             </Link>
-            <button 
+            <button
               onClick={() => setShowDeleteModal(true)}
               className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             >
@@ -157,7 +156,7 @@ export default function LostFoundDetail() {
                 No Image Available
               </div>
             )}
-            
+
             <div className="p-6 space-y-6">
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -253,10 +252,10 @@ export default function LostFoundDetail() {
         </div>
       </div>
 
-      <ContactModal 
-        open={showContactModal} 
-        contact={contactInfo} 
-        onClose={() => setShowContactModal(false)} 
+      <ContactModal
+        open={showContactModal}
+        contact={contactInfo}
+        onClose={() => setShowContactModal(false)}
       />
 
       <ConfirmModal
