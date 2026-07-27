@@ -246,7 +246,8 @@ def send_setup_email(user, token):
         "text/html",
     )
 
-    email.send()
+    result = email.send(fail_silently=False)
+    print(f"EMAIL SEND RESULT: {result}")
 
     print("APPROVAL EMAIL SENT SUCCESSFULLY")
 

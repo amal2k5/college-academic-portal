@@ -7,7 +7,10 @@ from accounts.services import (
     create_college_admin,
     generate_setup_token,
 )
-from accounts.tasks import send_setup_email_task, send_rejection_email_task
+from accounts.tasks import (
+    send_setup_email_task,
+    send_rejection_email_task,
+)
 
 from .models import CollegeRegistration
 
