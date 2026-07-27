@@ -34,14 +34,13 @@ from .serializers import (
 from .services import (
     create_college_admin,
     generate_setup_token,
-    send_setup_email,
     setup_password,
     create_hod,
     generate_reset_otp,
-    send_reset_otp_email,
     verify_reset_otp,
     reset_password,
 )
+from .tasks import send_setup_email_task, send_reset_otp_email_task
 from .permissions import IsPlatformAdmin, IsCollegeAdmin
 from departments.models import Department
 
@@ -154,7 +153,7 @@ class CollegeAdminCreateView(APIView):
         )
 
         token = generate_setup_token(user)
-        send_setup_email(user, token)
+        send_setup_email_task.delay(user.id, token.id)
 
         return Response({
             "message": "College Admin created successfully. Setup email sent.",
@@ -236,7 +235,7 @@ class HODCreateView(APIView):
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         token = generate_setup_token(user)
-        send_setup_email(user, token)
+        send_setup_email_task.delay(user.id, token.id)
 
         return Response({
             "message": "HOD created successfully. Setup email sent.",
@@ -383,7 +382,7 @@ class ForgotPasswordView(APIView):
                 otp = generate_reset_otp(user)
 
                 if otp:
-                    send_reset_otp_email(user, otp)
+                    send_reset_otp_email_task.delay(user.id, otp.id)
 
         except User.DoesNotExist:
             pass

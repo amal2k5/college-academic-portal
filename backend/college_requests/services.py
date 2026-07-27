@@ -6,9 +6,8 @@ from colleges.models import College
 from accounts.services import (
     create_college_admin,
     generate_setup_token,
-    send_setup_email,
-    send_rejection_email,
 )
+from accounts.tasks import send_setup_email_task, send_rejection_email_task
 
 from .models import CollegeRegistration
 
@@ -69,14 +68,17 @@ def approve_registration(registration, approved_by):
     token = generate_setup_token(user)
 
     # Send setup email
-    send_setup_email(user, token)
-
-    # Update registration
+# Update registration
     registration.status = CollegeRegistration.Status.APPROVED
     registration.approved_by = approved_by
     registration.approved_at = timezone.now()
 
     registration.save()
+
+    # Send setup email asynchronously — queued after transaction commits
+    transaction.on_commit(
+        lambda: send_setup_email_task.delay(user.id, token.id)
+    )
 
     return registration
 
@@ -110,10 +112,12 @@ def reject_registration(
         ]
     )
 
-    send_rejection_email(
-        email=registration.email,
-        college_name=registration.college_name,
-        reason=reason,
+    transaction.on_commit(
+        lambda: send_rejection_email_task.delay(
+            registration.email,
+            registration.college_name,
+            reason,
+        )
     )
 
     return registration
