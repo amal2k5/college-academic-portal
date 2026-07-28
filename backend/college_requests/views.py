@@ -194,3 +194,20 @@ class RejectCollegeRegistrationView(APIView):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+from django.http import JsonResponse
+import socket
+
+def test_smtp(request):
+    try:
+        socket.create_connection(("smtp.gmail.com", 587), timeout=10)
+        return JsonResponse({
+            "status": "success",
+            "message": "SMTP reachable"
+        })
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": str(e)
+        }, status=500)            

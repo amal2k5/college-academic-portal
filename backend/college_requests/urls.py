@@ -6,6 +6,7 @@ from .views import (
     CollegeRegistrationDetailView,
     ApproveCollegeRegistrationView,
     RejectCollegeRegistrationView,
+    test_smtp
 )
 
 urlpatterns = [
@@ -38,4 +39,5 @@ urlpatterns = [
         RejectCollegeRegistrationView.as_view(),
         name="college-registration-reject",
     ),
+     path("test-smtp/", test_smtp),
 ]
