@@ -1,11 +1,13 @@
 from datetime import timedelta
 import random
+import logging
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
+
+from .email_services import send_email
 
 from colleges.models import College
 from departments.models import Department
@@ -18,6 +20,12 @@ from .models import (
 )
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
+
+
+
+
+
 
 
 # ======================================================
@@ -55,14 +63,14 @@ def send_reset_otp_email(user, otp_record):
         f"If you did not request this, please ignore this email."
     )
 
-    email = EmailMultiAlternatives(
-        subject="Password Reset OTP",
-        body=text_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
-    )
+    html_message = f"<p>{text_message.replace(chr(10), '<br>')}</p>"
 
-    email.send()
+    send_email(
+        to=user.email,
+        subject="Password Reset OTP",
+        html_content=html_message,
+        text_content=text_message,
+    )
 
 
 def verify_reset_otp(email, otp):
@@ -210,7 +218,7 @@ def generate_setup_token(user):
 
 def send_setup_email(user, token):
 
-    print("EMAIL FUNCTION CALLED")
+    logger.info(f"Sending setup email to {user.email}")
 
     setup_link = (
         f"{settings.FRONTEND_URL}/setup-password/{token.token}"
@@ -234,22 +242,14 @@ def send_setup_email(user, token):
         f"This link expires in 24 hours."
     )
 
-    email = EmailMultiAlternatives(
+    result = send_email(
+        to=user.email,
         subject="Your College Registration Has Been Approved",
-        body=text_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
+        html_content=html_message,
+        text_content=text_message,
     )
 
-    email.attach_alternative(
-        html_message,
-        "text/html",
-    )
-
-    result = email.send(fail_silently=False)
-    print(f"EMAIL SEND RESULT: {result}")
-
-    print("APPROVAL EMAIL SENT SUCCESSFULLY")
+    logger.info(f"APPROVAL EMAIL SENT SUCCESSFULLY: {result}")
 
 
 def send_rejection_email(
@@ -284,21 +284,14 @@ def send_rejection_email(
         "College Academic Portal Team"
     )
 
-    email_message = EmailMultiAlternatives(
+    send_email(
+        to=email,
         subject="Update on Your College Registration Request",
-        body=text_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[email],
+        html_content=html_message,
+        text_content=text_message,
     )
 
-    email_message.attach_alternative(
-        html_message,
-        "text/html",
-    )
-
-    email_message.send()
-
-    print("REJECTION EMAIL SENT SUCCESSFULLY")
+    logger.info("REJECTION EMAIL SENT SUCCESSFULLY")
 
 
 def setup_password(

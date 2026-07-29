@@ -1,6 +1,6 @@
 from celery import shared_task
-from django.core.mail import send_mail
-from django.conf import settings
+
+from accounts.email_services import send_email
 
 from fees.models import Fee, Payment
 from students.models import Student
@@ -35,9 +35,12 @@ def send_fee_reminder_emails():
             if already_paid:
                 continue
 
+            if not student.user.email:
+                continue
+
             subject = f"Fee Payment Reminder - {fee.title}"
 
-            message = f"""
+            text_message = f"""
 Dear {student.user.first_name},
 
 This is a reminder that the following fee is still pending.
@@ -53,21 +56,51 @@ Thank you,
 College Administration
 """
 
-            try:
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[student.user.email],
-                    fail_silently=False,
-                )
+            html_message = f"""
+            <p>Dear <strong>{student.user.first_name}</strong>,</p>
 
+            <p>This is a reminder that the following fee is still pending.</p>
+
+            <table style="border-collapse: collapse;">
+                <tr>
+                    <td><strong>Fee Title</strong></td>
+                    <td>{fee.title}</td>
+                </tr>
+                <tr>
+                    <td><strong>Fee Type</strong></td>
+                    <td>{fee.fee_type}</td>
+                </tr>
+                <tr>
+                    <td><strong>Amount</strong></td>
+                    <td>₹{fee.amount}</td>
+                </tr>
+                <tr>
+                    <td><strong>Due Date</strong></td>
+                    <td>{fee.due_date}</td>
+                </tr>
+            </table>
+
+            <p>Please complete the payment before the due date.</p>
+
+            <p>
+                Thank you,<br>
+                <strong>College Administration</strong>
+            </p>
+            """
+
+            try:
+                send_email(
+                    to=student.user.email,
+                    subject=subject,
+                    html_content=html_message,
+                    text_content=text_message,
+                )
                 reminders_sent += 1
 
-            except Exception as e:
+            except Exception as exc:
                 print(
                     f"Failed to send email to "
-                    f"{student.user.email}: {e}"
+                    f"{student.user.email}: {exc}"
                 )
 
-    return f"{reminders_sent} reminder emails sent successfully."
+    return f"{reminders_sent} reminder emails sent successfully."   
