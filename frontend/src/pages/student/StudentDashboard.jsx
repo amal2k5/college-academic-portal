@@ -55,7 +55,6 @@ const getSubjectName = (item) => {
 function StudentDashboard() {
   const [student, setStudent] = useState(null);
   const [exams, setExams] = useState([]);
-  const [attendance, setAttendance] = useState([]);
   const [marks, setMarks] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [notices, setNotices] = useState([]);
@@ -67,10 +66,9 @@ function StudentDashboard() {
     try {
       setLoading(true);
       setError("");
-      const [profileData, examsData, attendanceData, marksData, assignmentsData, noticesData, unreadNotifications] = await Promise.all([
+      const [profileData, examsData, marksData, assignmentsData, noticesData, unreadNotifications] = await Promise.all([
         getStudentProfile().catch(() => null),
         examService.getExams().catch(() => []),
-        attendanceService.getStudentAttendance().catch(() => []),
         marksService.getStudentMarks().catch(() => []),
         assignmentService.getAssignments().catch(() => ({ results: [] })),
         noticeService.getNotices().catch(() => ({ results: [] })),
@@ -80,7 +78,6 @@ function StudentDashboard() {
       if (profileData && Object.keys(profileData).length > 0) setStudent(profileData);
       else setError("No profile data found.");
       setExams(Array.isArray(examsData) ? examsData : []);
-      setAttendance(Array.isArray(attendanceData) ? attendanceData : []);
       setMarks(Array.isArray(marksData) ? marksData : []);
       setAssignments(Array.isArray(assignmentsData) ? assignmentsData : (assignmentsData?.results || []));
       setNotices(Array.isArray(noticesData) ? noticesData : (noticesData?.results || []));
@@ -93,21 +90,6 @@ function StudentDashboard() {
   };
 
   useEffect(() => { fetchData(); }, []);
-
-  const attendancePercentage = useMemo(() => {
-    if (!attendance?.length) return null;
-    let present = 0, total = 0;
-    attendance.forEach(record => {
-      if (record.present_classes != null && record.total_classes != null) {
-        present += record.present_classes;
-        total += record.total_classes;
-      } else if (record.status) {
-        if (['present', 'p'].includes(record.status.toLowerCase())) present++;
-        total++;
-      }
-    });
-    return total === 0 ? 0 : Math.round((present / total) * 100);
-  }, [attendance]);
 
   const activeAssignments = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -125,11 +107,9 @@ function StudentDashboard() {
   }, [exams]);
 
   const latestMark = useMemo(() => marks?.[0] || null, [marks]);
-
   if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 gap-4">
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-8 h-8 border-2 border-neutral-800 border-t-indigo-500" />
-      <p className="text-xs text-neutral-500 tracking-widest uppercase">Loading Dashboard</p>
+    <div className="min-h-screen flex items-center justify-center bg-neutral-950">
+      <div className="w-8 h-8 rounded-full border-2 border-neutral-800 border-t-indigo-500 animate-spin" />
     </div>
   );
 
@@ -163,7 +143,7 @@ function StudentDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* ── LEFT COLUMN (2/3) ── */}
+        {/* Left Column (2/3) */}
         <div className="lg:col-span-2 space-y-6">
 
           <motion.div variants={fadeUp} className="relative overflow-hidden bg-neutral-900 border border-neutral-800 p-6">
@@ -211,10 +191,10 @@ function StudentDashboard() {
                   <div>
                     <p className="text-sm font-semibold text-white">{getSubjectName(latestMark)}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                      <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 border border-indigo-500/20">
                         {latestMark.subject_code || "N/A"}
                       </span>
-                      <span className="text-[9px] font-medium text-neutral-400 bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700">
+                      <span className="text-[9px] font-medium text-neutral-400 bg-neutral-800 px-2 py-0.5 border border-neutral-700">
                         {getExamTypeLabel(latestMark.exam_type)}
                       </span>
                     </div>
@@ -223,7 +203,7 @@ function StudentDashboard() {
                     <div>
                       <p className="text-[8px] text-neutral-500 uppercase tracking-wider">Score</p>
                       <p className="text-xl font-bold text-emerald-400">
-                        {latestMark.obtained_marks ?? latestMark.marks ?? "—"}
+                        {latestMark.obtained_marks ?? latestMark.marks ?? "--"}
                         <span className="text-sm text-neutral-500 font-medium ml-1">/ {latestMark.maximum_marks || 100}</span>
                       </p>
                     </div>
@@ -245,52 +225,8 @@ function StudentDashboard() {
           </motion.div>
         </div>
 
-        {/* ── RIGHT COLUMN (1/3) ── */}
+        {/* Right Column (1/3) */}
         <div className="space-y-6">
-
-          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 overflow-hidden">
-            <div className="h-0.5 w-full bg-gradient-to-r from-cyan-500 to-cyan-600" />
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <UserCheck size={16} className="text-cyan-400" />
-                  <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Attendance</h2>
-                </div>
-                <Link to="/student/attendance" className="text-[9px] text-neutral-500 hover:text-cyan-400 transition-colors">Details</Link>
-              </div>
-
-              {attendancePercentage !== null ? (
-                <div className="flex flex-col items-center">
-                  <div className="relative w-32 h-32 mb-4">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="64" cy="64" r="56" className="text-neutral-800 stroke-current" strokeWidth="8" fill="transparent" />
-                      <circle
-                        cx="64" cy="64" r="56"
-                        className={`${attendancePercentage >= 75 ? 'text-cyan-400' : 'text-rose-500'} stroke-current transition-all duration-1000`}
-                        strokeWidth="8" fill="transparent"
-                        strokeDasharray={351.8}
-                        strokeDashoffset={351.8 - (351.8 * attendancePercentage) / 100}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-bold text-white">{attendancePercentage}%</span>
-                      <span className="text-[8px] text-neutral-500 uppercase tracking-wider mt-0.5">Present</span>
-                    </div>
-                  </div>
-
-                  <div className={`w-full p-2 border text-center text-xs font-medium ${attendancePercentage < 75 ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-cyan-500/5 border-cyan-500/20 text-cyan-400'}`}>
-                    {attendancePercentage < 75 ? "⚠ Below 75%" : "✓ Good Standing"}
-                  </div>
-                </div>
-              ) : (
-                <div className="py-8 text-center">
-                  <UserCheck size={28} className="text-neutral-700 mx-auto mb-2" />
-                  <p className="text-sm text-neutral-400">No records</p>
-                </div>
-              )}
-            </div>
-          </motion.div>
 
           <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 overflow-hidden">
             <div className="h-0.5 w-full bg-gradient-to-r from-indigo-500 to-violet-500" />
@@ -306,11 +242,11 @@ function StudentDashboard() {
                     <p className="text-sm font-semibold text-white">{nextExam.subject_name || "Unknown"}</p>
                     <div className="flex flex-wrap items-center gap-2 mt-1">
                       {nextExam.subject_code && (
-                        <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                        <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 border border-indigo-500/20">
                           {nextExam.subject_code}
                         </span>
                       )}
-                      <span className="text-[9px] text-neutral-300 bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700">
+                      <span className="text-[9px] text-neutral-300 bg-neutral-800 px-2 py-0.5 border border-neutral-700">
                         {getExamTypeLabel(nextExam.exam_type)}
                       </span>
                     </div>
@@ -323,8 +259,8 @@ function StudentDashboard() {
                         <span>{new Date(nextExam.exam_date).toLocaleDateString("en-US", { month: 'short', day: 'numeric', weekday: 'short' })}</span>
                       </div>
                       {countdown && (
-                        <span className="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
-                          ⏱ {countdown}
+                        <span className="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 border border-indigo-500/20">
+                          {countdown}
                         </span>
                       )}
                     </div>
@@ -341,7 +277,7 @@ function StudentDashboard() {
                   </div>
 
                   <Link to="/student/exams" className="block text-center text-[9px] font-medium text-indigo-400 hover:text-indigo-300 transition-colors pt-2 border-t border-neutral-800">
-                    View Schedule →
+                    View Schedule
                   </Link>
                 </div>
               ) : (

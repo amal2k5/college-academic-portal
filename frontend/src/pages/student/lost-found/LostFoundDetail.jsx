@@ -119,7 +119,7 @@ export default function LostFoundDetail() {
   // data elsewhere on this page (posted_by_name, user.first_name) comes
   // from post.user, so isOwner was always false. Confirm this matches your
   // actual API field for the post owner.
-  const isOwner = post.user?.id === studentProfile?.id;
+  const isOwner = post.student === studentProfile?.id;
 
   const postedDate = new Date(post.created_at);
   const formattedDate = isValid(postedDate) ? format(postedDate, "MMM dd, yyyy") : "Unknown date";
@@ -239,7 +239,7 @@ export default function LostFoundDetail() {
                 <div>
                   <div className="text-xs text-neutral-500">Posted by</div>
                   <div className="text-sm font-medium text-white">
-                    {post.posted_by_name || post.user?.first_name || "Unknown"}
+                    {post.student_name || "Unknown"}
                   </div>
                 </div>
               </div>

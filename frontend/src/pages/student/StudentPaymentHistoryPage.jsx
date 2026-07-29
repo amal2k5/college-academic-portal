@@ -30,9 +30,9 @@ export default function StudentPaymentHistoryPage() {
   }, [loadHistory]);
 
   const filteredPayments = payments.filter((payment) => {
-    const matchesSearch = payment.fee?.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          payment.razorpay_order_id?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSemester = filterSemester === "ALL" || payment.fee?.semester === parseInt(filterSemester);
+    const matchesSearch = payment.fee_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.razorpay_order_id?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSemester = filterSemester === "ALL" || payment.student_semester === parseInt(filterSemester);
     return matchesSearch && matchesSemester;
   });
 
@@ -60,7 +60,7 @@ export default function StudentPaymentHistoryPage() {
               className="w-full bg-neutral-900 border border-neutral-800 rounded-lg py-2 pl-9 pr-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-neutral-700 transition-colors"
             />
           </div>
-          
+
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter size={16} className="text-neutral-500 hidden sm:block" />
             <select
@@ -115,11 +115,14 @@ export default function StudentPaymentHistoryPage() {
                   <tr key={payment.id} className="hover:bg-neutral-800/20 transition-colors">
                     <td className="px-4 py-3">
                       <div className="font-medium text-white">{payment.razorpay_order_id}</div>
-                      <div className="text-[10px] text-neutral-500 font-mono mt-0.5">{payment.razorpay_payment_id}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-white">{payment.fee?.title || "Unknown Fee"}</div>
-                      <div className="text-xs text-neutral-400 mt-0.5">Sem {payment.fee?.semester} • {payment.fee?.category}</div>
+                      <div className="font-medium text-white">
+                        {payment.fee_title || "Unknown Fee"}
+                      </div>
+                      <div className="text-xs text-neutral-400 mt-0.5">
+                        Sem {payment.student_semester} • {payment.fee_type}
+                      </div>
                     </td>
                     <td className="px-4 py-3 font-medium text-white">
                       ₹{parseFloat(payment.amount).toLocaleString()}
@@ -128,21 +131,19 @@ export default function StudentPaymentHistoryPage() {
                       {payment.created_at ? format(new Date(payment.created_at), "MMM dd, yyyy HH:mm") : "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${
-                        payment.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
-                        payment.status === 'FAILED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 
-                        'bg-orange-500/10 text-orange-400 border border-orange-500/20'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          payment.status === 'SUCCESS' ? 'bg-emerald-400' : 
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${payment.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                        payment.status === 'FAILED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                          'bg-orange-500/10 text-orange-400 border border-orange-500/20'
+                        }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${payment.status === 'SUCCESS' ? 'bg-emerald-400' :
                           payment.status === 'FAILED' ? 'bg-red-400' : 'bg-orange-400'
-                        }`} />
+                          }`} />
                         {payment.status || 'SUCCESS'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       {payment.status === 'SUCCESS' || payment.status === 'PAID' ? (
-                        <button 
+                        <button
                           onClick={() => setSelectedPayment(payment)}
                           className="h-8 px-3 inline-flex items-center justify-center gap-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-medium transition-colors"
                         >
@@ -163,8 +164,8 @@ export default function StudentPaymentHistoryPage() {
           </table>
         </div>
       </div>
-      
-      <ReceiptModal 
+
+      <ReceiptModal
         open={!!selectedPayment}
         payment={selectedPayment}
         onClose={() => setSelectedPayment(null)}

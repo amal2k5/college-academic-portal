@@ -24,7 +24,6 @@ function Footer() {
             <h3 className="text-neutral-300 font-medium text-[13px] sm:text-sm">Product</h3>
             <ul className="space-y-2.5 sm:space-y-3 text-[13px] sm:text-sm text-neutral-500">
               <li><Link to="/features" className="hover:text-indigo-400 transition-colors duration-200">Features</Link></li>
-              <li><Link to="/pricing" className="hover:text-indigo-400 transition-colors duration-200">Pricing</Link></li>
               <li><Link to="/integrations" className="hover:text-indigo-400 transition-colors duration-200">Integrations</Link></li>
             </ul>
           </div>

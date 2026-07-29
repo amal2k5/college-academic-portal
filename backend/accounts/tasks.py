@@ -3,7 +3,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from django.conf import settings
 
+print("=" * 60)
+print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
+print("EMAIL_HOST_PASSWORD:", repr(settings.EMAIL_HOST_PASSWORD))
+print("=" * 60)
 @shared_task(bind=True, max_retries=3, default_retry_delay=30)
 def send_setup_email_task(self, user_id, token_id):
     from django.contrib.auth import get_user_model
