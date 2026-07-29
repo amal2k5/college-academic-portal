@@ -15,7 +15,9 @@ from notices.models import Notice
 from assignments.models import Assignment
 from .models import HODProfile
 
+import logging
 
+logger = logging.getLogger(__name__)
 from .models import User, CollegeAdminProfile
 from .serializers import (
     LoginSerializer,
@@ -185,7 +187,6 @@ class SetupPasswordView(APIView):
             status=status.HTTP_200_OK
         )
 
-
 class HODCreateView(APIView):
     """Allows College Admins to create HODs for their own college."""
     permission_classes = [IsAuthenticated, IsCollegeAdmin]
@@ -209,6 +210,7 @@ class HODCreateView(APIView):
             )
 
         department_id = serializer.validated_data["department_id"]
+
         try:
             department = Department.objects.get(id=department_id)
         except Department.DoesNotExist:
@@ -232,16 +234,38 @@ class HODCreateView(APIView):
                 department_id=department_id,
             )
         except ValueError as e:
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        logger.info(f"HOD created successfully: {user.email}")
 
         token = generate_setup_token(user)
-        send_setup_email_task.delay(user.id, token.id)
+        logger.info(f"Setup token created: {token.id}")
 
-        return Response({
-            "message": "HOD created successfully. Setup email sent.",
-            "email": user.email,
-            "role": user.role,
-        }, status=status.HTTP_201_CREATED)
+        try:
+            result = send_setup_email_task.delay(user.id, token.id)
+            logger.info(f"Celery task queued successfully. Task ID: {result.id}")
+        except Exception as e:
+            logger.exception("Failed to queue setup email task")
+            return Response(
+                {
+                    "message": "HOD created, but failed to queue setup email.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {
+                "message": "HOD created successfully. Setup email sent.",
+                "email": user.email,
+                "role": user.role,
+                "task_id": result.id,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class HODListView(APIView):
