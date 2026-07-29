@@ -5,6 +5,7 @@ import {
     isSupported,
 } from "firebase/messaging";
 import app from "./firebase";
+import { registerServiceWorker } from "./serviceWorker";
 
 let messagingInstance = null;
 let initializationPromise = null;
@@ -136,3 +137,4 @@ export const onForegroundMessage = async (callback) => {
         callback(payload);
     });
 };
+
