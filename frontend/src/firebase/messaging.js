@@ -86,14 +86,22 @@ export const generateFCMToken = async () => {
             return null;
         }
 
+        const registration = await registerServiceWorker();
+
+        if (!registration) {
+            throw new Error("Failed to register service worker.");
+        }
+
+        await navigator.serviceWorker.ready;
+        console.log("Notification:", Notification.permission);
+        console.log("Registration:", registration);
+        console.log("Messaging:", messaging);
+        console.log("VAPID:", vapidKey);
+
         const token = await getToken(messaging, {
             vapidKey,
+            serviceWorkerRegistration: registration,
         });
-
-        if (!token) {
-            console.warn("Firebase did not return an FCM token.");
-            return null;
-        }
 
         if (import.meta.env.DEV) {
             console.debug("FCM token generated successfully.");
@@ -101,7 +109,10 @@ export const generateFCMToken = async () => {
 
         return token;
     } catch (error) {
-        console.error("Failed to generate FCM token:", error);
+        console.error("Name:", error.name);
+        console.error("Message:", error.message);
+        console.error("Stack:", error.stack);
+        console.error(error);
         return null;
     }
 };
