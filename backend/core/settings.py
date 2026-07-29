@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
-import ssl
+# import ssl
 
 import cloudinary
 from decouple import config, Csv
@@ -340,14 +340,14 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Asia/Kolkata"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
-# SSL settings for Upstash Redis (REDIS_URL uses rediss://)
-CELERY_BROKER_USE_SSL = {
-    "ssl_cert_reqs": ssl.CERT_NONE,
-}
+# # SSL settings for Upstash Redis (REDIS_URL uses rediss://)
+# CELERY_BROKER_USE_SSL = {
+#     "ssl_cert_reqs": ssl.CERT_NONE,
+# }
 
-CELERY_REDIS_BACKEND_USE_SSL = {
-    "ssl_cert_reqs": ssl.CERT_NONE,
-}
+# CELERY_REDIS_BACKEND_USE_SSL = {
+#     "ssl_cert_reqs": ssl.CERT_NONE,
+# }
 
 
 # ==============================================================================
