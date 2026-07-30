@@ -103,6 +103,11 @@ export const generateFCMToken = async () => {
             vapidKey,
             serviceWorkerRegistration: registration,
         });
+        if (token) {
+            console.log("FCM Token:", token);
+        } else {
+            console.warn("No FCM token was returned.");
+        }
 
         if (import.meta.env.DEV) {
             console.debug("FCM token generated successfully.");
