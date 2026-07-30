@@ -94,15 +94,23 @@ export const generateFCMToken = async () => {
         }
 
         await navigator.serviceWorker.ready;
+
+        console.log("SW state:", registration.active?.state);
+        console.log("SW scope:", registration.scope);
+        console.log("PushManager available:", !!registration.pushManager);
+
         console.log("Notification:", Notification.permission);
         console.log("Registration:", registration);
         console.log("Messaging:", messaging);
         console.log("VAPID:", vapidKey);
 
+        console.log("Before getToken");
         const token = await getToken(messaging, {
             vapidKey,
             serviceWorkerRegistration: registration,
         });
+
+        console.log("After getToken");
         if (token) {
             console.log("FCM Token:", token);
         } else {
