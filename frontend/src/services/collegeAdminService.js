@@ -29,4 +29,11 @@ export const updateCollegeAdminStatus = async (id, is_active) => {
   );
 
   return data;
-};  
+};
+
+export const getCollegeAdminDashboardStats = async () => {
+  const { data } = await axiosInstance.get(
+    "/auth/college-admin/dashboard/stats/"
+  );
+  return data;
+};

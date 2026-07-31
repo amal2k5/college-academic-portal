@@ -15,6 +15,12 @@ urlpatterns = [
     ),
 
     path(
+        "college-admin/dashboard/stats/",
+        CollegeAdminDashboardStatsView.as_view(),
+        name="college-admin-dashboard-stats",
+    ),
+
+    path(
         "public/stats/",
         PublicStatsView.as_view(),
         name="public-stats",

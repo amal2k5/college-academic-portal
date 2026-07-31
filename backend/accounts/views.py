@@ -96,6 +96,32 @@ class PublicStatsView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+
+class CollegeAdminDashboardStatsView(APIView):
+    """
+    College Admin Dashboard Statistics
+    """
+    permission_classes = [IsAuthenticated, IsCollegeAdmin]
+
+    def get(self, request):
+        try:
+            admin_college = CollegeAdminProfile.objects.get(user=request.user).college
+        except CollegeAdminProfile.DoesNotExist:
+            return Response(
+                {"message": "Admin profile not found."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        data = {
+            "departments": Department.objects.filter(college=admin_college).count(),
+            "hods": User.objects.filter(
+                role=User.Role.HOD, 
+                hodprofile__department__college=admin_college
+            ).count(),
+            "students": Student.objects.filter(department__college=admin_college).count()
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
     
 class LoginView(APIView):
     """Handles user login and JWT token generation."""
