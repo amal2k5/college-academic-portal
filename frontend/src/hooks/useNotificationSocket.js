@@ -83,6 +83,7 @@ function useNotificationSocket(onNotification) {
 
         // Forward genuine notification frames to the consumer.
         if (payload.type === "notification" && callbackRef.current) {
+          console.log("WebSocket message received");
           // Shape the incoming frame into the same object structure the REST
           // API returns, so consumers don't need to handle two different shapes.
           const notification = {
@@ -94,7 +95,9 @@ function useNotificationSocket(onNotification) {
             is_read:    false,
             created_at: new Date().toISOString(),
           };
+          console.log("parsed payload", notification);
           callbackRef.current(notification);
+          console.log("notification state updated");
         }
       };
 

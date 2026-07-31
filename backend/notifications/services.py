@@ -3,6 +3,9 @@ from channels.layers import get_channel_layer
 
 from .models import Notification
 from .tasks import send_fcm_notification
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def notify_students(
@@ -46,8 +49,7 @@ def notify_students(
                 },
             )
         except Exception:
-            # TODO: Replace with proper logging
-            pass
+            logger.exception("Exception in notify_students group_send")
 
     try:
         send_fcm_notification.delay(
@@ -57,8 +59,7 @@ def notify_students(
             data=data or {},
         )
     except Exception:
-        # TODO: Replace with proper logging
-        pass
+        logger.exception("Exception in notify_students send_fcm_notification")
 
     return notifications
 
@@ -68,9 +69,11 @@ def notify_platform_admins(message, data=None):
     Send WebSocket updates to all platform admins.
     This does NOT create database notifications or send FCM.
     """
+    logger.info("CHECKPOINT 5: Entered notify_platform_admins()")
     channel_layer = get_channel_layer()
     
     try:
+        logger.info("CHECKPOINT 6: About to execute group_send()")
         async_to_sync(channel_layer.group_send)(
             "platform_admin",
             {
@@ -78,6 +81,6 @@ def notify_platform_admins(message, data=None):
                 "message": message,
             },
         )
+        logger.info("CHECKPOINT 7: group_send() completed successfully")
     except Exception:
-        # TODO: Replace with proper logging
-        pass
+        logger.exception("Exception in notify_platform_admins")

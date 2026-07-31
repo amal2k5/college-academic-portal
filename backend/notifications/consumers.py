@@ -57,6 +57,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         )
 
     async def send_notification(self, event):
+        print("CHECKPOINT 8: Consumer received event")
+        print(f"event payload: {event}")
         await self.send(
             text_data=json.dumps(
                 {
@@ -65,3 +67,4 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 }
             )
         )
+        print("CHECKPOINT 9: Notification sent to websocket")

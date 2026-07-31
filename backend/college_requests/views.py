@@ -28,10 +28,17 @@ class CollegeRegistrationCreateView(APIView):
     def post(self, request):
         serializer = CollegeRegistrationSerializer(data=request.data)
 
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("CHECKPOINT 1: View entered")
+
         if serializer.is_valid():
             serializer.save()
+            logger.info("CHECKPOINT 2: serializer.save() completed")
 
+            logger.info("CHECKPOINT 3: Calling notify_platform_admins()")
             notify_platform_admins(message="A new college registration request has been submitted.")
+            logger.info("CHECKPOINT 4: notify_platform_admins() returned")
 
             return Response(
                 {
