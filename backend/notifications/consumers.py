@@ -14,7 +14,11 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        self.group_name = f"student_{user.id}"
+        from accounts.models import User
+        if user.role == User.Role.PLATFORM_ADMIN:
+            self.group_name = "platform_admin"
+        else:
+            self.group_name = f"student_{user.id}"
 
         await self.channel_layer.group_add(
             self.group_name,

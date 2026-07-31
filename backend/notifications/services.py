@@ -61,3 +61,23 @@ def notify_students(
         pass
 
     return notifications
+
+
+def notify_platform_admins(message, data=None):
+    """
+    Send WebSocket updates to all platform admins.
+    This does NOT create database notifications or send FCM.
+    """
+    channel_layer = get_channel_layer()
+    
+    try:
+        async_to_sync(channel_layer.group_send)(
+            "platform_admin",
+            {
+                "type": "send_notification",
+                "message": message,
+            },
+        )
+    except Exception:
+        # TODO: Replace with proper logging
+        pass

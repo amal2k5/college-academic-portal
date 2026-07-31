@@ -46,7 +46,14 @@ const CollegeRequestsPage = () => {
   useEffect(() => {
     const controller = new AbortController();
     fetchRequests(controller.signal);
-    return () => controller.abort();
+    
+    const handleRefetch = () => fetchRequests();
+    window.addEventListener("refetchCollegeRequests", handleRefetch);
+    
+    return () => {
+      controller.abort();
+      window.removeEventListener("refetchCollegeRequests", handleRefetch);
+    };
   }, []);
 
   // Memoized filtering for performance

@@ -13,6 +13,7 @@ from .services import (
     reject_registration,
 )
 from accounts.permissions import IsPlatformAdmin
+from notifications.services import notify_platform_admins
 
 
 class CollegeRegistrationCreateView(APIView):
@@ -29,6 +30,8 @@ class CollegeRegistrationCreateView(APIView):
 
         if serializer.is_valid():
             serializer.save()
+
+            notify_platform_admins(message="A new college registration request has been submitted.")
 
             return Response(
                 {
