@@ -1,4 +1,5 @@
-from django.core.management.base import BaseCommand
+import os
+from django.core.management.base import BaseCommand, CommandError
 from accounts.models import User
 
 
@@ -7,7 +8,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        email = "dominic@gmail.com"
+        email = os.environ.get("PLATFORM_ADMIN_EMAIL")
+        password = os.environ.get("PLATFORM_ADMIN_PASSWORD")
+        first_name = os.environ.get("PLATFORM_ADMIN_FIRST_NAME", "Platform")
+        last_name = os.environ.get("PLATFORM_ADMIN_LAST_NAME", "Admin")
+
+        if not email or not password:
+            raise CommandError(
+                "PLATFORM_ADMIN_EMAIL and PLATFORM_ADMIN_PASSWORD "
+                "must be set as environment variables before running this command."
+            )
 
         if User.objects.filter(email=email).exists():
             self.stdout.write(
@@ -19,9 +29,9 @@ class Command(BaseCommand):
 
         user = User.objects.create_user(
             email=email,
-            password="amal1234",
-            first_name="Dominic",
-            last_name="Admin",
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
         )
 
         user.role = User.Role.PLATFORM_ADMIN
@@ -32,6 +42,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                "Platform Admin created successfully!"
+                f"Platform Admin created successfully: {email}"
             )
         )
