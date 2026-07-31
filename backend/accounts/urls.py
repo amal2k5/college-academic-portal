@@ -15,6 +15,12 @@ urlpatterns = [
     ),
 
     path(
+        "public/stats/",
+        PublicStatsView.as_view(),
+        name="public-stats",
+    ),
+
+    path(
         "login/",
         LoginView.as_view(),
         name="login",

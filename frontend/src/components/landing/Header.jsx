@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { GraduationCap, ArrowRight, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../services/axiosInstance";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -28,7 +28,7 @@ export default function Header() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('/api/stats'); // Replace with your actual endpoint
+        const response = await axiosInstance.get('/auth/public/stats/'); // Fetching public platform stats
         setStats({
           colleges: response.data.colleges || 0,
           students: response.data.students || 0,

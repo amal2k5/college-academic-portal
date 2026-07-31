@@ -45,6 +45,7 @@ from .services import (
 from .tasks import send_setup_email_task, send_reset_otp_email_task
 from .permissions import IsPlatformAdmin, IsCollegeAdmin
 from departments.models import Department
+from rest_framework.permissions import AllowAny
 
 class PlatformDashboardStatsView(APIView):
     """
@@ -76,6 +77,22 @@ class PlatformDashboardStatsView(APIView):
             "rejected_requests": CollegeRegistration.objects.filter(
                 status=CollegeRegistration.Status.REJECTED
             ).count(),
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+class PublicStatsView(APIView):
+    """
+    Public Statistics for Landing Page
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        data = {
+            "colleges": College.objects.count(),
+            "students": Student.objects.count(),
+            "departments": Department.objects.count()
         }
 
         return Response(data, status=status.HTTP_200_OK)
