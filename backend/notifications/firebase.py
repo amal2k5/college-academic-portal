@@ -1,12 +1,12 @@
 import json
-
 import firebase_admin
 from decouple import config
 from django.conf import settings
 from firebase_admin import credentials, messaging
 
 
-# Initialize Firebase only once
+
+
 if not firebase_admin._apps:
 
     firebase_credentials = config(
@@ -15,12 +15,12 @@ if not firebase_admin._apps:
     )
 
     if firebase_credentials:
-        # Production (Render): Load credentials from environment variable
+
         cred = credentials.Certificate(
             json.loads(firebase_credentials)
         )
     else:
-        # Local development: Load credentials from JSON file
+
         cred = credentials.Certificate(
             settings.FIREBASE_SERVICE_ACCOUNT
         )
@@ -34,9 +34,6 @@ def send_to_device(
     body,
     data=None,
 ):
-    """
-    Send a push notification to a single device.
-    """
 
     try:
         message = messaging.Message(
@@ -68,9 +65,7 @@ def send_to_devices(
     body,
     data=None,
 ):
-    """
-    Send the same notification to multiple devices.
-    """
+
 
     results = []
 
