@@ -17,6 +17,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         from accounts.models import User
         if user.role == User.Role.PLATFORM_ADMIN:
             self.group_name = "platform_admin"
+        elif user.role == User.Role.COLLEGE_ADMIN:
+            self.group_name = f"college_admin_{user.id}"
+        elif user.role == User.Role.HOD:
+            self.group_name = f"hod_{user.id}"
         else:
             self.group_name = f"student_{user.id}"
 

@@ -56,15 +56,22 @@ def check_low_attendance():
             )
 
             if percentage < 75:
-
-                Notification.objects.create(
-                    student=student,
-                    message=(
-                        f"Low Attendance Alert!\n"
-                        f"{subject.name}: {percentage}% attendance.\n"
-                        f"Minimum required attendance is 75%."
-                    ),
+                
+                message = (
+                    f"Low Attendance Alert!\n"
+                    f"{subject.name}: {percentage}% attendance.\n"
+                    f"Minimum required attendance is 75%."
                 )
+
+                try:
+                    from notifications.services import notify_students
+                    notify_students(
+                        [student],
+                        message,
+                        title="Low Attendance"
+                    )
+                except Exception as e:
+                    pass
 
                 notifications_created += 1
 

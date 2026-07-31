@@ -48,6 +48,16 @@ class HODFeeService:
         fee = Fee(department=department, **validated_data)
         fee.full_clean()  # Ensure model validation runs
         fee.save()
+        
+        try:
+            from notifications.services import notify_students
+            from students.models import Student
+            students = Student.objects.filter(department=department, semester=fee.semester)
+            if students.exists():
+                notify_students(list(students), f"New fee generated: {fee.title} (Due: {fee.due_date})")
+        except Exception as e:
+            pass
+            
         return fee
 
     @staticmethod

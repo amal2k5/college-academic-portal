@@ -36,6 +36,15 @@ def create_complaint(validated_data):
         cache.delete(
             f"college_complaint_count_{complaint.college.id}"
         )
+        try:
+            from notifications.services import notify_college_admins
+            if hasattr(complaint.college, "collegeadminprofile"):
+                notify_college_admins(
+                    [complaint.college.collegeadminprofile.user],
+                    f"New college complaint: {complaint.tracking_code}"
+                )
+        except Exception as e:
+            pass
 
     elif complaint.scope == Complaint.Scope.DEPARTMENT:
         cache.delete(
@@ -44,6 +53,15 @@ def create_complaint(validated_data):
         cache.delete(
             f"hod_complaint_count_{complaint.department.id}"
         )
+        try:
+            from notifications.services import notify_hods
+            if hasattr(complaint.department, "hodprofile"):
+                notify_hods(
+                    [complaint.department.hodprofile.user],
+                    f"New department complaint: {complaint.tracking_code}"
+                )
+        except Exception as e:
+            pass
 
     return complaint
 
@@ -127,6 +145,16 @@ def update_complaint_status(
         cache.delete(
             f"hod_complaint_count_{complaint.department.id}"
         )
+        
+    try:
+        from notifications.services import notify_students
+        if hasattr(complaint, "student") and complaint.student:
+            notify_students(
+                [complaint.student],
+                f"Complaint {complaint.tracking_code} status updated to {status}"
+            )
+    except Exception as e:
+        pass
 
     return complaint
 

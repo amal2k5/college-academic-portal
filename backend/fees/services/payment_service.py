@@ -173,5 +173,16 @@ class PaymentService:
         cache.delete(
             f"fee_summary_{payment.fee.department_id}"
         )
+        
+        try:
+            from notifications.services import notify_hods
+            if hasattr(payment.fee.department, "hodprofile"):
+                student_name = f"{payment.student.user.first_name} {payment.student.user.last_name}".strip()
+                notify_hods(
+                    [payment.fee.department.hodprofile.user],
+                    f"Payment received: ₹{payment.amount} from {student_name} for {payment.fee.title}"
+                )
+        except Exception as e:
+            pass
 
         return payment

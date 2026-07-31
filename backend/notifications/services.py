@@ -81,3 +81,47 @@ def notify_platform_admins(message, data=None):
         )
     except Exception:
         logger.exception("Exception in notify_platform_admins")
+
+
+def notify_hods(hod_users, message, data=None):
+    """
+    Send WebSocket updates to specific HODs.
+    """
+    if not hod_users:
+        return
+
+    channel_layer = get_channel_layer()
+
+    for user in hod_users:
+        try:
+            async_to_sync(channel_layer.group_send)(
+                f"hod_{user.id}",
+                {
+                    "type": "send_notification",
+                    "message": message,
+                },
+            )
+        except Exception:
+            logger.exception("Exception in notify_hods group_send")
+
+
+def notify_college_admins(admin_users, message, data=None):
+    """
+    Send WebSocket updates to specific College Admins.
+    """
+    if not admin_users:
+        return
+
+    channel_layer = get_channel_layer()
+
+    for user in admin_users:
+        try:
+            async_to_sync(channel_layer.group_send)(
+                f"college_admin_{user.id}",
+                {
+                    "type": "send_notification",
+                    "message": message,
+                },
+            )
+        except Exception:
+            logger.exception("Exception in notify_college_admins group_send")
