@@ -19,6 +19,8 @@ const CollegeRequestsPage = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [loadingCollegeId, setLoadingCollegeId] = useState(null);
+  const [loadingAction, setLoadingAction] = useState(null); // "approve" | "reject" | null
   
   // Pagination state (kept for future implementation)
   const [count, setCount] = useState(0);
@@ -79,7 +81,11 @@ const CollegeRequestsPage = () => {
   };
 
   const handleApprove = async () => {
-    if (!selectedRequest) return;
+    if (!selectedRequest || loadingAction) return;
+    
+    setLoadingCollegeId(selectedRequest.id);
+    setLoadingAction("approve");
+    
     try {
       await approveCollegeRequest(selectedRequest.id);
       toast.success("College request approved successfully.");
@@ -89,10 +95,18 @@ const CollegeRequestsPage = () => {
       toast.error(
         error?.response?.data?.message || "Unable to approve request.",
       );
+    } finally {
+      setLoadingCollegeId(null);
+      setLoadingAction(null);
     }
   };
 
   const handleReject = async (reason) => {
+    if (!selectedRequest || loadingAction) return;
+    
+    setLoadingCollegeId(selectedRequest.id);
+    setLoadingAction("reject");
+    
     try {
       await rejectCollegeRequest(selectedRequest.id, reason);
       toast.success("College request rejected.");
@@ -102,6 +116,9 @@ const CollegeRequestsPage = () => {
       toast.error(
         error?.response?.data?.message || "Unable to reject request.",
       );
+    } finally {
+      setLoadingCollegeId(null);
+      setLoadingAction(null);
     }
   };
 
@@ -142,6 +159,7 @@ const CollegeRequestsPage = () => {
           setDetailsOpen(false);
           setRejectOpen(true);
         }}
+        isApproving={loadingCollegeId === selectedRequest?.id && loadingAction === "approve"}
       />
 
       <RejectRequestModal

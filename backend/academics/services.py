@@ -64,7 +64,7 @@ def get_student_attendance(user):
     for subject in subjects:
 
         cache_key = (
-            f"attendance_percentage:"
+            f"attendance_percentage_v2:"
             f"{student.id}:{subject.id}"
         )
 
@@ -102,6 +102,7 @@ def get_student_attendance(user):
             "subject_id": subject.id,
             "subject_name": subject.name,
             "subject_code": subject.subject_code,
+            "semester": subject.semester,
             "present_days": present_days,
             "total_days": total_days,
             "attendance_percentage": percentage,

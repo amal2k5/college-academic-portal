@@ -13,6 +13,7 @@ import {
   XCircle,
   CheckCheck,
   Ban,
+  Loader2,
 } from "lucide-react";
 
 const statusConfig = {
@@ -51,6 +52,7 @@ const RequestDetailsModal = ({
   onClose,
   onApprove,
   onReject,
+  isApproving,
 }) => {
   if (!isOpen || !request) return null;
 
@@ -170,23 +172,29 @@ const RequestDetailsModal = ({
               {request.status === "PENDING" && (
                 <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
                   <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={!isApproving ? { scale: 1.01 } : {}}
+                    whileTap={!isApproving ? { scale: 0.98 } : {}}
                     onClick={onReject}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 hover:border-rose-500/40 transition-all duration-200 text-[11px] font-semibold uppercase tracking-widest cursor-pointer"
+                    disabled={isApproving}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 hover:border-rose-500/40 transition-all duration-200 text-[11px] font-semibold uppercase tracking-widest cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Ban size={13} strokeWidth={2} />
                     Reject
                   </motion.button>
 
                   <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={!isApproving ? { scale: 1.01 } : {}}
+                    whileTap={!isApproving ? { scale: 0.98 } : {}}
                     onClick={onApprove}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-200 text-[11px] font-semibold uppercase tracking-widest cursor-pointer"
+                    disabled={isApproving}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-200 text-[11px] font-semibold uppercase tracking-widest cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <CheckCheck size={13} strokeWidth={2} />
-                    Approve
+                    {isApproving ? (
+                      <Loader2 size={13} strokeWidth={2} className="animate-spin" />
+                    ) : (
+                      <CheckCheck size={13} strokeWidth={2} />
+                    )}
+                    {isApproving ? "Approving..." : "Approve"}
                   </motion.button>
                 </div>
               )}

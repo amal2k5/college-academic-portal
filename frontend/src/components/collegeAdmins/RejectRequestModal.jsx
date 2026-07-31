@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 
 const RejectRequestModal = ({
   isOpen,
@@ -127,8 +127,9 @@ const RejectRequestModal = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-xl bg-red-600 px-5 py-3 font-medium text-white transition hover:bg-red-500 disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
+                {loading && <Loader2 size={16} className="animate-spin" />}
                 {loading ? "Rejecting..." : "Reject Request"}
               </button>
 
