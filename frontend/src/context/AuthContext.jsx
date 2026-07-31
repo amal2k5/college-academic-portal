@@ -42,7 +42,9 @@ function AuthProvider({ children }) {
 
     setUser(data.user);
 
-    void initializeNotifications();
+    if (data.user?.role === "STUDENT") {
+      void initializeNotifications();
+    }
   };
 
   const logoutUser = async () => {

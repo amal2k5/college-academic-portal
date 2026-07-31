@@ -69,11 +69,9 @@ def notify_platform_admins(message, data=None):
     Send WebSocket updates to all platform admins.
     This does NOT create database notifications or send FCM.
     """
-    logger.info("CHECKPOINT 5: Entered notify_platform_admins()")
     channel_layer = get_channel_layer()
     
     try:
-        logger.info("CHECKPOINT 6: About to execute group_send()")
         async_to_sync(channel_layer.group_send)(
             "platform_admin",
             {
@@ -81,6 +79,5 @@ def notify_platform_admins(message, data=None):
                 "message": message,
             },
         )
-        logger.info("CHECKPOINT 7: group_send() completed successfully")
     except Exception:
         logger.exception("Exception in notify_platform_admins")
