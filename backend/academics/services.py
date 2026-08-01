@@ -166,7 +166,7 @@ def bulk_mark_attendance(validated_data, user):
         )
 
         cache.delete(
-            f"attendance_percentage:{student.id}:{subject.id}"
+            f"attendance_percentage_v2:{student.id}:{subject.id}"
         )
 
         attendance_objects.append(attendance)
