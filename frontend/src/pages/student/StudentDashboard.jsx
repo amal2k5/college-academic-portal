@@ -15,6 +15,7 @@ import noticeService from "../../services/noticeService";
 import notificationService from "../../services/notificationService";
 import { getExamTypeLabel } from "../../constants/examConstants";
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
+import StatCard from "../../components/common/StatCard";
 
 const ease = [0.22, 1, 0.36, 1];
 const fadeUp = {
@@ -156,19 +157,15 @@ function StudentDashboard() {
             </p>
           </motion.div>
 
-          <motion.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {[
               { label: "Assignments", value: activeAssignments.length, icon: FileText, color: "blue" },
               { label: "Notices", value: notices.length, icon: Bell, color: "amber" },
               { label: "Alerts", value: unreadCount, icon: Inbox, color: "purple" },
               { label: "Exams", value: exams.length, icon: Calendar, color: "indigo" },
             ].map((stat, idx) => (
-              <motion.div key={idx} variants={fadeUp} className="bg-neutral-900 border border-neutral-800 p-4 text-center group hover:border-neutral-700 transition-colors">
-                <div className={`p-2 bg-${stat.color}-500/10 text-${stat.color}-400 inline-block mb-2`}>
-                  <stat.icon size={18} />
-                </div>
-                <p className="text-xl font-bold text-white">{stat.value}</p>
-                <p className="text-[9px] font-semibold text-neutral-500 uppercase tracking-wider">{stat.label}</p>
+              <motion.div key={idx} variants={fadeUp} className="h-full">
+                <StatCard label={stat.label} value={stat.value} icon={stat.icon} />
               </motion.div>
             ))}
           </motion.div>

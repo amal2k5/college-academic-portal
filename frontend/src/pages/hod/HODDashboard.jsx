@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
+import StatCard from "../../components/common/StatCard";
 
 import subjectService from "../../services/subjectService";
 import examService from "../../services/examService";
@@ -222,28 +223,11 @@ function HODDashboard() {
         {/* ── STATS GRID ── */}
         <motion.div
           variants={gridStagger}
-          className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
         >
-          {statsConfig.map(({ title, value, icon: Icon, iconClass, strip }) => (
-            <motion.div
-              key={title}
-              variants={fadeUp}
-              className="bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-2xl overflow-hidden transition-all duration-200 group"
-            >
-              <div className={`h-[3px] w-full bg-gradient-to-r ${strip}`} />
-              <div className="p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-2 mb-4">
-                  <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest line-clamp-2">
-                    {title}
-                  </p>
-                  <div className={`p-1.5 sm:p-2 bg-neutral-800 border border-neutral-700 rounded-xl ${iconClass} shrink-0`}>
-                    <Icon size={14} strokeWidth={2} />
-                  </div>
-                </div>
-                <p className="text-2xl font-bold text-neutral-100 tracking-tight leading-none">
-                  {value}
-                </p>
-              </div>
+          {statsConfig.map(({ title, value, icon: Icon }) => (
+            <motion.div key={title} variants={fadeUp} className="h-full">
+              <StatCard title={title} value={value} icon={Icon} />
             </motion.div>
           ))}
         </motion.div>

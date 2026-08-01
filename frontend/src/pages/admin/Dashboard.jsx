@@ -12,6 +12,7 @@ import {
 import { toast } from "react-toastify";
 import { getPlatformDashboardStats } from "../../services/platformService";
 import PageHeader from "../../components/common/PageHeader";
+import StatCard from "../../components/common/StatCard";
 
 // Skeleton shimmer card shown while loading
 function SkeletonCard() {
@@ -132,36 +133,20 @@ function Dashboard() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-          : stats.map((stat, index) => {
-              const colors = colorMap[stat.color];
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.3, ease: "easeOut" }}
-                  className="bg-neutral-900 rounded-xl p-5 border border-neutral-800 hover:border-neutral-700 transition-colors group"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div
-                      className={`p-2.5 rounded-lg transition-colors ${colors.bg}`}
-                    >
-                      <stat.icon className={`w-5 h-5 ${colors.icon}`} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-neutral-400 text-xs font-semibold uppercase tracking-wider">{stat.title}</p>
-                    <p className="text-2xl font-bold text-white mt-1.5 tracking-tight">
-                      {stat.value.toLocaleString()}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
+          : stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.3, ease: "easeOut" }}
+                className="h-full"
+              >
+                <StatCard title={stat.title} value={stat.value.toLocaleString()} icon={stat.icon} />
+              </motion.div>
+            ))}
       </div>
 
       {/* Bottom Section */}

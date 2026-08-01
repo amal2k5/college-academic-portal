@@ -5,6 +5,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { getColleges } from "../../services/collegeService";
 import { getCollegeAdminDashboardStats } from "../../services/collegeAdminService";
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
+import StatCard from "../../components/common/StatCard";
 import { toast } from "react-toastify";
 
 // Skeleton shimmer card shown while loading
@@ -140,32 +141,15 @@ function CollegeDashboard() {
       {/* Stats */}
       <motion.div
         variants={gridStagger}
-        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
       >
         {loading
           ? Array.from({ length: 3 }).map((_, idx) => <SkeletonCard key={idx} />)
-          : stats.map(({ title, value, icon: Icon, iconClass, strip }) => (
-          <motion.div
-            key={title}
-            variants={fadeUp}
-            className="bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-2xl overflow-hidden transition-all duration-200"
-          >
-            <div className={`h-[3px] w-full bg-gradient-to-r ${strip}`} />
-            <div className="p-5 flex items-start justify-between gap-3">
-              <div className="space-y-1.5">
-                <p className="text-[9px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
-                  {title}
-                </p>
-                <p className="text-2xl font-semibold text-neutral-100 tracking-tight leading-none">
-                  {value}
-                </p>
-              </div>
-              <div className={`p-2.5 bg-neutral-800 border border-neutral-700 rounded-xl ${iconClass} shrink-0`}>
-                <Icon size={15} strokeWidth={1.6} />
-              </div>
-            </div>
-          </motion.div>
-        ))}
+          : stats.map(({ title, value, icon: Icon }) => (
+              <motion.div key={title} variants={fadeUp} className="h-full">
+                <StatCard title={title} value={value} icon={Icon} />
+              </motion.div>
+            ))}
       </motion.div>
 
     </motion.div>
