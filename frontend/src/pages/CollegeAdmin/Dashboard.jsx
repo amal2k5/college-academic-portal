@@ -11,12 +11,12 @@ import { toast } from "react-toastify";
 // Skeleton shimmer card shown while loading
 function SkeletonCard() {
   return (
-    <div className="bg-neutral-900 rounded-xl p-5 border border-neutral-800 animate-pulse">
+    <div className="rounded-[20px] bg-[#0F172A] border border-white/[0.08] p-[24px] min-h-[180px] animate-pulse flex flex-col justify-between">
       <div className="flex items-start justify-between mb-4">
-        <div className="w-20 h-3 rounded bg-neutral-800" />
-        <div className="w-10 h-10 rounded-xl bg-neutral-800" />
+        <div className="w-24 h-4 rounded bg-slate-800" />
+        <div className="w-11 h-11 rounded-xl bg-slate-800" />
       </div>
-      <div className="h-8 w-16 rounded bg-neutral-800" />
+      <div className="h-8 w-16 rounded bg-slate-800" />
     </div>
   );
 }

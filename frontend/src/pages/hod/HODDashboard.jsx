@@ -211,10 +211,10 @@ function HODDashboard() {
               <Link 
                 key={action.label} 
                 to={action.path}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border ${action.border} ${action.bg} hover:bg-neutral-800 transition-colors duration-200 group`}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-white/[0.08] hover:border-white/20 hover:bg-slate-800/80 transition-all duration-200 group shadow-sm"
               >
-                <action.icon size={14} className={`${action.color} group-hover:scale-110 transition-transform`} />
-                <span className="text-[11px] font-semibold text-neutral-200 hidden sm:block whitespace-nowrap">{action.label}</span>
+                <action.icon size={15} className={`${action.color} group-hover:scale-110 transition-transform`} />
+                <span className="text-xs font-semibold text-gray-200 hidden sm:block whitespace-nowrap">{action.label}</span>
               </Link>
             ))}
           </div>
@@ -237,44 +237,44 @@ function HODDashboard() {
           {/* Recent Activity */}
           <motion.div
             variants={fadeUp}
-            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col min-h-[300px]"
+            className="rounded-[20px] bg-[#0F172A] bg-gradient-to-br from-slate-900 via-slate-900 to-violet-950/40 border border-white/[0.08] shadow-xl overflow-hidden flex flex-col min-h-[300px]"
           >
-            <div className="h-[3px] w-full bg-gradient-to-r from-violet-600 via-violet-400 to-violet-600" />
-            <div className="p-5 flex flex-col flex-1">
-              <div className="flex items-center justify-between mb-5 pb-4 border-b border-neutral-800">
+            <div className="h-[2px] w-full bg-gradient-to-r from-violet-500/80 to-indigo-500/80" />
+            <div className="p-[24px] flex flex-col flex-1">
+              <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/[0.08]">
                 <div className="flex items-center gap-2.5">
                   <Activity size={16} className="text-violet-400" />
-                  <h2 className="text-[11px] font-bold text-neutral-200 uppercase tracking-[0.2em]">
+                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">
                     Recent Department Activity
                   </h2>
                 </div>
               </div>
 
-              <div className="space-y-2 flex-1">
+              <div className="space-y-3 flex-1">
                 {activities.length > 0 ? (
                   activities.map((act, i) => (
                     <div
                       key={i}
-                      className="flex items-start justify-between gap-4 p-3.5 bg-neutral-800/30 border border-neutral-800/80 rounded-xl transition-all duration-200"
+                      className="flex items-start justify-between gap-4 p-4 bg-slate-900/80 border border-white/[0.06] rounded-xl transition-all duration-200 hover:border-white/15"
                     >
                       <div className="min-w-0 space-y-1">
-                        <p className="text-[13px] font-medium text-neutral-200 tracking-wide truncate">
+                        <p className="text-sm font-semibold text-white tracking-tight truncate">
                           {act.text}
                         </p>
-                        <p className="text-[10px] text-neutral-500 uppercase tracking-wider truncate">
+                        <p className="text-[11px] font-medium text-gray-400 truncate">
                           {act.detail}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400 whitespace-nowrap shrink-0 bg-neutral-800 px-2 py-1 rounded-lg">
-                        <Clock size={10} />
+                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-400 whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/[0.08] px-2 py-1 rounded-lg">
+                        <Clock size={11} className="text-violet-400" />
                         <span>{act.time}</span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 h-full">
-                    <Activity size={32} className="text-neutral-700 mb-3" />
-                    <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
+                  <div className="flex flex-col items-center justify-center py-12 h-full border border-dashed border-white/[0.08] rounded-xl">
+                    <Activity size={28} className="text-gray-500 mb-3" />
+                    <p className="text-sm font-medium text-gray-400">
                       No recent activities found
                     </p>
                   </div>
@@ -286,14 +286,14 @@ function HODDashboard() {
           {/* Notices */}
           <motion.div
             variants={fadeUp}
-            className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col min-h-[300px]"
+            className="rounded-[20px] bg-[#0F172A] bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/40 border border-white/[0.08] shadow-xl overflow-hidden flex flex-col min-h-[300px]"
           >
-            <div className="h-[3px] w-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-600" />
-            <div className="p-5 flex flex-col flex-1">
-              <div className="flex items-center justify-between mb-5 pb-4 border-b border-neutral-800">
+            <div className="h-[2px] w-full bg-gradient-to-r from-amber-500/80 to-orange-500/80" />
+            <div className="p-[24px] flex flex-col flex-1">
+              <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/[0.08]">
                 <div className="flex items-center gap-2.5">
                   <Bell size={16} className="text-amber-400" />
-                  <h2 className="text-[11px] font-bold text-neutral-200 uppercase tracking-[0.2em]">
+                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">
                     Official Board Notices
                   </h2>
                 </div>
@@ -304,32 +304,32 @@ function HODDashboard() {
                   notices.map((notice, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-3.5 p-4 bg-neutral-800/30 border border-neutral-800/80 rounded-xl transition-all duration-200"
+                      className="flex items-start gap-3.5 p-4 bg-slate-900/80 border border-white/[0.06] rounded-xl transition-all duration-200 hover:border-white/15"
                     >
-                      <div className="mt-0.5 shrink-0">
+                      <div className="mt-1 shrink-0">
                         {notice.urgent ? (
                           <span className="flex h-2.5 w-2.5 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
                             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
                           </span>
                         ) : (
-                          <Megaphone size={14} className="text-neutral-500" />
+                          <Megaphone size={15} className="text-amber-400" />
                         )}
                       </div>
-                      <div className="space-y-1.5 min-w-0">
-                        <p className="text-[13px] font-medium text-neutral-200 tracking-wide leading-relaxed">
+                      <div className="space-y-1.5 min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-white tracking-tight leading-relaxed">
                           {notice.text}
                         </p>
-                        <span className="inline-block text-[9px] font-semibold text-neutral-400 uppercase tracking-widest bg-neutral-800 border border-neutral-700 px-2 py-0.5 rounded-lg">
+                        <span className="inline-block text-[10px] font-semibold text-gray-400 bg-white/[0.04] border border-white/[0.08] px-2 py-0.5 rounded">
                           {notice.meta}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 h-full">
-                    <Bell size={32} className="text-neutral-700 mb-3" />
-                    <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-[0.2em]">
+                  <div className="flex flex-col items-center justify-center py-12 h-full border border-dashed border-white/[0.08] rounded-xl">
+                    <Bell size={28} className="text-gray-500 mb-3" />
+                    <p className="text-sm font-medium text-gray-400">
                       No notices available
                     </p>
                   </div>

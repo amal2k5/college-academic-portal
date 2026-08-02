@@ -17,13 +17,15 @@ import StatCard from "../../components/common/StatCard";
 // Skeleton shimmer card shown while loading
 function SkeletonCard() {
   return (
-    <div className="bg-neutral-900 rounded-xl p-5 border border-neutral-800 animate-pulse">
+    <div className="rounded-[20px] bg-[#0F172A] border border-white/[0.08] p-[24px] min-h-[180px] animate-pulse flex flex-col justify-between">
       <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 rounded-lg bg-neutral-800" />
-        <div className="w-14 h-6 rounded-full bg-neutral-800" />
+        <div className="w-11 h-11 rounded-xl bg-slate-800" />
+        <div className="w-16 h-6 rounded-full bg-slate-800" />
       </div>
-      <div className="h-4 w-24 rounded bg-neutral-800 mb-2" />
-      <div className="h-8 w-16 rounded bg-neutral-800" />
+      <div>
+        <div className="h-8 w-20 rounded bg-slate-800 mb-2" />
+        <div className="h-4 w-28 rounded bg-slate-800" />
+      </div>
     </div>
   );
 }
@@ -156,33 +158,33 @@ function Dashboard() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.3 }}
-          className="lg:col-span-2 bg-neutral-900 rounded-xl p-6 border border-neutral-800"
+          className="lg:col-span-2 rounded-[20px] bg-[#0F172A] bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/30 p-[24px] border border-white/[0.08] shadow-xl"
         >
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-800">
-            <h2 className="text-sm font-semibold text-neutral-200 uppercase tracking-wider">Recent Activity</h2>
-            <button className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors uppercase tracking-wider">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.08]">
+            <h2 className="text-xs font-bold text-white uppercase tracking-wider">Recent Activity</h2>
+            <button className="text-xs font-semibold text-gray-400 hover:text-white transition-colors uppercase tracking-wider">
               View All
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {recentActivity.map((activity, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 + i * 0.05 }}
-                className="flex items-center gap-4 p-3 bg-neutral-950 border border-neutral-800 hover:border-neutral-700/80 rounded-lg transition-all group cursor-default"
+                className="flex items-center gap-4 p-4 bg-slate-900/80 border border-white/[0.06] hover:border-white/15 rounded-xl transition-all group cursor-default"
               >
-                <div className="w-10 h-10 rounded-full bg-neutral-900 border border-neutral-850 flex items-center justify-center flex-shrink-0 group-hover:border-neutral-700 transition-colors">
-                  <Users className="w-4 h-4 text-neutral-400 group-hover:text-neutral-200" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0 group-hover:border-white/20 transition-colors">
+                  <Users className="w-4 h-4 text-blue-400 group-hover:text-blue-300" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-neutral-200 font-medium truncate">{activity.user}</p>
-                  <p className="text-xs text-neutral-500 truncate">{activity.action}</p>
+                  <p className="text-sm text-white font-semibold tracking-tight truncate">{activity.user}</p>
+                  <p className="text-xs text-gray-400 font-medium truncate">{activity.action}</p>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-neutral-500 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
-                  <Clock className="w-3 h-3 text-neutral-500" />
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 bg-white/[0.04] border border-white/[0.08] px-2.5 py-1 rounded-lg">
+                  <Clock className="w-3.5 h-3.5 text-blue-400" />
                   {activity.time}
                 </div>
               </motion.div>
@@ -195,20 +197,20 @@ function Dashboard() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.3 }}
-          className="bg-neutral-900 rounded-xl p-6 border border-neutral-800"
+          className="rounded-[20px] bg-[#0F172A] bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 p-[24px] border border-white/[0.08] shadow-xl"
         >
-          <div className="mb-6 pb-4 border-b border-neutral-800">
-            <h2 className="text-sm font-semibold text-neutral-200 uppercase tracking-wider">College Status</h2>
+          <div className="mb-6 pb-4 border-b border-white/[0.08]">
+            <h2 className="text-xs font-bold text-white uppercase tracking-wider">College Status</h2>
           </div>
           <div className="space-y-4">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-neutral-950 rounded-lg p-4 border border-neutral-800 animate-pulse"
+                  className="bg-slate-900/80 rounded-xl p-4 border border-white/[0.06] animate-pulse"
                 >
-                  <div className="h-3 w-28 rounded bg-neutral-800 mb-3" />
-                  <div className="h-7 w-12 rounded bg-neutral-800" />
+                  <div className="h-3 w-28 rounded bg-slate-800 mb-3" />
+                  <div className="h-7 w-12 rounded bg-slate-800" />
                 </div>
               ))
             ) : statsData ? (
@@ -234,14 +236,14 @@ function Dashboard() {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="bg-neutral-950 rounded-lg p-4 border border-neutral-800 hover:border-neutral-700/80 transition-colors"
+                  className="bg-slate-900/80 rounded-xl p-4 border border-white/[0.06] hover:border-white/15 transition-colors"
                 >
-                  <p className="text-neutral-400 text-xs mb-1 font-semibold uppercase tracking-wider">{item.label}</p>
+                  <p className="text-gray-400 text-xs mb-1 font-semibold uppercase tracking-wider">{item.label}</p>
                   <div className="flex items-end justify-between">
-                    <p className="text-2xl font-bold text-white tracking-tight">
+                    <p className="text-3xl font-bold text-white tracking-tight leading-none">
                       {item.value.toLocaleString()}
                     </p>
-                    <p className={`text-[10px] font-semibold uppercase tracking-wider ${item.color}`}>{item.sub}</p>
+                    <p className={`text-[11px] font-bold tracking-wide ${item.color}`}>{item.sub}</p>
                   </div>
                 </div>
               ))

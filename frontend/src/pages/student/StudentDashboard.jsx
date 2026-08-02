@@ -147,14 +147,25 @@ function StudentDashboard() {
         {/* Left Column (2/3) */}
         <div className="lg:col-span-2 space-y-6">
 
-          <motion.div variants={fadeUp} className="relative overflow-hidden bg-neutral-900 border border-neutral-800 p-6">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            <h1 className="text-2xl font-bold text-white">
-              Welcome back, <span className="text-indigo-400">{s.first_name}</span>
-            </h1>
-            <p className="text-neutral-400 mt-1 text-sm">
-              {activeAssignments.length} pending · {exams.length} exams scheduled
-            </p>
+          <motion.div variants={fadeUp} className="relative overflow-hidden rounded-[20px] bg-[#0F172A] bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/80 border border-white/[0.08] p-[24px] shadow-xl">
+            {/* Subtle mesh background */}
+            <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+            {/* Low opacity illustration */}
+            <div className="absolute top-0 right-0 bottom-0 w-[45%] flex items-center justify-end pr-4 opacity-[0.08] pointer-events-none overflow-hidden">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="w-44 h-44 text-indigo-200 -mr-6 -mb-4">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                <path d="M6 12v5c3 3 9 3 12 0v-5" />
+              </svg>
+            </div>
+            <div className="relative z-10">
+              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                Welcome back, <span className="text-indigo-400 font-extrabold">{s.first_name}</span>
+              </h1>
+              <p className="text-gray-400 mt-2 text-sm font-medium flex items-center gap-2">
+                <span className="inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                {activeAssignments.length} pending · {exams.length} exams scheduled
+              </p>
+            </div>
           </motion.div>
 
           <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -170,52 +181,52 @@ function StudentDashboard() {
             ))}
           </motion.div>
 
-          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 overflow-hidden">
-            <div className="h-0.5 w-full bg-gradient-to-r from-emerald-500 to-emerald-600" />
-            <div className="p-5">
+          <motion.div variants={fadeUp} className="rounded-[20px] bg-[#0F172A] bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 border border-white/[0.08] shadow-xl overflow-hidden">
+            <div className="h-0.5 w-full bg-gradient-to-r from-emerald-500/80 to-teal-500/80" />
+            <div className="p-[24px]">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Award size={16} className="text-emerald-400" />
-                  <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Latest Result</h2>
+                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">Latest Result</h2>
                 </div>
-                <Link to="/student/marks" className="text-[9px] font-medium text-neutral-500 hover:text-emerald-400 transition-colors flex items-center gap-0.5">
-                  View All <ChevronRight size={12} />
+                <Link to="/student/marks" className="text-xs font-semibold text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-1">
+                  View All <ChevronRight size={14} />
                 </Link>
               </div>
 
               {latestMark ? (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-neutral-800/30 border border-neutral-800">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-slate-900/80 border border-white/[0.06] rounded-xl">
                   <div>
-                    <p className="text-sm font-semibold text-white">{getSubjectName(latestMark)}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 border border-indigo-500/20">
+                    <p className="text-base font-semibold text-white tracking-tight">{getSubjectName(latestMark)}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-[10px] font-mono font-semibold text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
                         {latestMark.subject_code || "N/A"}
                       </span>
-                      <span className="text-[9px] font-medium text-neutral-400 bg-neutral-800 px-2 py-0.5 border border-neutral-700">
+                      <span className="text-[10px] font-medium text-gray-400 bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.08]">
                         {getExamTypeLabel(latestMark.exam_type)}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
                     <div>
-                      <p className="text-[8px] text-neutral-500 uppercase tracking-wider">Score</p>
-                      <p className="text-xl font-bold text-emerald-400">
+                      <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Score</p>
+                      <p className="text-2xl font-bold text-emerald-400 tracking-tight mt-0.5">
                         {latestMark.obtained_marks ?? latestMark.marks ?? "--"}
-                        <span className="text-sm text-neutral-500 font-medium ml-1">/ {latestMark.maximum_marks || 100}</span>
+                        <span className="text-xs text-gray-500 font-medium ml-1">/ {latestMark.maximum_marks || 100}</span>
                       </p>
                     </div>
                     {latestMark.grade && (
-                      <div className="pl-4 border-l border-neutral-700">
-                        <p className="text-[8px] text-neutral-500 uppercase tracking-wider">Grade</p>
-                        <p className="text-xl font-bold text-white">{latestMark.grade}</p>
+                      <div className="pl-4 border-l border-white/[0.08]">
+                        <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Grade</p>
+                        <p className="text-2xl font-bold text-white tracking-tight mt-0.5">{latestMark.grade}</p>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
-                <div className="py-6 text-center border border-dashed border-neutral-800">
-                  <BookOpen size={20} className="text-neutral-700 mx-auto mb-2" />
-                  <p className="text-sm text-neutral-400">No results published</p>
+                <div className="py-8 text-center border border-dashed border-white/[0.08] rounded-xl">
+                  <BookOpen size={24} className="text-gray-500 mx-auto mb-2" />
+                  <p className="text-sm text-gray-400 font-medium">No results published</p>
                 </div>
               )}
             </div>
@@ -225,62 +236,62 @@ function StudentDashboard() {
         {/* Right Column (1/3) */}
         <div className="space-y-6">
 
-          <motion.div variants={fadeUp} className="bg-neutral-900 border border-neutral-800 overflow-hidden">
-            <div className="h-0.5 w-full bg-gradient-to-r from-indigo-500 to-violet-500" />
-            <div className="p-5">
+          <motion.div variants={fadeUp} className="rounded-[20px] bg-[#0F172A] bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-white/[0.08] shadow-xl overflow-hidden">
+            <div className="h-0.5 w-full bg-gradient-to-r from-indigo-500/80 to-violet-500/80" />
+            <div className="p-[24px]">
               <div className="flex items-center gap-2 mb-4">
                 <Activity size={16} className="text-indigo-400" />
-                <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Next Exam</h2>
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">Next Exam</h2>
               </div>
 
               {nextExam ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-semibold text-white">{nextExam.subject_name || "Unknown"}</p>
-                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <p className="text-base font-semibold text-white tracking-tight">{nextExam.subject_name || "Unknown"}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1.5">
                       {nextExam.subject_code && (
-                        <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 border border-indigo-500/20">
+                        <span className="text-[10px] font-mono font-semibold text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
                           {nextExam.subject_code}
                         </span>
                       )}
-                      <span className="text-[9px] text-neutral-300 bg-neutral-800 px-2 py-0.5 border border-neutral-700">
+                      <span className="text-[10px] font-medium text-gray-300 bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.08]">
                         {getExamTypeLabel(nextExam.exam_type)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="space-y-2 bg-neutral-800/30 p-3 border border-neutral-800">
+                  <div className="space-y-2.5 bg-slate-900/80 p-4 border border-white/[0.06] rounded-xl">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-neutral-300">
-                        <Calendar size={13} className="text-neutral-500" />
+                      <div className="flex items-center gap-2 text-xs font-medium text-gray-300">
+                        <Calendar size={14} className="text-indigo-400" />
                         <span>{new Date(nextExam.exam_date).toLocaleDateString("en-US", { month: 'short', day: 'numeric', weekday: 'short' })}</span>
                       </div>
                       {countdown && (
-                        <span className="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 border border-indigo-500/20">
+                        <span className="text-[10px] font-bold text-indigo-300 bg-indigo-500/15 px-2.5 py-0.5 rounded-full border border-indigo-500/20 shadow-sm">
                           {countdown}
                         </span>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-neutral-300">
-                      <Clock size={13} className="text-neutral-500" />
+                    <div className="flex items-center gap-2 text-xs font-medium text-gray-300">
+                      <Clock size={14} className="text-indigo-400" />
                       <span>{formatTime(nextExam.start_time)} – {formatTime(nextExam.end_time)}</span>
                     </div>
 
-                    <div className="flex items-start gap-2 text-xs text-neutral-300">
-                      <MapPin size={13} className="text-neutral-500 mt-0.5 shrink-0" />
+                    <div className="flex items-start gap-2 text-xs font-medium text-gray-300">
+                      <MapPin size={14} className="text-indigo-400 mt-0.5 shrink-0" />
                       <span className="truncate">{nextExam.venue || "TBA"}</span>
                     </div>
                   </div>
 
-                  <Link to="/student/exams" className="block text-center text-[9px] font-medium text-indigo-400 hover:text-indigo-300 transition-colors pt-2 border-t border-neutral-800">
+                  <Link to="/student/exams" className="block text-center text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors pt-3 border-t border-white/[0.08]">
                     View Schedule
                   </Link>
                 </div>
               ) : (
-                <div className="py-6 text-center border border-dashed border-neutral-800">
-                  <Calendar size={20} className="text-neutral-700 mx-auto mb-2" />
-                  <p className="text-sm text-neutral-400">No upcoming exams</p>
+                <div className="py-8 text-center border border-dashed border-white/[0.08] rounded-xl">
+                  <Calendar size={24} className="text-gray-500 mx-auto mb-2" />
+                  <p className="text-sm text-gray-400 font-medium">No upcoming exams</p>
                 </div>
               )}
             </div>
