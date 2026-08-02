@@ -3,13 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import lostFoundService from "../../../services/lostFoundService";
-import PageHeader from "../../../components/common/PageHeader";
-import { Upload, X, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { Upload, X, ArrowLeft, Sparkles, Package, MapPin, Phone } from "lucide-react";
 import { LoadingPage, LoadingSpinner } from "../../../components/common/loading";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
 export default function LostFoundForm() {
@@ -114,132 +113,170 @@ export default function LostFoundForm() {
     return <LoadingPage text="Loading Post details..." fullScreen={true} />;
   }
 
+  const inputClass = "w-full px-4 py-3 bg-slate-950/70 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-500 shadow-inner";
+  const labelClass = "text-xs font-bold uppercase tracking-wider text-slate-300 block mb-1.5";
+
   return (
     <motion.div
       initial="hidden"
       animate="visible"
       variants={pageVariants}
-      className="max-w-3xl mx-auto py-8 px-4 md:px-8 min-h-screen text-neutral-300"
+      className="max-w-3xl mx-auto py-8 px-4 sm:px-6 md:px-8 min-h-screen text-slate-300 pb-20"
     >
       <button 
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors mb-6"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-white transition-colors mb-6 group px-3 py-1.5 rounded-xl hover:bg-slate-900/50 -ml-3"
       >
-        <ArrowLeft size={16} />
-        Back
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform duration-200" />
+        <span>Back to Marketplace</span>
       </button>
 
-      <PageHeader
-        title={isEdit ? "Edit Post" : "Report Lost/Found Item"}
-        subtitle={isEdit ? "Update the details of your item." : "Fill in the details below to post an item."}
-      />
+      <div className="border-b border-white/[0.08] pb-6 mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-sm">
+            <Package size={20} />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            {isEdit ? "Edit Item Listing" : "Report Lost/Found Item"}
+          </h1>
+        </div>
+        <p className="text-sm text-slate-400 font-medium">
+          {isEdit 
+            ? "Update the details, status, or photos of your existing community post." 
+            : "Fill in accurate details below to help our campus community identify and recover the item."
+          }
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-6 mt-8">
+      <form onSubmit={handleSubmit} className="bg-[#0F172A] bg-gradient-to-br from-slate-900/90 via-[#0F172A] to-slate-950 border border-white/[0.08] rounded-[20px] p-6 sm:p-8 space-y-6 shadow-2xl">
         
-        {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2 space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Title <span className="text-red-500">*</span></label>
+          
+          {/* Title Input */}
+          <div className="md:col-span-2">
+            <label className={labelClass}>Item Title <span className="text-rose-400">*</span></label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g. Black Dell Laptop"
-              className="w-full px-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-white"
+              placeholder="e.g. Matte Black iPad Pro with Blue Smart Cover"
+              className={inputClass}
             />
+            <span className="text-[11px] text-slate-500 font-medium mt-1 block">
+              Be descriptive and clear so members can immediately recognize the item.
+            </span>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Status <span className="text-red-500">*</span></label>
+          {/* Status Selector */}
+          <div>
+            <label className={labelClass}>Report Type & Status <span className="text-rose-400">*</span></label>
             <select
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-white"
+              className={`${inputClass} cursor-pointer`}
             >
-              <option value="LOST">Lost</option>
-              <option value="FOUND">Found</option>
-              {isEdit && <option value="RETURNED">Returned</option>}
+              <option value="LOST" className="bg-slate-900 text-white">Lost (I lost this item)</option>
+              <option value="FOUND" className="bg-slate-900 text-white">Found (I found this item)</option>
+              {isEdit && <option value="RETURNED" className="bg-slate-900 text-white">Returned / Resolved</option>}
             </select>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Category <span className="text-red-500">*</span></label>
+          {/* Category Selector */}
+          <div>
+            <label className={labelClass}>Item Category <span className="text-rose-400">*</span></label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-white"
+              className={`${inputClass} cursor-pointer`}
             >
-              <option value="ELECTRONICS">Electronics</option>
-              <option value="DOCUMENTS">Documents</option>
-              <option value="KEYS">Keys</option>
-              <option value="STATIONERY">Stationery</option>
-              <option value="ACCESSORIES">Accessories</option>
-              <option value="OTHER">Other</option>
+              <option value="ELECTRONICS" className="bg-slate-900 text-white">Electronics & Gadgets</option>
+              <option value="DOCUMENTS" className="bg-slate-900 text-white">ID & Documents</option>
+              <option value="KEYS" className="bg-slate-900 text-white">Keys & Keychains</option>
+              <option value="STATIONERY" className="bg-slate-900 text-white">Books & Stationery</option>
+              <option value="ACCESSORIES" className="bg-slate-900 text-white">Bags, Clothing & Accessories</option>
+              <option value="OTHER" className="bg-slate-900 text-white">Other / General Items</option>
             </select>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Location <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="e.g. Library, Ground Floor"
-              className="w-full px-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-white"
-            />
+          {/* Location Input */}
+          <div>
+            <label className={labelClass}>Campus Location <span className="text-rose-400">*</span></label>
+            <div className="relative">
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="e.g. Central Library, 2nd Floor Reading Hall"
+                className={`${inputClass} pl-10`}
+              />
+              <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Contact Number <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              name="contact_number"
-              value={formData.contact_number}
-              onChange={handleChange}
-              placeholder="e.g. +91 9876543210"
-              className="w-full px-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-white"
-            />
+          {/* Contact Number Input */}
+          <div>
+            <label className={labelClass}>Contact Number <span className="text-rose-400">*</span></label>
+            <div className="relative">
+              <input
+                type="text"
+                name="contact_number"
+                value={formData.contact_number}
+                onChange={handleChange}
+                placeholder="e.g. +91 98765 43210"
+                className={`${inputClass} pl-10 font-mono`}
+              />
+              <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            </div>
           </div>
 
-          <div className="md:col-span-2 space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Description <span className="text-red-500">*</span></label>
+          {/* Description Textarea */}
+          <div className="md:col-span-2">
+            <label className={labelClass}>Detailed Description <span className="text-rose-400">*</span></label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              placeholder="Provide detailed description like brand, color, distinguishing marks..."
-              className="w-full px-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg focus:outline-none focus:border-neutral-600 text-white resize-none"
+              placeholder="Provide identifiable details such as brand name, serial tags, scratches, colors, or exact time when seen..."
+              className={`${inputClass} resize-none leading-relaxed`}
             />
           </div>
 
-          <div className="md:col-span-2 space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Image (Optional)</label>
+          {/* Image Uploader & Dropzone */}
+          <div className="md:col-span-2">
+            <label className={labelClass}>Item Photograph (Optional)</label>
             
             {!imagePreview ? (
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-40 border-2 border-dashed border-neutral-800 rounded-xl bg-neutral-950 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-neutral-600 hover:bg-neutral-900/50 transition-colors"
+                className="w-full border-2 border-dashed border-white/[0.12] rounded-2xl bg-slate-950/40 hover:bg-slate-900/60 hover:border-emerald-500/50 flex flex-col items-center justify-center p-8 gap-3 cursor-pointer transition-all duration-300 group shadow-inner"
               >
-                <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center">
-                  <Upload size={18} className="text-neutral-500" />
+                <div className="w-12 h-12 rounded-2xl bg-slate-800/80 border border-white/[0.08] flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 transition-all duration-300 shadow-md">
+                  <Upload size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors" />
                 </div>
-                <p className="text-sm text-neutral-400">Click to upload an image</p>
-                <p className="text-xs text-neutral-600">JPG, PNG up to 5MB</p>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    Click to browse and attach an image
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                    Supported formats: JPG, PNG or WEBP (Max size: 5MB)
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="relative w-full h-48 rounded-xl border border-neutral-800 overflow-hidden bg-neutral-950">
-                <img src={imagePreview} alt="Preview" className="w-full h-full object-contain" />
+              <div className="relative w-full max-h-72 rounded-2xl border border-white/[0.1] overflow-hidden bg-slate-950 flex items-center justify-center p-3 shadow-xl group">
+                <img src={imagePreview} alt="Preview" className="max-h-64 w-auto object-contain rounded-xl" />
                 <button
                   type="button"
                   onClick={clearImage}
-                  className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-red-500/80 text-white rounded-lg backdrop-blur-sm transition-colors"
+                  className="absolute top-3 right-3 p-2 bg-slate-900/90 hover:bg-rose-600 text-slate-300 hover:text-white rounded-xl border border-white/20 backdrop-blur-md transition-all duration-200 shadow-lg flex items-center gap-1.5 text-xs font-bold"
                 >
-                  <X size={16} />
+                  <X size={15} />
+                  <span>Remove Photo</span>
                 </button>
               </div>
             )}
@@ -253,27 +290,31 @@ export default function LostFoundForm() {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-neutral-800">
+        {/* Form Action Buttons */}
+        <div className="flex items-center justify-end gap-3.5 pt-6 mt-6 border-t border-white/[0.08]">
           <button
             type="button"
             onClick={() => navigate(-1)}
             disabled={submitting}
-            className="px-5 py-2 rounded-lg text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors disabled:opacity-50"
+            className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 transition-all disabled:opacity-50 border border-white/5"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 transition-all disabled:opacity-50 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:-translate-y-0.5 active:scale-95"
           >
             {submitting ? (
               <>
                 <LoadingSpinner size={16} color="border-t-white border-white/30" />
-                Saving...
+                <span>Saving Details...</span>
               </>
             ) : (
-              isEdit ? "Update Post" : "Submit Post"
+              <>
+                <Sparkles size={15} />
+                <span>{isEdit ? "Update Listing" : "Publish Listing"}</span>
+              </>
             )}
           </button>
         </div>
