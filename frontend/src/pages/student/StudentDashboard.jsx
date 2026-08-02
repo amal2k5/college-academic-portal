@@ -16,6 +16,7 @@ import notificationService from "../../services/notificationService";
 import { getExamTypeLabel } from "../../constants/examConstants";
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
 import StatCard from "../../components/common/StatCard";
+import { LoadingPage } from "../../components/common/loading";
 
 const ease = [0.22, 1, 0.36, 1];
 const fadeUp = {
@@ -108,11 +109,7 @@ function StudentDashboard() {
   }, [exams]);
 
   const latestMark = useMemo(() => marks?.[0] || null, [marks]);
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950">
-      <div className="w-8 h-8 rounded-full border-2 border-neutral-800 border-t-indigo-500 animate-spin" />
-    </div>
-  );
+  if (loading) return <LoadingPage text="Loading Student Dashboard..." fullScreen={true} />;
 
   if (error || !student) return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-6">

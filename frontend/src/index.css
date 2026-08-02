@@ -29,3 +29,56 @@ html {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
+
+/* ── Dark SaaS Unified Loading System Animations ── */
+@keyframes soft-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes soft-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes smooth-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 1.4s ease-in-out infinite;
+}
+
+.animate-soft-shimmer {
+  animation: soft-shimmer 1.5s ease-in-out infinite;
+}
+
+.animate-smooth-spin {
+  animation: smooth-spin 1.1s linear infinite;
+}
+
+/* Strict Accessibility Support for Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-soft-pulse,
+  .animate-soft-shimmer,
+  .animate-smooth-spin,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+    transition: none !important;
+    opacity: 0.75 !important;
+  }
+}

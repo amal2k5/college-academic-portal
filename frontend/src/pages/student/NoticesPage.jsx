@@ -7,6 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { useContext } from "react";
 import PageHeader from "../../components/common/PageHeader";
 import noticeService from "../../services/noticeService";
+import { LoadingSkeleton } from "../../components/common/loading";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -16,22 +17,22 @@ const pageVariants = {
 // Skeleton component for premium loading state
 function NoticeSkeleton() {
   return (
-    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-4 animate-pulse">
+    <div className="rounded-2xl border border-white/[0.08] bg-[#0F172A] p-5 space-y-4 shadow-xl">
       <div className="flex items-center gap-2">
-        <div className="h-5 w-16 rounded-full bg-white/5" />
-        <div className="h-5 w-24 rounded-full bg-white/5" />
+        <LoadingSkeleton width="w-16" height="h-5" rounded="rounded-full" />
+        <LoadingSkeleton width="w-24" height="h-5" rounded="rounded-full" />
       </div>
       <div className="space-y-2">
-        <div className="h-6 w-3/4 rounded-lg bg-white/5" />
-        <div className="h-4 w-full rounded-lg bg-white/5" />
-        <div className="h-4 w-2/3 rounded-lg bg-white/5" />
+        <LoadingSkeleton width="w-3/4" height="h-6" rounded="rounded-lg" />
+        <LoadingSkeleton width="w-full" height="h-4" rounded="rounded-lg" />
+        <LoadingSkeleton width="w-2/3" height="h-4" rounded="rounded-lg" />
       </div>
-      <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+      <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-white/5" />
-          <div className="h-4 w-20 rounded bg-white/5" />
+          <LoadingSkeleton width="w-7" height="h-7" rounded="rounded-lg" />
+          <LoadingSkeleton width="w-20" height="h-4" rounded="rounded" />
         </div>
-        <div className="h-4 w-16 rounded bg-white/5" />
+        <LoadingSkeleton width="w-16" height="h-4" rounded="rounded" />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import StudentFilters from "../../components/students/StudentFilters";
 import { getStudents, deleteStudent } from "../../services/studentService";
 import PageHeader from "../../components/common/PageHeader";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import { LoadingPage } from "../../components/common/loading";
 
 function Students() {
   const [students, setStudents] = useState([]);
@@ -105,14 +106,7 @@ function Students() {
       </div>
 
       {/* Loading Canvas */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center py-20 bg-neutral-900 border border-neutral-800 rounded-xl">
-          <div className="animate-spin rounded-full h-6 w-6 border-2 border-neutral-850 border-t-neutral-400"></div>
-          <p className="text-[10px] font-semibold text-neutral-500 mt-4 tracking-widest uppercase">
-            Loading Student Information...
-          </p>
-        </div>
-      )}
+      {loading && <LoadingPage text="Loading Student Information..." fullScreen={false} />}
 
       {/* Error Panel Container */}
       {!loading && error && (

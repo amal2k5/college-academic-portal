@@ -6,6 +6,7 @@ import * as feeService from "../../services/feeService";
 import {
   Clock, CheckCircle2, AlertCircle, RefreshCw, History, CreditCard, Receipt
 } from "lucide-react";
+import { LoadingPage, LoadingSpinner } from "../../components/common/loading";
 
 export default function StudentFeesPage() {
   const [fees, setFees] = useState([]);
@@ -118,11 +119,7 @@ export default function StudentFeesPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-neutral-700 border-t-white rounded-full animate-spin" />
-      </div>
-    );
+    return <LoadingPage text="Loading Fee Details..." fullScreen={false} />;
   }
 
   const pendingFees = fees.filter(f => !f.is_paid);
@@ -250,7 +247,7 @@ export default function StudentFeesPage() {
                           className="h-9 px-4 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         >
                           {processingId === fee.id ? (
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <LoadingSpinner size={16} color="border-t-white border-white/30" />
                           ) : (
                             <>
                               <CreditCard size={14} />

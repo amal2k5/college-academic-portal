@@ -10,6 +10,7 @@ import ContactModal from "../../../components/lost-found/ContactModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
 import { ArrowLeft, MapPin, Calendar, User, Edit2, Trash2, Eye } from "lucide-react";
 import { format, isValid } from "date-fns";
+import { LoadingPage } from "../../../components/common/loading";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -106,11 +107,7 @@ export default function LostFoundDetail() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-neutral-700 border-t-emerald-500 rounded-full animate-spin"></div>
-      </div>
-    );
+    return <LoadingPage text="Loading Item Details..." fullScreen={true} />;
   }
 
   if (!post) return null;

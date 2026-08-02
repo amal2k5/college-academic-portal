@@ -7,19 +7,7 @@ import { getCollegeAdminDashboardStats } from "../../services/collegeAdminServic
 import ProfileSummaryCard from "../../components/common/ProfileSummaryCard";
 import StatCard from "../../components/common/StatCard";
 import { toast } from "react-toastify";
-
-// Skeleton shimmer card shown while loading
-function SkeletonCard() {
-  return (
-    <div className="rounded-[20px] bg-[#0F172A] border border-white/[0.08] p-[24px] min-h-[180px] animate-pulse flex flex-col justify-between">
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-24 h-4 rounded bg-slate-800" />
-        <div className="w-11 h-11 rounded-xl bg-slate-800" />
-      </div>
-      <div className="h-8 w-16 rounded bg-slate-800" />
-    </div>
-  );
-}
+import { LoadingCard } from "../../components/common/loading";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -144,7 +132,7 @@ function CollegeDashboard() {
         className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
       >
         {loading
-          ? Array.from({ length: 3 }).map((_, idx) => <SkeletonCard key={idx} />)
+          ? Array.from({ length: 3 }).map((_, idx) => <LoadingCard key={idx} />)
           : stats.map(({ title, value, icon: Icon }) => (
               <motion.div key={title} variants={fadeUp} className="h-full">
                 <StatCard title={title} value={value} icon={Icon} />

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import marksService from "../../services/marksService";
 import { getExamTypeLabel } from "../../constants/examConstants";
+import { LoadingPage } from "../../components/common/loading";
 
 // ── Animation Config ──────────────────────────────────────────────────────────
 const ease = [0.22, 1, 0.36, 1];
@@ -196,7 +197,7 @@ function MarksPage() {
     return Object.entries(groups).sort((a, b) => b[0] - a[0]);
   }, [marks]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-neutral-950"><div className="w-8 h-8 border-2 border-neutral-800 border-t-indigo-500 animate-spin" /></div>;
+  if (loading) return <LoadingPage text="Loading Marks..." fullScreen={true} />;
   if (error) return <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-red-400">{error}</div>;
   if (!marks.length) return <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-neutral-500">No marks found.</div>;
 

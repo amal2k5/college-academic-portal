@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getDepartments, getMyDepartments } from "../../services/departmentService";
 import { X, User, Mail, Phone, Building2, Loader2 } from "lucide-react";
+import { LoadingSpinner } from "../common/loading";
 
 function HODForm({ onSubmit, onClose }) {
   const [departments, setDepartments] = useState([]);
@@ -205,7 +206,7 @@ const fetchDepartments = async () => {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <LoadingSpinner size={16} color="border-t-white border-white/30" />
                   Creating...
                 </>
               ) : (

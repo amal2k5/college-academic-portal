@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { X, CheckCircle2, Clock } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../services/axiosInstance";
+import { LoadingSpinner } from "../common/loading";
 
 export default function FeePaymentsModal({ fee, open, onClose }) {
   const [data, setData] = useState(null);
@@ -42,7 +43,7 @@ export default function FeePaymentsModal({ fee, open, onClose }) {
         <div className="p-4 overflow-y-auto flex-1">
           {loading ? (
             <div className="flex justify-center py-12">
-              <div className="w-8 h-8 border-2 border-neutral-700 border-t-white rounded-full animate-spin" />
+              <LoadingSpinner size={32} color="border-t-white border-neutral-700" />
             </div>
           ) : data ? (
             <div className="space-y-6">

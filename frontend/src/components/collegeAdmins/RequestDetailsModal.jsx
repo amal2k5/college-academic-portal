@@ -15,6 +15,7 @@ import {
   Ban,
   Loader2,
 } from "lucide-react";
+import { LoadingSpinner } from "../common/loading";
 
 const statusConfig = {
   PENDING: {
@@ -190,7 +191,7 @@ const RequestDetailsModal = ({
                     className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-200 text-[11px] font-semibold uppercase tracking-widest cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isApproving ? (
-                      <Loader2 size={13} strokeWidth={2} className="animate-spin" />
+                      <LoadingSpinner size={13} color="border-t-emerald-400 border-emerald-500/30" />
                     ) : (
                       <CheckCheck size={13} strokeWidth={2} />
                     )}

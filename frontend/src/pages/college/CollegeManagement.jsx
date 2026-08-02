@@ -7,6 +7,7 @@ import {
 } from "../../services/collegeService";
 import { AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LoadingPage } from "../../components/common/loading";
 
 function Colleges() {
   const [colleges, setColleges] = useState([]);
@@ -56,11 +57,7 @@ function Colleges() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingPage text="Loading Colleges..." fullScreen={false} />;
   }
 
   if (error) {

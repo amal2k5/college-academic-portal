@@ -7,6 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import NoticeDetailModal from "../../components/notices/NoticeDetailModal";
 import PageHeader from "../../components/common/PageHeader";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import { LoadingPage } from "../../components/common/loading";
 
 function NoticeManagement() {
   const [showForm, setShowForm] = useState(false);
@@ -120,11 +121,7 @@ function NoticeManagement() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-neutral-700 border-t-white rounded-full animate-spin" />
-      </div>
-    );
+    return <LoadingPage text="Loading Notice Management..." fullScreen={false} />;
   }
 
   return (

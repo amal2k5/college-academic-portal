@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import StudentForm from "../../components/students/StudentForm";
 import { getStudentById, updateStudent } from "../../services/studentService";
+import { LoadingPage } from "../../components/common/loading";
 
 function StudentEdit() {
   const navigate = useNavigate();
@@ -84,16 +85,7 @@ function StudentEdit() {
   };
 
   if (fetchLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-40 bg-neutral-950 rounded-3xl border border-neutral-900 max-w-4xl mx-auto relative overflow-hidden">
-        {/* Smooth silver loader shimmer backdrop */}
-        <div className="absolute w-80 h-80 bg-white/5 rounded-full blur-[130px] pointer-events-none" />
-        <div className="h-6 w-6 animate-spin rounded-full border border-neutral-900 border-b-neutral-400 relative z-10" />
-        <p className="text-[10px] font-medium text-neutral-500 mt-4 tracking-widest uppercase relative z-10">
-          Loading Student Records...
-        </p>
-      </div>
-    );
+    return <LoadingPage text="Loading Student Records..." fullScreen={false} className="max-w-4xl mx-auto my-12" />;
   }
 
   return (

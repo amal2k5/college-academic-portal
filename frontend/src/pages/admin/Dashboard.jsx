@@ -13,22 +13,7 @@ import { toast } from "react-toastify";
 import { getPlatformDashboardStats } from "../../services/platformService";
 import PageHeader from "../../components/common/PageHeader";
 import StatCard from "../../components/common/StatCard";
-
-// Skeleton shimmer card shown while loading
-function SkeletonCard() {
-  return (
-    <div className="rounded-[20px] bg-[#0F172A] border border-white/[0.08] p-[24px] min-h-[180px] animate-pulse flex flex-col justify-between">
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-11 h-11 rounded-xl bg-slate-800" />
-        <div className="w-16 h-6 rounded-full bg-slate-800" />
-      </div>
-      <div>
-        <div className="h-8 w-20 rounded bg-slate-800 mb-2" />
-        <div className="h-4 w-28 rounded bg-slate-800" />
-      </div>
-    </div>
-  );
-}
+import { LoadingCard, LoadingSkeleton } from "../../components/common/loading";
 
 function Dashboard() {
   const [statsData, setStatsData] = useState(null);
@@ -137,7 +122,7 @@ function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {loading
-          ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+          ? Array.from({ length: 6 }).map((_, i) => <LoadingCard key={i} />)
           : stats.map((stat, index) => (
               <motion.div
                 key={index}
@@ -207,10 +192,10 @@ function Dashboard() {
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-slate-900/80 rounded-xl p-4 border border-white/[0.06] animate-pulse"
+                  className="bg-slate-900/80 rounded-xl p-4 border border-white/[0.06]"
                 >
-                  <div className="h-3 w-28 rounded bg-slate-800 mb-3" />
-                  <div className="h-7 w-12 rounded bg-slate-800" />
+                  <LoadingSkeleton width="w-28" height="h-3" rounded="rounded-md" className="mb-3" />
+                  <LoadingSkeleton width="w-12" height="h-7" rounded="rounded-lg" />
                 </div>
               ))
             ) : statsData ? (

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Copy, CheckCircle2, AlertCircle, Loader2, UploadCloud, X, Send, FileText, Tag, Globe } from "lucide-react";
 import { createComplaint } from "../../services/complaintService";
 import { AuthContext } from "../../context/AuthContext";
+import { LoadingSpinner } from "../common/loading";
 
 const COMPLAINT_CATEGORIES = [
   { label: "Academic", value: "ACADEMIC" },
@@ -333,7 +334,7 @@ const ComplaintForm = ({ onSuccess }) => {
         >
           {loading ? (
             <>
-              <Loader2 className="animate-spin" size={18} />
+              <LoadingSpinner size={18} color="border-t-black border-black/20" />
               <span className="text-sm">Submitting...</span>
             </>
           ) : (

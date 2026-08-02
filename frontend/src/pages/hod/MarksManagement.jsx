@@ -12,6 +12,7 @@ import MarksToolbar from "../../components/marks/MarksToolbar";
 import MarksEntryTable from "../../components/marks/MarksEntryTable";
 import PublishMarksModal from "../../components/marks/PublishMarksModal";
 import EmptyMarks from "../../components/marks/EmptyMarks";
+import { LoadingTable, LoadingSpinner } from "../../components/common/loading";
 
 // ── Animation variants ──────────────────────────────────────────────────────────
 const stagger = {
@@ -24,26 +25,6 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
 };
 
-// ── Skeleton Loader ─────────────────────────────────────────────────────────────
-function TableSkeleton() {
-  return (
-    <div className="space-y-3 animate-pulse">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div
-          key={i}
-          className="flex items-center gap-4 p-4 bg-neutral-900/50 rounded-xl border border-neutral-800/50"
-        >
-          <div className="h-4 bg-neutral-800 rounded-lg w-1/4" />
-          <div className="h-4 bg-neutral-800 rounded-lg w-1/6" />
-          <div className="h-4 bg-neutral-800 rounded-lg w-1/6" />
-          <div className="h-8 bg-neutral-800 rounded-lg w-20" />
-          <div className="h-4 bg-neutral-800 rounded-lg w-12" />
-          <div className="h-5 bg-neutral-800 rounded-lg w-16" />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN PAGE COMPONENT
@@ -336,7 +317,7 @@ export default function MarksManagement() {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg transition-colors text-xs font-semibold tracking-wide border border-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {saving ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <LoadingSpinner size={14} color="border-t-white border-white/30" />
                 ) : (
                   <Save size={14} strokeWidth={2} />
                 )}
@@ -351,7 +332,7 @@ export default function MarksManagement() {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors text-xs font-semibold tracking-wide shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {publishing ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <LoadingSpinner size={14} color="border-t-white border-white/30" />
                 ) : (
                   <Send size={14} strokeWidth={2} />
                 )}
@@ -379,7 +360,7 @@ export default function MarksManagement() {
       {!selectedExam && !loadingStudents && <EmptyMarks type="default" />}
 
       {/* ── Loading Skeleton ───────────────────────────────────────────────── */}
-      {loadingStudents && <TableSkeleton />}
+      {loadingStudents && <LoadingTable rows={5} columns={6} />}
 
       {/* ── Error State ────────────────────────────────────────────────────── */}
       {error && !loadingStudents && (
@@ -426,7 +407,7 @@ export default function MarksManagement() {
               disabled={saving || !hasValidMarks || publishedCount === students.length}
               className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-xl transition-colors text-xs font-semibold tracking-wide border border-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg"
             >
-              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {saving ? <LoadingSpinner size={14} color="border-t-white border-white/30" /> : <Save size={14} />}
               Save Draft
             </button>
             <button
@@ -434,7 +415,7 @@ export default function MarksManagement() {
               disabled={publishing || draftCount === 0}
               className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors text-xs font-semibold tracking-wide shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {publishing ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+              {publishing ? <LoadingSpinner size={14} color="border-t-white border-white/30" /> : <Send size={14} />}
               Publish
             </button>
           </div>

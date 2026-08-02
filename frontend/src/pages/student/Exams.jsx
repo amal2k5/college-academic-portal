@@ -8,6 +8,7 @@ import PageHeader from "../../components/common/PageHeader";
 import StudentExamCalendar from "../../components/exams/StudentExamCalendar";
 import StudentExamHistory from "../../components/exams/StudentExamHistory";
 import ExamDetailModal from "../../components/exams/ExamDetailModal";
+import { LoadingSkeleton } from "../../components/common/loading";
 
 const ease = [0.22, 1, 0.36, 1];
 const fadeUp = {
@@ -21,17 +22,25 @@ const stagger = {
 
 function StudentExamsSkeleton() {
   return (
-    <div className="space-y-8 animate-pulse">
-      <div className="border-b border-neutral-800/40 pb-6">
-        <div className="w-48 h-8 bg-neutral-800/50 rounded mb-2" />
-        <div className="w-64 h-4 bg-neutral-800/50 rounded" />
+    <div className="space-y-8">
+      <div className="border-b border-white/[0.08] pb-6">
+        <LoadingSkeleton width="w-48" height="h-8" rounded="rounded" className="mb-2" />
+        <LoadingSkeleton width="w-64" height="h-4" rounded="rounded" />
       </div>
-      <div className="bg-neutral-900/50 border border-neutral-800/50 p-6 h-[400px]" />
+      <div className="bg-[#0F172A] border border-white/[0.08] rounded-2xl p-6 h-[400px] flex flex-col justify-center items-center shadow-xl">
+        <LoadingSkeleton width="w-3/4" height="h-64" rounded="rounded-xl" />
+      </div>
       <div className="space-y-4">
-        <div className="w-32 h-6 bg-neutral-800/50 rounded" />
+        <LoadingSkeleton width="w-32" height="h-6" rounded="rounded" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-44 bg-neutral-900/50 border border-neutral-800/50 p-5" />
+            <div key={i} className="h-44 bg-[#0F172A] border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+              <div className="space-y-2">
+                <LoadingSkeleton width="w-1/2" height="h-5" />
+                <LoadingSkeleton width="w-3/4" height="h-4" />
+              </div>
+              <LoadingSkeleton width="w-1/3" height="h-4" />
+            </div>
           ))}
         </div>
       </div>

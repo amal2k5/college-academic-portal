@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Loader2, X } from "lucide-react";
+import { LoadingSpinner } from "../common/loading";
 
 export default function DeleteExamDialog({
   open,
@@ -77,7 +78,7 @@ export default function DeleteExamDialog({
                 disabled={loading}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white transition text-sm font-medium disabled:opacity-50 flex items-center gap-2 shadow-[0_4px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_4px_16px_rgba(239,68,68,0.35)]"
               >
-                {loading && <Loader2 size={14} className="animate-spin" />}
+                {loading && <LoadingSpinner size={14} color="border-t-white border-white/30" />}
                 Confirm
               </button>
             </div>

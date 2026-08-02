@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Save, Loader2, UploadCloud, FileText, X } from "lucide-react";
+import { LoadingSpinner } from "../common/loading";
 
 function AssignmentForm({
   initialData = null,
@@ -199,7 +200,7 @@ function AssignmentForm({
         >
           {loading ? (
             <>
-              <Loader2 size={16} className="animate-spin" />
+              <LoadingSpinner size={16} color="border-t-white border-white/30" />
               Saving...
             </>
           ) : (

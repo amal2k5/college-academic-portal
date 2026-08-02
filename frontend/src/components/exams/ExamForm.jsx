@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { EXAM_TYPES } from "../../constants/examConstants";
+import { LoadingSpinner } from "../common/loading";
 
 
 export default function ExamForm({
@@ -270,7 +271,7 @@ export default function ExamForm({
           disabled={loading}
           className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-50 flex items-center gap-2"
         >
-          {loading && <Loader2 size={14} className="animate-spin" />}
+          {loading && <LoadingSpinner size={14} color="border-t-white border-white/30" />}
           {initialData ? "Update Exam" : "Create Exam"}
         </button>
       </div>

@@ -17,6 +17,7 @@ import subjectService from "../../services/subjectService";
 import SubjectForm from "../../components/subjects/SubjectForm";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import PageHeader from "../../components/common/PageHeader";
+import { LoadingSkeleton, LoadingTable } from "../../components/common/loading";
 
 // ── Animation variants ──────────────────────────────────────────────────────────
 const ease = [0.22, 1, 0.36, 1];
@@ -132,42 +133,28 @@ function SubjectCard({ subject, onEdit, onDelete }) {
 // ── Loading Skeleton ────────────────────────────────────────────────────────────
 function SubjectsSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-800/40 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/[0.08] pb-6">
         <div>
           <h1 className="text-2xl font-semibold text-white">
             Subject Management
           </h1>
-          <p className="text-sm text-neutral-500 mt-1">
+          <p className="text-sm text-neutral-400 mt-1">
             Manage department subjects and curriculum.
           </p>
         </div>
-        <div className="w-36 h-10 bg-neutral-800/50 rounded-xl" />
+        <LoadingSkeleton width="w-36" height="h-10" rounded="rounded-xl" />
       </div>
 
       {/* Toolbar */}
       <div className="flex gap-3">
-        <div className="flex-1 h-10 bg-neutral-800/50 rounded-xl" />
-        <div className="w-40 h-10 bg-neutral-800/50 rounded-xl" />
+        <LoadingSkeleton width="w-full flex-1" height="h-10" rounded="rounded-xl" />
+        <LoadingSkeleton width="w-40" height="h-10" rounded="rounded-xl" />
       </div>
 
       {/* Table rows */}
-      <div className="bg-neutral-900/50 rounded-xl border border-neutral-800/50 overflow-hidden">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className="flex items-center gap-6 px-5 py-4 border-b border-neutral-800/30 last:border-0"
-          >
-            <div className="h-4 bg-neutral-800 rounded-lg w-1/4" />
-            <div className="h-4 bg-neutral-800 rounded-lg w-16" />
-            <div className="h-4 bg-neutral-800 rounded-lg w-20" />
-            <div className="h-5 bg-neutral-800 rounded-lg w-16" />
-            <div className="h-4 bg-neutral-800 rounded-lg w-20" />
-            <div className="h-4 bg-neutral-800 rounded-lg w-16" />
-          </div>
-        ))}
-      </div>
+      <LoadingTable rows={5} columns={6} />
     </div>
   );
 }

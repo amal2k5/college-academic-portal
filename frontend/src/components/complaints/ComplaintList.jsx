@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Search, Filter, AlertCircle, Inbox, Loader2 } from "lucide-react";
 import ComplaintCard from "./ComplaintCard";
+import { LoadingSkeleton } from "../common/loading";
 
 const COMPLAINT_CATEGORIES = [
   {
@@ -96,16 +97,16 @@ const ComplaintList = ({ complaints = [], role, onUpdateStatus, loading, error }
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 h-48 animate-pulse flex flex-col justify-between">
+              <div key={n} className="bg-[#0F172A] border border-white/[0.08] rounded-2xl p-5 h-48 flex flex-col justify-between shadow-xl">
                 <div className="space-y-3">
-                  <div className="h-4 bg-neutral-800 rounded w-1/3"></div>
-                  <div className="h-5 bg-neutral-800 rounded w-1/2"></div>
+                  <LoadingSkeleton width="w-1/3" height="h-4" rounded="rounded" />
+                  <LoadingSkeleton width="w-1/2" height="h-5" rounded="rounded" />
                 </div>
                 <div className="space-y-2">
-                  <div className="h-3 bg-neutral-800 rounded w-full"></div>
-                  <div className="h-3 bg-neutral-800 rounded w-5/6"></div>
+                  <LoadingSkeleton width="w-full" height="h-3" rounded="rounded" />
+                  <LoadingSkeleton width="w-5/6" height="h-3" rounded="rounded" />
                 </div>
-                <div className="h-3 bg-neutral-800 rounded w-1/4 mt-4"></div>
+                <LoadingSkeleton width="w-1/4" height="h-3" rounded="rounded" className="mt-4" />
               </div>
             ))}
           </div>

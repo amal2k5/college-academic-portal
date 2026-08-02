@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { LoadingSpinner } from "../common/loading";
 
 /**
  * Reusable delete confirmation dialog.
@@ -96,7 +97,7 @@ function DeleteConfirmDialog({ isOpen, onCancel, onConfirm }) {
               >
                 {deleting ? (
                   <>
-                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <LoadingSpinner size={14} color="border-t-white border-white/30" />
                     Deleting…
                   </>
                 ) : (

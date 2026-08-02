@@ -10,6 +10,7 @@ import PageHeader from "../../components/common/PageHeader";
 import AttendanceForm from "../../components/attendance/AttendanceForm";
 import AttendanceTable from "../../components/attendance/AttendanceTable";
 import { GraduationCap, BookOpen, Users, Info } from "lucide-react";
+import { LoadingTable, LoadingSpinner } from "../../components/common/loading";
 
 const stagger = {
   hidden: {},
@@ -21,22 +22,6 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
 };
 
-function TableSkeleton() {
-  return (
-    <div className="space-y-3 animate-pulse">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div
-          key={i}
-          className="flex items-center gap-4 p-4 bg-neutral-900/50 rounded-xl border border-neutral-800/50"
-        >
-          <div className="h-4 bg-neutral-800 rounded-lg w-12" />
-          <div className="h-8 bg-neutral-800 rounded-lg w-1/4" />
-          <div className="h-8 bg-neutral-800 rounded-lg w-1/3 ml-auto" />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function AttendanceManagement() {
   // Data state
@@ -284,7 +269,7 @@ export default function AttendanceManagement() {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors text-xs font-semibold tracking-wide shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {saving ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <LoadingSpinner size={14} color="border-t-white border-white/30" />
                 ) : (
                   <Save size={14} strokeWidth={2} />
                 )}
@@ -335,7 +320,7 @@ export default function AttendanceManagement() {
       )}
 
       {/* Loading Skeleton */}
-      {(loadingStudents || loadingAttendance) && <TableSkeleton />}
+      {(loadingStudents || loadingAttendance) && <LoadingTable rows={5} columns={4} />}
 
       {/* Error State */}
       {error && !loadingStudents && (
@@ -395,7 +380,7 @@ export default function AttendanceManagement() {
               disabled={saving}
               className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors text-xs font-semibold tracking-wide shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {saving ? <LoadingSpinner size={14} color="border-t-white border-white/30" /> : <Save size={14} />}
               Save
             </button>
           </div>

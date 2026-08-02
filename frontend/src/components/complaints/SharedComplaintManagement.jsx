@@ -7,6 +7,7 @@ import { Search, Filter, Loader2, Inbox, AlertCircle } from "lucide-react";
 import ComplaintTable from "./ComplaintTable";
 import ComplaintDetailModal from "./ComplaintDetailModal";
 import { toast } from "react-toastify";
+import { LoadingTable } from "../common/loading";
 
 const COMPLAINT_CATEGORIES = [
   { label: "All", value: "All" },
@@ -267,14 +268,7 @@ const SharedComplaintManagement = ({
             className="bg-red-500/5 border-red-500/10 text-red-400"
           />
         ) : loading ? (
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 h-64 animate-pulse flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="h-6 bg-neutral-800 rounded w-full"></div>
-              <div className="h-6 bg-neutral-800 rounded w-full"></div>
-              <div className="h-6 bg-neutral-800 rounded w-full"></div>
-              <div className="h-6 bg-neutral-800 rounded w-full"></div>
-            </div>
-          </div>
+          <LoadingTable rows={5} columns={6} />
         ) : complaints.length === 0 ? (
           <EmptyState 
             icon={Inbox}

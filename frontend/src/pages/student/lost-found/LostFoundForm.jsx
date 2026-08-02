@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import lostFoundService from "../../../services/lostFoundService";
 import PageHeader from "../../../components/common/PageHeader";
 import { Upload, X, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { LoadingPage, LoadingSpinner } from "../../../components/common/loading";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -110,7 +111,7 @@ export default function LostFoundForm() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-neutral-700 border-t-emerald-500 rounded-full animate-spin"></div></div>;
+    return <LoadingPage text="Loading Post details..." fullScreen={true} />;
   }
 
   return (
@@ -268,7 +269,7 @@ export default function LostFoundForm() {
           >
             {submitting ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <LoadingSpinner size={16} color="border-t-white border-white/30" />
                 Saving...
               </>
             ) : (

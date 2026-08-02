@@ -5,6 +5,7 @@ import AssignmentList from "../../components/assignments/AssignmentList";
 import AssignmentDetailModal from "../../components/assignments/AssignmentDetailModal";
 import assignmentService from "../../services/assignmentService";
 import PageHeader from "../../components/common/PageHeader";
+import { LoadingPage } from "../../components/common/loading";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -57,9 +58,7 @@ function AssignmentsPage() {
       />
 
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-6 w-6 border-2 border-neutral-800 border-t-neutral-400"></div>
-        </div>
+        <LoadingPage text="Loading Assignments..." fullScreen={false} />
       ) : (
         <>
           <AssignmentList

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Loader2 } from "lucide-react";
+import { LoadingSpinner } from "../common/loading";
 
 const SEMESTERS = Array.from({ length: 8 }, (_, i) => ({
   value: String(i + 1),
@@ -200,7 +201,7 @@ function SubjectForm({ initialData = null, onSubmit, onCancel, loading = false }
         >
           {loading ? (
             <>
-              <Loader2 size={16} className="animate-spin" />
+              <LoadingSpinner size={16} color="border-t-white border-white/30" />
               Saving…
             </>
           ) : (

@@ -14,6 +14,7 @@ import StudentExamCalendar from "../../components/exams/StudentExamCalendar";
 import StudentExamHistory from "../../components/exams/StudentExamHistory";
 
 import { EXAM_TYPES } from "../../constants/examConstants";
+import { LoadingSkeleton, LoadingTable } from "../../components/common/loading";
 
 // Animation variants
 const ease = [0.22, 1, 0.36, 1];
@@ -29,29 +30,19 @@ const stagger = {
 // Loading Skeleton
 function ExamSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-800/40 pb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/[0.08] pb-6">
         <div>
-          <div className="w-48 h-8 bg-neutral-800/50 rounded-xl mb-2" />
-          <div className="w-64 h-4 bg-neutral-800/50 rounded-xl" />
+          <LoadingSkeleton width="w-48" height="h-8" rounded="rounded-xl" className="mb-2" />
+          <LoadingSkeleton width="w-64" height="h-4" rounded="rounded-xl" />
         </div>
-        <div className="w-36 h-10 bg-neutral-800/50 rounded-xl" />
+        <LoadingSkeleton width="w-36" height="h-10" rounded="rounded-xl" />
       </div>
       <div className="flex gap-3">
-        <div className="flex-1 h-10 bg-neutral-800/50 rounded-xl" />
-        <div className="w-40 h-10 bg-neutral-800/50 rounded-xl" />
+        <LoadingSkeleton width="w-full flex-1" height="h-10" rounded="rounded-xl" />
+        <LoadingSkeleton width="w-40" height="h-10" rounded="rounded-xl" />
       </div>
-      <div className="bg-neutral-900/50 rounded-xl border border-neutral-800/50 overflow-hidden">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="flex items-center gap-6 px-5 py-4 border-b border-neutral-800/30 last:border-0">
-            <div className="h-4 bg-neutral-800 rounded-lg w-1/4" />
-            <div className="h-4 bg-neutral-800 rounded-lg w-16" />
-            <div className="h-4 bg-neutral-800 rounded-lg w-20" />
-            <div className="h-5 bg-neutral-800 rounded-lg w-16" />
-            <div className="h-4 bg-neutral-800 rounded-lg w-20" />
-          </div>
-        ))}
-      </div>
+      <LoadingTable rows={5} columns={5} />
     </div>
   );
 }

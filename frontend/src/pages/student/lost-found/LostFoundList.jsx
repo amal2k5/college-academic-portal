@@ -9,6 +9,7 @@ import {
   X, ChevronDown, Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
+import { LoadingSkeleton } from "../../../components/common/loading";
 
 const pageVariants = {
   hidden: { opacity: 0 },
@@ -40,17 +41,17 @@ const input = "w-full px-3 py-2.5 bg-neutral-800/50 border border-neutral-700 ro
 
 function Skeleton() {
   return (
-    <div className={`${card} overflow-hidden animate-pulse`}>
+    <div className="bg-[#0F172A] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-xl">
       <div className="flex flex-col sm:flex-row gap-4 p-5">
-        <div className="w-full sm:w-36 h-36 bg-neutral-800 rounded-xl flex-shrink-0" />
+        <LoadingSkeleton width="w-full sm:w-36" height="h-36" rounded="rounded-xl" className="flex-shrink-0" />
         <div className="flex-1 space-y-3">
           <div className="flex items-start justify-between gap-3">
-            <div className="h-6 w-2/3 bg-neutral-800 rounded-lg" />
-            <div className="h-7 w-24 bg-neutral-800 rounded-full" />
+            <LoadingSkeleton width="w-2/3" height="h-6" rounded="rounded-lg" />
+            <LoadingSkeleton width="w-24" height="h-7" rounded="rounded-full" />
           </div>
-          <div className="h-4 w-1/3 bg-neutral-800 rounded" />
+          <LoadingSkeleton width="w-1/3" height="h-4" rounded="rounded" />
           <div className="flex flex-wrap gap-3 pt-2">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-4 w-28 bg-neutral-800 rounded" />)}
+            {[...Array(3)].map((_, i) => <LoadingSkeleton key={i} width="w-28" height="h-4" rounded="rounded" />)}
           </div>
         </div>
       </div>

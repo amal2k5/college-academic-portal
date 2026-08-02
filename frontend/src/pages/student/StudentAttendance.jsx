@@ -15,6 +15,7 @@ import {
 
 import attendanceService from "../../services/attendanceService";
 import PageHeader from "../../components/common/PageHeader";
+import { LoadingCard, LoadingSkeleton } from "../../components/common/loading";
 
 const stagger = {
   hidden: {},
@@ -31,12 +32,24 @@ function AttendanceSkeleton() {
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="animate-pulse bg-neutral-900/50 rounded-2xl p-6 border border-neutral-800/50 h-32" />
+          <LoadingCard key={i} />
         ))}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="animate-pulse bg-neutral-900/50 rounded-2xl p-6 border border-neutral-800/50 h-64" />
+          <div key={i} className="rounded-2xl bg-[#0F172A] border border-white/[0.08] p-6 h-64 flex flex-col justify-between">
+            <div>
+              <LoadingSkeleton width="w-1/3" height="h-4" rounded="rounded" className="mb-2" />
+              <LoadingSkeleton width="w-3/4" height="h-6" rounded="rounded" />
+            </div>
+            <div className="space-y-3">
+              <LoadingSkeleton width="w-full" height="h-2" rounded="rounded-full" />
+              <div className="flex justify-between">
+                <LoadingSkeleton width="w-16" height="h-3" />
+                <LoadingSkeleton width="w-12" height="h-3" />
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, CheckCircle, Clock, Eye, Loader2, ArrowRight } from "lucide-react";
 import AttachmentViewer from "./AttachmentViewer";
+import { LoadingSpinner } from "../common/loading";
 
 const statusConfig = {
   PENDING: { color: "text-yellow-500", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: Clock, label: "Pending" },
@@ -204,7 +205,7 @@ function ComplaintDetailModal({ complaint, isOpen, onClose, onUpdateStatus, isUp
                     disabled={isUpdating}
                     className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white rounded-xl text-sm font-semibold transition-all hover:bg-blue-600 disabled:opacity-50 shadow-lg shadow-blue-500/20"
                   >
-                    {isUpdating ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
+                    {isUpdating ? <LoadingSpinner size={16} color="border-t-white border-white/30" /> : <Eye size={16} />}
                     Mark as Seen
                   </button>
                 )}
@@ -215,7 +216,7 @@ function ComplaintDetailModal({ complaint, isOpen, onClose, onUpdateStatus, isUp
                     disabled={isUpdating || !resolutionNote.trim()}
                     className="flex items-center gap-2 px-5 py-2.5 bg-green-500 text-white rounded-xl text-sm font-semibold transition-all hover:bg-green-600 disabled:opacity-50 shadow-lg shadow-green-500/20"
                   >
-                    {isUpdating ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
+                    {isUpdating ? <LoadingSpinner size={16} color="border-t-white border-white/30" /> : <CheckCircle size={16} />}
                     Resolve Complaint
                   </button>
                 )}

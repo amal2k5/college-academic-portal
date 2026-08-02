@@ -4,6 +4,7 @@ import * as feeService from "../../services/feeService";
 import { Receipt, Search, Filter, Eye } from "lucide-react";
 import { format } from "date-fns";
 import ReceiptModal from "../../components/fees/ReceiptModal";
+import { LoadingTable, LoadingSpinner } from "../../components/common/loading";
 
 export default function StudentPaymentHistoryPage() {
   const [payments, setPayments] = useState([]);
@@ -77,32 +78,26 @@ export default function StudentPaymentHistoryPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-neutral-300">
-            <thead className="bg-neutral-950/50 text-neutral-400 font-medium border-b border-neutral-800 text-xs">
-              <tr>
-                <th className="px-4 py-3 font-medium">Transaction ID</th>
-                <th className="px-4 py-3 font-medium">Fee Details</th>
-                <th className="px-4 py-3 font-medium">Amount</th>
-                <th className="px-4 py-3 font-medium">Paid On</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium text-right">Receipt</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-800/50">
-              {loading ? (
-                [1, 2, 3, 4].map((skeleton) => (
-                  <tr key={skeleton} className="animate-pulse">
-                    <td className="px-4 py-3"><div className="h-4 bg-neutral-800 rounded w-24"></div></td>
-                    <td className="px-4 py-3"><div className="h-4 bg-neutral-800 rounded w-32"></div></td>
-                    <td className="px-4 py-3"><div className="h-4 bg-neutral-800 rounded w-16"></div></td>
-                    <td className="px-4 py-3"><div className="h-4 bg-neutral-800 rounded w-20"></div></td>
-                    <td className="px-4 py-3"><div className="h-5 bg-neutral-800 rounded w-16"></div></td>
-                    <td className="px-4 py-3"><div className="h-8 bg-neutral-800 rounded-lg w-20 ml-auto"></div></td>
-                  </tr>
-                ))
-              ) : filteredPayments.length === 0 ? (
+        {loading ? (
+          <div className="p-6">
+            <LoadingTable rows={4} columns={6} />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-neutral-300">
+              <thead className="bg-neutral-950/50 text-neutral-400 font-medium border-b border-neutral-800 text-xs">
                 <tr>
+                  <th className="px-4 py-3 font-medium">Transaction ID</th>
+                  <th className="px-4 py-3 font-medium">Fee Details</th>
+                  <th className="px-4 py-3 font-medium">Amount</th>
+                  <th className="px-4 py-3 font-medium">Paid On</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium text-right">Receipt</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-800/50">
+                {filteredPayments.length === 0 ? (
+                  <tr>
                   <td colSpan="6" className="px-4 py-12 text-center">
                     <div className="flex flex-col items-center justify-center text-neutral-500">
                       <Receipt size={32} className="mb-3 opacity-20" />
@@ -152,7 +147,7 @@ export default function StudentPaymentHistoryPage() {
                         </button>
                       ) : (
                         <span className="text-xs text-neutral-500 flex justify-end items-center gap-1">
-                          <div className="w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin" />
+                          <LoadingSpinner size={12} color="border-neutral-500 border-t-transparent" />
                           Processing
                         </span>
                       )}
@@ -163,6 +158,7 @@ export default function StudentPaymentHistoryPage() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       <ReceiptModal

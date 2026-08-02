@@ -8,6 +8,7 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import AssignmentDetailModal from "../../components/assignments/AssignmentDetailModal";
 import assignmentService from "../../services/assignmentService";
 import PageHeader from "../../components/common/PageHeader";
+import { LoadingSkeleton } from "../../components/common/loading";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 15 },
@@ -141,7 +142,7 @@ const handleDelete = (assignment) => {
     return (
       <div className="space-y-6 text-neutral-400">
         {/* Header Skeleton */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-800/40 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/[0.08] pb-6">
           <div>
             <h1 className="text-2xl font-semibold text-white">
               Assignment Management
@@ -150,7 +151,7 @@ const handleDelete = (assignment) => {
               Create, manage and distribute assignments for students.
             </p>
           </div>
-          <div className="w-40 h-10 bg-neutral-800/50 rounded-xl animate-pulse" />
+          <LoadingSkeleton width="w-40" height="h-10" rounded="rounded-xl" />
         </div>
 
         {/* Loading Cards Skeleton */}
@@ -158,20 +159,20 @@ const handleDelete = (assignment) => {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-neutral-900/50 rounded-xl border border-neutral-800/50 p-6 animate-pulse"
+              className="bg-[#0F172A] rounded-xl border border-white/[0.08] p-6 shadow-xl"
             >
               <div className="flex items-start justify-between">
                 <div className="space-y-3 flex-1">
-                  <div className="h-5 bg-neutral-800 rounded-lg w-1/3" />
-                  <div className="h-4 bg-neutral-800 rounded-lg w-2/3" />
+                  <LoadingSkeleton width="w-1/3" height="h-5" rounded="rounded-lg" />
+                  <LoadingSkeleton width="w-2/3" height="h-4" rounded="rounded-lg" />
                   <div className="flex gap-4 mt-2">
-                    <div className="h-3 bg-neutral-800 rounded-lg w-20" />
-                    <div className="h-3 bg-neutral-800 rounded-lg w-24" />
+                    <LoadingSkeleton width="w-20" height="h-3" rounded="rounded-lg" />
+                    <LoadingSkeleton width="w-24" height="h-3" rounded="rounded-lg" />
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <div className="w-8 h-8 bg-neutral-800 rounded-lg" />
-                  <div className="w-8 h-8 bg-neutral-800 rounded-lg" />
+                  <LoadingSkeleton width="w-8" height="h-8" rounded="rounded-lg" />
+                  <LoadingSkeleton width="w-8" height="h-8" rounded="rounded-lg" />
                 </div>
               </div>
             </div>

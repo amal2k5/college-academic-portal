@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { LoadingSpinner } from "../common/loading";
 
 export default function FeeForm({ initialData, onSubmit, onCancel, isSubmitting }) {
   const [formData, setFormData] = useState({
@@ -234,7 +235,7 @@ export default function FeeForm({ initialData, onSubmit, onCancel, isSubmitting 
           className="h-9 px-4 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {isSubmitting && (
-            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <LoadingSpinner size={14} color="border-t-white border-white/30" />
           )}
           {initialData ? "Update Fee" : "Create Fee"}
         </button>
