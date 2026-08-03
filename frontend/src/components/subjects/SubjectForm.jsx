@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Loader2 } from "lucide-react";
-import { LoadingSpinner } from "../common/loading";
+import { LoadingButton } from "../common/loading";
 
 const SEMESTERS = Array.from({ length: 8 }, (_, i) => ({
   value: String(i + 1),
@@ -194,23 +194,15 @@ function SubjectForm({ initialData = null, onSubmit, onCancel, loading = false }
         >
           Cancel
         </button>
-        <button
+        <LoadingButton
           type="submit"
-          disabled={loading}
+          loading={loading}
+          spinnerSize={16}
+          icon={<Save size={16} />}
           className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? (
-            <>
-              <LoadingSpinner size={16} color="border-t-white border-white/30" />
-              Saving…
-            </>
-          ) : (
-            <>
-              <Save size={16} />
-              {initialData ? "Update Subject" : "Create Subject"}
-            </>
-          )}
-        </button>
+          {initialData ? "Update Subject" : "Create Subject"}
+        </LoadingButton>
       </div>
     </form>
   );

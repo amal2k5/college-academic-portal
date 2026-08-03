@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { LoadingSpinner } from "../common/loading";
+import { LoadingButton } from "../common/loading";
 
 /**
  * Reusable delete confirmation dialog.
@@ -89,24 +89,16 @@ function DeleteConfirmDialog({ isOpen, onCancel, onConfirm }) {
                 Cancel
               </button>
 
-              <button
+              <LoadingButton
                 type="button"
                 onClick={handleDelete}
-                disabled={deleting}
+                loading={deleting}
+                spinnerSize={14}
+                icon={<Trash2 size={14} />}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-500 active:bg-red-700 transition disabled:opacity-60 disabled:cursor-not-allowed min-w-[120px] justify-center"
               >
-                {deleting ? (
-                  <>
-                    <LoadingSpinner size={14} color="border-t-white border-white/30" />
-                    Deleting…
-                  </>
-                ) : (
-                  <>
-                    <Trash2 size={14} />
-                    Delete Notice
-                  </>
-                )}
-              </button>
+                Delete Notice
+              </LoadingButton>
             </div>
           </motion.div>
         </motion.div>

@@ -10,7 +10,7 @@ import PageHeader from "../../components/common/PageHeader";
 import AttendanceForm from "../../components/attendance/AttendanceForm";
 import AttendanceTable from "../../components/attendance/AttendanceTable";
 import { GraduationCap, BookOpen, Users, Info } from "lucide-react";
-import { LoadingTable, LoadingSpinner } from "../../components/common/loading";
+import { LoadingTable, LoadingSpinner, LoadingButton } from "../../components/common/loading";
 
 const stagger = {
   hidden: {},
@@ -375,14 +375,15 @@ export default function AttendanceManagement() {
               <CheckCircle2 size={14} />
               All Present
             </button>
-            <button
+            <LoadingButton
               onClick={handleSaveAttendance}
-              disabled={saving}
+              loading={saving}
+              spinnerSize={14}
+              icon={<Save size={14} />}
               className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors text-xs font-semibold tracking-wide shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {saving ? <LoadingSpinner size={14} color="border-t-white border-white/30" /> : <Save size={14} />}
               Save
-            </button>
+            </LoadingButton>
           </div>
         </>
       )}

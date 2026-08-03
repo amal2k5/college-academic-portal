@@ -12,7 +12,7 @@ import MarksToolbar from "../../components/marks/MarksToolbar";
 import MarksEntryTable from "../../components/marks/MarksEntryTable";
 import PublishMarksModal from "../../components/marks/PublishMarksModal";
 import EmptyMarks from "../../components/marks/EmptyMarks";
-import { LoadingTable, LoadingSpinner } from "../../components/common/loading";
+import { LoadingTable, LoadingSpinner, LoadingButton } from "../../components/common/loading";
 
 // ── Animation variants ──────────────────────────────────────────────────────────
 const stagger = {
@@ -402,22 +402,26 @@ export default function MarksManagement() {
 
           {/* Mobile Action Buttons sticky at bottom */}
           <div className="md:hidden flex gap-3 sticky bottom-4 pt-4">
-            <button
+            <LoadingButton
               onClick={handleSaveDraft}
-              disabled={saving || !hasValidMarks || publishedCount === students.length}
+              disabled={!hasValidMarks || publishedCount === students.length}
+              loading={saving}
+              spinnerSize={14}
+              icon={<Save size={14} />}
               className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-xl transition-colors text-xs font-semibold tracking-wide border border-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg"
             >
-              {saving ? <LoadingSpinner size={14} color="border-t-white border-white/30" /> : <Save size={14} />}
               Save Draft
-            </button>
-            <button
+            </LoadingButton>
+            <LoadingButton
               onClick={() => setShowPublishModal(true)}
-              disabled={publishing || draftCount === 0}
+              disabled={draftCount === 0}
+              loading={publishing}
+              spinnerSize={14}
+              icon={<Send size={14} />}
               className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors text-xs font-semibold tracking-wide shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {publishing ? <LoadingSpinner size={14} color="border-t-white border-white/30" /> : <Send size={14} />}
               Publish
-            </button>
+            </LoadingButton>
           </div>
         </>
       )}

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Loader2, X } from "lucide-react";
-import { LoadingSpinner } from "./loading";
+import { LoadingButton } from "./loading";
 
 function ConfirmModal({
   open,
@@ -79,15 +79,15 @@ function ConfirmModal({
                 {cancelText}
               </button>
 
-              <button
+              <LoadingButton
                 type="button"
                 onClick={onConfirm}
-                disabled={loading}
+                loading={loading}
+                spinnerSize={14}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white transition text-sm font-medium disabled:opacity-50 flex items-center gap-2 shadow-[0_4px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_4px_16px_rgba(239,68,68,0.35)]"
               >
-                {loading && <LoadingSpinner size={14} color="border-t-white border-white/30" />}
                 {confirmText}
-              </button>
+              </LoadingButton>
             </div>
           </motion.div>
         </motion.div>

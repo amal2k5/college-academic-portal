@@ -6,7 +6,7 @@ import {
   BookOpen, Users, Shield, GraduationCap,
   Award, MapPin, Briefcase
 } from 'lucide-react';
-import { LoadingSpinner } from '../common/loading';
+import { LoadingButton } from '../common/loading';
 
 // Field configuration with icons and sections
 const FIELD_SECTIONS = {
@@ -438,23 +438,14 @@ function StudentForm({
       >
 
 
-        <motion.button
-          whileHover={{ scale: loading ? 1 : 1.01 }}
-          whileTap={{ scale: loading ? 1 : 0.99 }}
-          transition={{ duration: 0.15 }}
+        <LoadingButton
           type="submit"
-          disabled={loading}
+          loading={loading}
+          spinnerSize={16}
           className="w-full sm:w-auto h-[44px] px-8 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
         >
-          {loading ? (
-            <>
-              <LoadingSpinner size={16} color="border-t-white border-white/30" />
-              {isEditMode ? 'Updating...' : 'Creating...'}
-            </>
-          ) : (
-            submitLabel
-          )}
-        </motion.button>
+          {submitLabel}
+        </LoadingButton>
       </motion.div>
     </motion.form>
   );

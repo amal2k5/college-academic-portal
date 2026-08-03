@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Save, X, UploadCloud, Image as ImageIcon, Pin, Building2, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LoadingSpinner } from "../common/loading";
+import { LoadingButton } from "../common/loading";
 
 function NoticeForm({
   initialData = null,
@@ -298,20 +298,14 @@ function NoticeForm({
             Cancel
           </motion.button>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <LoadingButton
             type="submit"
-            disabled={loading}
+            loading={loading}
+            icon={<Save size={16} />}
             className="flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 text-white shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {loading ? (
-              <LoadingSpinner size={16} color="border-t-white border-white/30" />
-            ) : (
-              <Save size={16} />
-            )}
             Publish Notice
-          </motion.button>
+          </LoadingButton>
         </div>
       </motion.form>
     </>

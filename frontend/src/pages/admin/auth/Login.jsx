@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../../context/AuthContext";
 import { login } from "../../../services/authService";
+import { LoadingButton } from "../../../components/common/loading";
 
 const ROLE_ROUTES = {
   PLATFORM_ADMIN: "/admin",
@@ -271,28 +272,14 @@ function Login() {
               animate="visible"
               className="pt-2"
             >
-              <button
+              <LoadingButton
                 type="submit"
-                disabled={loading}
+                loading={loading}
+                spinnerSize={16}
                 className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-semibold py-3 rounded-xl transition-all duration-200 cursor-pointer"
               >
-                {loading ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                      className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white"
-                    />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </button>
+                Sign In
+              </LoadingButton>
             </motion.div>
 
             <div className="text-center pt-2">

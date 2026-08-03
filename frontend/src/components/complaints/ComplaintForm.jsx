@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Copy, CheckCircle2, AlertCircle, Loader2, UploadCloud, X, Send, FileText, Tag, Globe } from "lucide-react";
 import { createComplaint } from "../../services/complaintService";
 import { AuthContext } from "../../context/AuthContext";
-import { LoadingSpinner } from "../common/loading";
+import { LoadingButton } from "../common/loading";
 
 const COMPLAINT_CATEGORIES = [
   { label: "Academic", value: "ACADEMIC" },
@@ -325,25 +325,16 @@ const ComplaintForm = ({ onSuccess }) => {
         </div>
 
         {/* Submit Button */}
-        <motion.button
+        <LoadingButton
           type="submit"
-          disabled={loading}
-          whileHover={!loading ? { scale: 1.01 } : {}}
-          whileTap={!loading ? { scale: 0.99 } : {}}
-          className="w-full relative group overflow-hidden bg-white text-black font-semibold rounded-xl px-4 py-3.5 transition-all hover:bg-neutral-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-neutral-900"
+          loading={loading}
+          spinnerSize={18}
+          spinnerColor="border-t-black border-black/20"
+          icon={<Send size={18} />}
+          className="w-full relative group overflow-hidden bg-white text-black font-semibold rounded-xl px-4 py-3.5 transition-all hover:bg-neutral-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-neutral-900 text-sm"
         >
-          {loading ? (
-            <>
-              <LoadingSpinner size={18} color="border-t-black border-black/20" />
-              <span className="text-sm">Submitting...</span>
-            </>
-          ) : (
-            <>
-              <Send size={18} />
-              <span className="text-sm">Submit Complaint</span>
-            </>
-          )}
-        </motion.button>
+          Submit Complaint
+        </LoadingButton>
 
         {/* Form Footer Note */}
         <div className="pt-2 border-t border-neutral-800/50">

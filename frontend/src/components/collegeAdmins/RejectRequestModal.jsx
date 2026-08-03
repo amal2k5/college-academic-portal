@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
-import { LoadingSpinner } from "../common/loading";
+import { LoadingButton } from "../common/loading";
 
 const RejectRequestModal = ({
   isOpen,
@@ -125,14 +125,14 @@ const RejectRequestModal = ({
                 Cancel
               </button>
 
-              <button
+              <LoadingButton
                 type="submit"
-                disabled={loading}
+                loading={loading}
+                spinnerSize={16}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading && <LoadingSpinner size={16} color="border-t-white border-white/30" />}
-                {loading ? "Rejecting..." : "Reject Request"}
-              </button>
+                Reject Request
+              </LoadingButton>
 
             </div>
 

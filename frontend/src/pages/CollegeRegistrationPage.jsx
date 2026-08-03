@@ -15,6 +15,7 @@ import {
 import { submitCollegeRequest } from "../services/collegeRequestService";
 import StatusModal from "../components/college-registration/StatusModal";
 import { validateCollegeRegistration } from "../utils/validation";
+import { LoadingButton } from "../components/common/loading";
 
 const initialFormData = {
   college_name: "",
@@ -345,37 +346,15 @@ const CollegeRegistrationForm = () => {
             variants={itemVariants}
             className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-white/5"
           >
-            <button
+            <LoadingButton
               type="submit"
-              disabled={loading}
+              loading={loading}
+              loadingText="Processing Request..."
+              spinnerSize={16}
               className="w-full rounded-xl bg-indigo-600 py-3.5 sm:py-4 text-[13px] sm:text-sm font-semibold text-white transition-all duration-200 hover:bg-indigo-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-600 disabled:opacity-70"
             >
-              <span className="flex items-center justify-center gap-2">
-                {loading ? (
-                  <>
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Processing Request...
-                  </>
-                ) : (
-                  "Submit Application"
-                )}
-              </span>
-            </button>
+              Submit Application
+            </LoadingButton>
 
             <p className="mt-4 text-center text-[10px] sm:text-[11px] text-neutral-600">
               By submitting, you agree to our{" "}

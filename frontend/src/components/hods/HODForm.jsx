@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getDepartments, getMyDepartments } from "../../services/departmentService";
 import { X, User, Mail, Phone, Building2, Loader2 } from "lucide-react";
-import { LoadingSpinner } from "../common/loading";
+import { LoadingButton } from "../common/loading";
 
 function HODForm({ onSubmit, onClose }) {
   const [departments, setDepartments] = useState([]);
@@ -199,20 +199,14 @@ const fetchDepartments = async () => {
               Cancel
             </button>
 
-            <button
+            <LoadingButton
               type="submit"
-              disabled={loading}
+              loading={loading}
+              spinnerSize={16}
               className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
             >
-              {loading ? (
-                <>
-                  <LoadingSpinner size={16} color="border-t-white border-white/30" />
-                  Creating...
-                </>
-              ) : (
-                "Create HOD"
-              )}
-            </button>
+              Create HOD
+            </LoadingButton>
           </div>
         </form>
       </div>

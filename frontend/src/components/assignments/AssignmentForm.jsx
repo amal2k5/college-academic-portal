@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Save, Loader2, UploadCloud, FileText, X } from "lucide-react";
-import { LoadingSpinner } from "../common/loading";
+import { LoadingButton } from "../common/loading";
 
 function AssignmentForm({
   initialData = null,
@@ -193,23 +193,15 @@ function AssignmentForm({
         >
           Cancel
         </button>
-        <button
+        <LoadingButton
           type="submit"
-          disabled={loading}
+          loading={loading}
+          spinnerSize={16}
+          icon={<Save size={16} />}
           className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? (
-            <>
-              <LoadingSpinner size={16} color="border-t-white border-white/30" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save size={16} />
-              {initialData ? "Update" : "Create"}
-            </>
-          )}
-        </button>
+          {initialData ? "Update" : "Create"}
+        </LoadingButton>
       </div>
     </form>
   );
