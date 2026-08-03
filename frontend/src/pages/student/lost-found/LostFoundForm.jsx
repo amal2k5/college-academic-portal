@@ -1,15 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import lostFoundService from "../../../services/lostFoundService";
-import { Upload, X, ArrowLeft, Sparkles, Package, MapPin, Phone } from "lucide-react";
+import { Upload, X, ArrowLeft, MapPin, Phone } from "lucide-react";
 import { LoadingPage, LoadingSpinner } from "../../../components/common/loading";
-
-const pageVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
-};
 
 export default function LostFoundForm() {
   const { id } = useParams();
@@ -110,173 +104,160 @@ export default function LostFoundForm() {
   };
 
   if (loading) {
-    return <LoadingPage text="Loading Post details..." fullScreen={true} />;
+    return <LoadingPage text="Loading Record Details..." fullScreen={true} />;
   }
 
-  const inputClass = "w-full px-4 py-3 bg-slate-950/70 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-500 shadow-inner";
-  const labelClass = "text-xs font-bold uppercase tracking-wider text-slate-300 block mb-1.5";
+  const inputClass = "w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-white text-xs font-medium focus:outline-none focus:border-neutral-600 transition-colors placeholder-neutral-500";
+  const labelClass = "text-[11px] font-semibold uppercase tracking-wider text-neutral-300 block mb-1.5";
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={pageVariants}
-      className="max-w-3xl mx-auto py-8 px-4 sm:px-6 md:px-8 min-h-screen text-slate-300 pb-20"
-    >
+    <div className="max-w-3xl mx-auto py-8 px-4 sm:px-6 md:px-8 min-h-screen text-neutral-200 space-y-6">
       <button 
         onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-white transition-colors mb-6 group px-3 py-1.5 rounded-xl hover:bg-slate-900/50 -ml-3"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-400 hover:text-white transition-colors py-1 rounded-lg"
       >
-        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform duration-200" />
-        <span>Back to Marketplace</span>
+        <ArrowLeft size={15} />
+        <span>Back to Lost & Found</span>
       </button>
 
-      <div className="border-b border-white/[0.08] pb-6 mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-sm">
-            <Package size={20} />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            {isEdit ? "Edit Item Listing" : "Report Lost/Found Item"}
-          </h1>
-        </div>
-        <p className="text-sm text-slate-400 font-medium">
+      <div className="border-b border-neutral-800 pb-5 mb-6">
+        <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
+          {isEdit ? "Edit Item Record" : "Report Lost / Found Item"}
+        </h1>
+        <p className="text-xs sm:text-sm text-neutral-400 mt-1 font-normal">
           {isEdit 
-            ? "Update the details, status, or photos of your existing community post." 
-            : "Fill in accurate details below to help our campus community identify and recover the item."
+            ? "Modify existing lost and found item record details and status." 
+            : "Enter accurate specification details to record an item in the system database."
           }
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-[#0F172A] bg-gradient-to-br from-slate-900/90 via-[#0F172A] to-slate-950 border border-white/[0.08] rounded-[20px] p-6 sm:p-8 space-y-6 shadow-2xl">
+      <form onSubmit={handleSubmit} className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6 sm:p-8 space-y-6 shadow-sm">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           
           {/* Title Input */}
           <div className="md:col-span-2">
-            <label className={labelClass}>Item Title <span className="text-rose-400">*</span></label>
+            <label className={labelClass}>Item Title <span className="text-red-400">*</span></label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g. Matte Black iPad Pro with Blue Smart Cover"
+              placeholder="e.g. Dell XPS 15 Laptop / HP Wireless Mouse"
               className={inputClass}
             />
-            <span className="text-[11px] text-slate-500 font-medium mt-1 block">
-              Be descriptive and clear so members can immediately recognize the item.
-            </span>
           </div>
 
           {/* Status Selector */}
           <div>
-            <label className={labelClass}>Report Type & Status <span className="text-rose-400">*</span></label>
+            <label className={labelClass}>Report Status <span className="text-red-400">*</span></label>
             <select
               name="status"
               value={formData.status}
               onChange={handleChange}
               className={`${inputClass} cursor-pointer`}
             >
-              <option value="LOST" className="bg-slate-900 text-white">Lost (I lost this item)</option>
-              <option value="FOUND" className="bg-slate-900 text-white">Found (I found this item)</option>
-              {isEdit && <option value="RETURNED" className="bg-slate-900 text-white">Returned / Resolved</option>}
+              <option value="LOST" className="bg-neutral-900 text-white">Lost (Item lost)</option>
+              <option value="FOUND" className="bg-neutral-900 text-white">Found (Item found)</option>
+              {isEdit && <option value="RETURNED" className="bg-neutral-900 text-white">Returned / Resolved</option>}
             </select>
           </div>
 
           {/* Category Selector */}
           <div>
-            <label className={labelClass}>Item Category <span className="text-rose-400">*</span></label>
+            <label className={labelClass}>Category <span className="text-red-400">*</span></label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               className={`${inputClass} cursor-pointer`}
             >
-              <option value="ELECTRONICS" className="bg-slate-900 text-white">Electronics & Gadgets</option>
-              <option value="DOCUMENTS" className="bg-slate-900 text-white">ID & Documents</option>
-              <option value="KEYS" className="bg-slate-900 text-white">Keys & Keychains</option>
-              <option value="STATIONERY" className="bg-slate-900 text-white">Books & Stationery</option>
-              <option value="ACCESSORIES" className="bg-slate-900 text-white">Bags, Clothing & Accessories</option>
-              <option value="OTHER" className="bg-slate-900 text-white">Other / General Items</option>
+              <option value="ELECTRONICS" className="bg-neutral-900 text-white">Electronics</option>
+              <option value="DOCUMENTS" className="bg-neutral-900 text-white">Documents</option>
+              <option value="KEYS" className="bg-neutral-900 text-white">Keys & Keychains</option>
+              <option value="STATIONERY" className="bg-neutral-900 text-white">Stationery & Books</option>
+              <option value="ACCESSORIES" className="bg-neutral-900 text-white">Accessories</option>
+              <option value="OTHER" className="bg-neutral-900 text-white">Other</option>
             </select>
           </div>
 
           {/* Location Input */}
           <div>
-            <label className={labelClass}>Campus Location <span className="text-rose-400">*</span></label>
+            <label className={labelClass}>Campus Location <span className="text-red-400">*</span></label>
             <div className="relative">
               <input
                 type="text"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="e.g. Central Library, 2nd Floor Reading Hall"
-                className={`${inputClass} pl-10`}
+                placeholder="e.g. Central Library, 2nd Floor"
+                className={`${inputClass} pl-8`}
               />
-              <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <MapPin size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-500" />
             </div>
           </div>
 
           {/* Contact Number Input */}
           <div>
-            <label className={labelClass}>Contact Number <span className="text-rose-400">*</span></label>
+            <label className={labelClass}>Contact Number <span className="text-red-400">*</span></label>
             <div className="relative">
               <input
                 type="text"
                 name="contact_number"
                 value={formData.contact_number}
                 onChange={handleChange}
-                placeholder="e.g. +91 98765 43210"
-                className={`${inputClass} pl-10 font-mono`}
+                placeholder="e.g. +91 9876543210"
+                className={`${inputClass} pl-8 font-mono`}
               />
-              <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Phone size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-500" />
             </div>
           </div>
 
           {/* Description Textarea */}
           <div className="md:col-span-2">
-            <label className={labelClass}>Detailed Description <span className="text-rose-400">*</span></label>
+            <label className={labelClass}>Specification / Description <span className="text-red-400">*</span></label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              placeholder="Provide identifiable details such as brand name, serial tags, scratches, colors, or exact time when seen..."
+              placeholder="Provide specific identifying marks, colors, serial details, or date/time when found or lost..."
               className={`${inputClass} resize-none leading-relaxed`}
             />
           </div>
 
           {/* Image Uploader & Dropzone */}
           <div className="md:col-span-2">
-            <label className={labelClass}>Item Photograph (Optional)</label>
+            <label className={labelClass}>Attachment Photo (Optional)</label>
             
             {!imagePreview ? (
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-white/[0.12] rounded-2xl bg-slate-950/40 hover:bg-slate-900/60 hover:border-emerald-500/50 flex flex-col items-center justify-center p-8 gap-3 cursor-pointer transition-all duration-300 group shadow-inner"
+                className="w-full border border-dashed border-neutral-700 rounded-lg bg-neutral-950/50 hover:bg-neutral-900/60 hover:border-neutral-600 flex flex-col items-center justify-center p-6 gap-2.5 cursor-pointer transition-colors"
               >
-                <div className="w-12 h-12 rounded-2xl bg-slate-800/80 border border-white/[0.08] flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 transition-all duration-300 shadow-md">
-                  <Upload size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors" />
+                <div className="w-9 h-9 rounded-lg bg-neutral-800 border border-neutral-700/60 flex items-center justify-center text-neutral-400">
+                  <Upload size={16} />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
-                    Click to browse and attach an image
+                  <p className="text-xs font-medium text-neutral-200">
+                    Click to attach item photo
                   </p>
-                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                  <p className="text-[11px] text-neutral-500 mt-0.5 font-normal">
                     Supported formats: JPG, PNG or WEBP (Max size: 5MB)
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="relative w-full max-h-72 rounded-2xl border border-white/[0.1] overflow-hidden bg-slate-950 flex items-center justify-center p-3 shadow-xl group">
-                <img src={imagePreview} alt="Preview" className="max-h-64 w-auto object-contain rounded-xl" />
+              <div className="relative w-full max-h-64 rounded-lg border border-neutral-800 overflow-hidden bg-neutral-950 flex items-center justify-center p-3">
+                <img src={imagePreview} alt="Preview" className="max-h-56 w-auto object-contain rounded border border-neutral-800" />
                 <button
                   type="button"
                   onClick={clearImage}
-                  className="absolute top-3 right-3 p-2 bg-slate-900/90 hover:bg-rose-600 text-slate-300 hover:text-white rounded-xl border border-white/20 backdrop-blur-md transition-all duration-200 shadow-lg flex items-center gap-1.5 text-xs font-bold"
+                  className="absolute top-2.5 right-2.5 px-2.5 py-1 bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg border border-neutral-700 transition-colors flex items-center gap-1.5 text-xs font-medium shadow"
                 >
-                  <X size={15} />
-                  <span>Remove Photo</span>
+                  <X size={13} />
+                  <span>Remove</span>
                 </button>
               </div>
             )}
@@ -291,34 +272,31 @@ export default function LostFoundForm() {
         </div>
 
         {/* Form Action Buttons */}
-        <div className="flex items-center justify-end gap-3.5 pt-6 mt-6 border-t border-white/[0.08]">
+        <div className="flex items-center justify-end gap-3 pt-5 mt-6 border-t border-neutral-800">
           <button
             type="button"
             onClick={() => navigate(-1)}
             disabled={submitting}
-            className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 transition-all disabled:opacity-50 border border-white/5"
+            className="px-4 py-2 rounded-lg text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800/40 hover:bg-neutral-800 transition-colors disabled:opacity-50 border border-neutral-700"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 transition-all disabled:opacity-50 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:-translate-y-0.5 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors disabled:opacity-50 shadow-sm"
           >
             {submitting ? (
               <>
-                <LoadingSpinner size={16} color="border-t-white border-white/30" />
-                <span>Saving Details...</span>
+                <LoadingSpinner size={14} color="border-t-white border-white/30" />
+                <span>Saving Record...</span>
               </>
             ) : (
-              <>
-                <Sparkles size={15} />
-                <span>{isEdit ? "Update Listing" : "Publish Listing"}</span>
-              </>
+              <span>{isEdit ? "Update Record" : "Save & Publish"}</span>
             )}
           </button>
         </div>
       </form>
-    </motion.div>
+    </div>
   );
 }
